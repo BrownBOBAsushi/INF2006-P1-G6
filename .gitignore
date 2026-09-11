@@ -1,0 +1,18 @@
+.env
+
+# Local credentials and generated/private artefacts
+.env.*
+!.env.example
+!**/.env.example
+.venv/
+venv/
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+*.log
+coverage/
+dist/
+private-data/
+backups/

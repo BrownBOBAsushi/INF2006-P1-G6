@@ -1,0 +1,55 @@
+# Scaffold only: no tests/deployment completed. Empty values must be filled before submission.
+project:
+  group_id: "Gxxx" # Confirm official group identifier; repository name alone is not evidence.
+  title: "Internship Matcher"
+  problem_statement: "Help students browse internships and find relevant opportunities using approved resume content and requirement-level semantic similarity."
+  cloud_provider: "AWS"
+  repository_commit: ""
+team:
+  members:
+    - name: "Jiaxin"
+      student_id: ""
+      role: "Backend: authentication, database, API integration (proposed split)"
+    - name: "Chuying"
+      student_id: ""
+      role: "Backend: resume processing, embeddings, matching (proposed split)"
+    - name: "Xue E"
+      student_id: ""
+      role: "Frontend: authentication, catalogue, job details (proposed split)"
+    - name: "Nasya"
+      student_id: ""
+      role: "Frontend: resume review and recommendations (proposed split)"
+    - name: "Zhihao"
+      student_id: ""
+      role: "Moderator, system design and reviewer"
+architecture:
+  diagram: "evidence/architecture.svg"
+  service_model: "Planned IaaS; not deployed"
+  deployment_model: "Planned public cloud, one VM; local-first development"
+  components: [] # Populate with implemented components, not aspirations.
+evidence:
+  functional_test: "evidence/test-functional.md"
+  security_test: "evidence/test-security.md"
+  data_ai_test: "evidence/test-data-ai.md"
+  scale_resilience_test: "evidence/test-resilience.md"
+  monitoring: "evidence/monitoring.md"
+data_ai:
+  dataset: "data/README.md"
+  method: "Planned MiniLM requirement-level cosine matching with PostgreSQL/pgvector"
+  evaluation: "Not run"
+  reproducible_command: ""
+security:
+  threat_control_map: "evidence/threat-control-map.md"
+  secrets_handling: "Planned local environment variables; examples contain placeholders only; implementation unverified"
+run:
+  prerequisites: [] # Add verified exact prerequisites after bootstrap.
+  commands: [] # Do not claim planned commands are runnable.
+declarations:
+  ai_use: "AI_USE_DECLARATION.md"
+  contributions: "TEAM_CONTRIBUTIONS.md"
+status:
+  stage: "documentation_and_submission_scaffold"
+  application_runnable: false
+  cloud_deployed: false
+  tests_executed: false
+  final_report: "pending; draft outline is docs/REPORT_DRAFT.md"
