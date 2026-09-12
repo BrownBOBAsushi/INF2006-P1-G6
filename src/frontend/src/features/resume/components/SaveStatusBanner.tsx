@@ -28,6 +28,7 @@ function bannerTone(status: SaveStatus): 'progress' | 'success' | 'warning' | 'e
       return 'progress';
     case 'SAVED':
       return 'success';
+    case 'SAVED_REFRESH_REQUIRED':
     case 'REVIEW_REQUIRED':
     case 'REVISION_CONFLICT':
     case 'OUTCOME_UNKNOWN':
@@ -45,7 +46,9 @@ function bannerHeading(status: SaveStatus): string {
     case 'WAITING_TO_RETRY':
       return 'Waiting to try again';
     case 'SAVED':
-      return status.changed ? 'Resume saved' : 'No changes to save';
+      return status.refreshedFromServer ? 'Earlier save confirmed' : status.changed ? 'Resume saved' : 'No changes to save';
+    case 'SAVED_REFRESH_REQUIRED':
+      return 'Save confirmed; current version unavailable';
     case 'REVIEW_REQUIRED':
       return 'Review the corrected version';
     case 'REVISION_CONFLICT':
@@ -68,6 +71,8 @@ function bannerBody(status: SaveStatus): string {
     case 'WAITING_TO_RETRY':
       return `Trying again in ${status.waitSeconds} seconds. Your draft is still here.`;
     case 'SAVED':
+      if (status.profileDeleted) return 'Your earlier save completed, but the resume has since been deleted.';
+      if (status.refreshedFromServer) return `Your earlier save completed. The current saved resume is revision ${status.currentRevision}.`;
       return status.changed
         ? `Saved as revision ${status.revision}.${status.refreshedFromServer ? ' Reloaded from the server to confirm.' : ''}`
         : `Your saved resume already matched this content. It is still revision ${status.revision}.`;

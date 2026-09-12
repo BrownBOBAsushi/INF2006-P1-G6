@@ -41,7 +41,8 @@ export type SaveStatus =
       waitSeconds: number;
       reason: 'BUSY' | 'IN_PROGRESS' | 'NO_RESPONSE';
     }
-  | { kind: 'SAVED'; revision: number; changed: boolean; refreshedFromServer: boolean }
+  | { kind: 'SAVED'; revision: number; changed: boolean; refreshedFromServer: boolean; currentRevision?: number; profileDeleted?: boolean }
+  | { kind: 'SAVED_REFRESH_REQUIRED'; message: string }
   | { kind: 'REVIEW_REQUIRED'; cleanedContent: ResumeContent; message: string }
   | { kind: 'REVISION_CONFLICT'; currentRevision: number | null; message: string }
   | { kind: 'AUTH_REQUIRED'; message: string }
@@ -153,7 +154,9 @@ export class ResumeSaveController {
 
   async save(content: ResumeContent, expectedRevision: number): Promise<SaveOutcome> {
     const signature = contentSignature(content);
+    const previousAttempt = this.attempt;
     this.attempt = attemptForPayload(this.attempt, expectedRevision, signature, this.keyFactory);
+    const reusingKey = previousAttempt === this.attempt;
     const key = this.attempt.key;
     this.waits = [];
 
@@ -186,9 +189,15 @@ export class ResumeSaveController {
         // A success on a later network attempt may be a replay of a commit whose
         // response was lost. The contract requires reading the current profile rather
         // than trusting the replayed response to describe current server content.
-        const possiblyReplayed = networkAttempt > 1;
+        const possiblyReplayed = reusingKey || networkAttempt > 1;
         const profile = possiblyReplayed ? await this.refreshProfile() : undefined;
 
+        if (possiblyReplayed && profile === undefined) {
+          return { status: this.emit({
+            kind: 'SAVED_REFRESH_REQUIRED',
+            message: 'Your earlier save completed, but the current resume could not be loaded. Your draft is still here. Retry to check the current version.',
+          }) };
+        }
         this.attempt = null;
         return {
           status: this.emit({
@@ -196,6 +205,8 @@ export class ResumeSaveController {
             revision: result.result_revision,
             changed: result.changed,
             refreshedFromServer: possiblyReplayed && profile !== undefined,
+            currentRevision: profile?.revision,
+            profileDeleted: profile === null,
           }),
           ...(profile !== undefined ? { profile } : {}),
         };
@@ -373,12 +384,20 @@ export class ResumeSaveController {
         if (status.state === 'SUCCEEDED') {
           this.attempt = null;
           const profile = await this.refreshProfile();
+          if (profile === undefined) {
+            return { status: this.emit({
+              kind: 'SAVED_REFRESH_REQUIRED',
+              message: 'Your earlier save completed, but the current resume could not be loaded. Check again before making another save.',
+            }) };
+          }
           return {
             status: this.emit({
               kind: 'SAVED',
               revision: status.result_revision ?? 0,
               changed: true,
               refreshedFromServer: profile !== undefined,
+              currentRevision: profile?.revision,
+              profileDeleted: profile === null,
             }),
             ...(profile !== undefined ? { profile } : {}),
           };

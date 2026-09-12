@@ -385,3 +385,31 @@ describe('resolveOperation', () => {
     expect(outcome.status).toMatchObject({ kind: 'FAILED', code: 'PROCESS_INTERRUPTED' });
   });
 });
+
+describe('replay recovery across user actions', () => {
+  it('refreshes current content on a manual retry after automatic retries are exhausted', async () => {
+    ctx.transport.queue(networkFailure(), networkFailure(), networkFailure(), networkFailure());
+    await ctx.controller.save(syntheticPreparedContent, 4);
+    ctx.transport.queue(savedOk(5), profileOk());
+    const outcome = await ctx.controller.save(syntheticPreparedContent, 4);
+    expect(outcome.profile).toEqual(syntheticSavedProfile);
+    expect(getRequests(ctx.transport).map(r => r.path)).toEqual(['/api/resume']);
+  });
+
+  it('requires a refresh when a replay succeeds but the current profile cannot be read', async () => {
+    ctx.transport.queue(networkFailure(), savedOk(5), networkFailure());
+    const outcome = await ctx.controller.save(syntheticPreparedContent, 4);
+    expect(outcome.status.kind).toBe('SAVED_REFRESH_REQUIRED');
+    expect(outcome.profile).toBeUndefined();
+    expect(ctx.controller.pendingKey).toBe('key-1');
+    ctx.transport.queue(savedOk(5), profileOk());
+    const recovered = await ctx.controller.save(syntheticPreparedContent, 4);
+    expect(recovered.profile).toEqual(syntheticSavedProfile);
+    expect(putRequests(ctx.transport).map(r => r.headers?.['Idempotency-Key'])).toEqual(['key-1', 'key-1', 'key-1']);
+  });
+
+  it('does not report a resolved operation as current content when refresh fails', async () => {
+    ctx.transport.queue(jsonResponse(200, { operation_id: 'op', state: 'SUCCEEDED', result_revision: 5, failure_code: null }), networkFailure());
+    expect((await ctx.controller.resolveOperation('op')).status.kind).toBe('SAVED_REFRESH_REQUIRED');
+  });
+});
