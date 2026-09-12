@@ -1,3 +1,4 @@
+import { ConflictReview } from './ConflictReview';
 import type { KeyFactory } from '../model/idempotency';
 import type { ResumeApiPort } from '../api/resumeApi';
 import { useResumeWorkspace } from '../hooks/useResumeWorkspace';
@@ -42,7 +43,7 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
   return (
     <main>
       <h1>Your resume</h1>
-      {state.loadError !== null && <p role="alert">{state.loadError}</p>}
+      {state.loadError !== null && <div role="alert"><p>{state.loadError}</p><button type="button" onClick={() => void actions.reload()}>Retry loading resume</button></div>}
       <SaveStatusBanner status={state.saveStatus} />
 
       {phase === 'NO_RESUME' && (
@@ -53,7 +54,7 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
           <ResumeUploadPanel
             selectedFile={state.selectedFile}
             rejection={state.uploadRejection}
-            preparing={state.preparing}
+            preparing={state.preparing || state.saving}
             onSelectFiles={actions.selectFiles}
             onClearSelection={actions.clearSelection}
             onPrepare={() => void actions.prepare()}
@@ -81,16 +82,16 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
             {profile.content.projects.length} project(s), {profile.content.experience.length}{' '}
             experience entry/entries, {profile.content.education.length} education entry/entries.
           </p>
-          <button type="button" onClick={actions.editSavedProfile}>
+          <button type="button" onClick={actions.editSavedProfile} disabled={state.preparing || state.saving}>
             Edit details
           </button>
-          <button type="button" onClick={() => void actions.deleteProfile()} disabled={state.saving}>
+          <button type="button" onClick={() => void actions.deleteProfile()} disabled={state.saving || state.preparing}>
             Delete resume details
           </button>
           <ResumeUploadPanel
             selectedFile={state.selectedFile}
             rejection={state.uploadRejection}
-            preparing={state.preparing}
+            preparing={state.preparing || state.saving}
             onSelectFiles={actions.selectFiles}
             onClearSelection={actions.clearSelection}
             onPrepare={() => void actions.prepare()}
@@ -100,7 +101,7 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
       )}
 
       {phase === 'REVIEW' && (
-        <>
+        <fieldset disabled={state.saving}>
           {state.prepareWarnings.map((warning) => (
             <p key={warning.code} role="note" data-testid="prepare-warning">
               {warning.message}
@@ -111,6 +112,7 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
             onAssign={actions.assignParagraph}
             onDismiss={actions.dismissParagraph}
           />
+          {state.conflict && <ConflictReview conflict={state.conflict} onRefresh={() => void actions.refreshConflict()} onResolve={actions.resolveConflict} />}
           <ResumeReviewForm
             draft={state.draft}
             validation={state.validation}
@@ -119,7 +121,7 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
             onConfirm={() => void actions.confirmSave()}
             onCancel={actions.cancelReview}
           />
-        </>
+        </fieldset>
       )}
     </main>
   );

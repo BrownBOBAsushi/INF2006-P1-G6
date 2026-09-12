@@ -19,6 +19,8 @@ export interface ResumeApiPort {
   prepare(file: File, signal?: AbortSignal): Promise<PrepareResumeResponse>;
   /** GET /api/resume. Returns null for 404 RESUME_NOT_FOUND (a normal empty state). */
   getProfile(): Promise<ResumeProfileResponse | null>;
+  /** GET /api/me after a missing profile; reject concurrent recreation. */
+  getAccountRevision(): Promise<number>;
   /** PUT /api/resume with a caller-supplied Idempotency-Key. */
   save(request: SaveResumeRequest, idempotencyKey: string): Promise<SaveResumeResponse>;
   /** DELETE /api/resume. */
@@ -124,6 +126,27 @@ export function createResumeApi(transport: HttpTransport): ResumeApiPort {
       }
       if (!ok(response)) throw toApiError(response);
       return response.body as ResumeProfileResponse;
+    },
+
+    async getAccountRevision() {
+      let response: HttpResponse;
+      try {
+        response = await transport.send({ method: 'GET', path: '/api/me' });
+      } catch (cause) {
+        throw new UnknownOutcomeError('Could not read the account revision.', { cause });
+      }
+      if (!ok(response)) throw toApiError(response);
+      const account = response.body as { resume_revision?: unknown; has_resume?: unknown } | null;
+      // The caller just read a missing profile. Never adopt a newer revision for
+      // unseen content created by another tab between these two reads.
+      if (account?.has_resume !== false) {
+        throw new UnknownOutcomeError('The resume changed while loading. Reload its current version.');
+      }
+      const revision = account.resume_revision;
+      if (typeof revision !== 'number' || !Number.isSafeInteger(revision) || revision < 0) {
+        throw new UnknownOutcomeError('The account revision could not be read.');
+      }
+      return revision;
     },
 
     async save(request, idempotencyKey) {

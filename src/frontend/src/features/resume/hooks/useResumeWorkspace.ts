@@ -29,7 +29,14 @@ export interface UseResumeWorkspaceOptions {
   onAuthenticationRequired?: () => void;
 }
 
+export interface ResumeConflict {
+  /** Undefined means the current version could not be loaded. */
+  profile: ResumeProfileResponse | null | undefined;
+  revision: number | null;
+}
+
 export interface ResumeWorkspaceState {
+  conflict: ResumeConflict | null;
   phase: WorkspacePhase;
   loadError: string | null;
   profile: ResumeProfileResponse | null;
@@ -53,6 +60,8 @@ export interface ResumeWorkspaceState {
 
   actions: {
     reload: () => Promise<void>;
+    refreshConflict: () => Promise<void>;
+    resolveConflict: (choice: 'KEEP_DRAFT' | 'USE_CURRENT') => void;
     selectFiles: (files: readonly File[]) => void;
     clearSelection: () => void;
     prepare: () => Promise<void>;
@@ -71,6 +80,7 @@ const IDLE: SaveStatus = { kind: 'IDLE' };
 export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWorkspaceState {
   const { api, sleep, keyFactory, onAuthenticationRequired } = options;
 
+  const [conflict, setConflict] = useState<ResumeConflict | null>(null);
   const [phase, setPhase] = useState<WorkspacePhase>('LOADING');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ResumeProfileResponse | null>(null);
@@ -100,10 +110,13 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   const authCallbackRef = useRef(onAuthenticationRequired);
   authCallbackRef.current = onAuthenticationRequired;
 
-  const expectedRevision = profile?.revision ?? 0;
+  const [expectedRevision, setExpectedRevision] = useState<number | null>(null);
   const validation = useMemo(
-    () => validateDraft(draft, expectedRevision),
-    [draft, expectedRevision],
+    () => {
+      const result = validateDraft(draft, expectedRevision ?? 0);
+      return { ...result, canSave: conflict === null && expectedRevision !== null && result.canSave };
+    },
+    [draft, expectedRevision, conflict],
   );
 
   const isDirty = useMemo(() => {
@@ -123,8 +136,12 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   const reload = useCallback(async () => {
     setPhase('LOADING');
     setLoadError(null);
+    setExpectedRevision(null);
     try {
       const loaded = await api.getProfile();
+      const revision = loaded?.revision ?? await api.getAccountRevision();
+      setExpectedRevision(revision);
+      setConflict(null);
       setProfile(loaded);
       setPhase(loaded === null ? 'NO_RESUME' : 'PROFILE');
     } catch (error) {
@@ -172,7 +189,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   }, []);
 
   const prepare = useCallback(async () => {
-    if (selectedFile === null || preparing) return;
+    if (selectedFile === null || preparing || saving) return;
     setPreparing(true);
     setUploadRejection(null);
     try {
@@ -203,24 +220,25 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     } finally {
       setPreparing(false);
     }
-  }, [api, selectedFile, preparing]);
+  }, [api, selectedFile, preparing, saving]);
 
   const startManualEntry = useCallback(() => {
+    if (preparing || saving) return;
     dispatchDraft({ type: 'CLEAR' });
     setParagraphs([]);
     setPrepareWarnings([]);
     setSaveStatus(IDLE);
     setPhase('REVIEW');
-  }, []);
+  }, [preparing, saving]);
 
   const editSavedProfile = useCallback(() => {
-    if (profile === null) return;
+    if (profile === null || preparing || saving) return;
     dispatchDraft({ type: 'SET_CONTENT', content: profile.content });
     setParagraphs([]);
     setPrepareWarnings([]);
     setSaveStatus(IDLE);
     setPhase('REVIEW');
-  }, [profile]);
+  }, [profile, preparing, saving]);
 
   const cancelReview = useCallback(() => {
     dispatchDraft({ type: 'CLEAR' });
@@ -251,8 +269,41 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     setProfile(next);
   }, []);
 
+  const recordConflict = useCallback(async (current: ResumeProfileResponse | null | undefined) => {
+    setConflict({ profile: current, revision: null });
+    if (current === undefined) return;
+    try {
+      const revision = current?.revision ?? await api.getAccountRevision();
+      setConflict({ profile: current, revision });
+    } catch {
+      setConflict({ profile: undefined, revision: null });
+    }
+  }, [api]);
+
+  const refreshConflict = useCallback(async () => {
+    try {
+      await recordConflict(await api.getProfile());
+    } catch {
+      setConflict({ profile: undefined, revision: null });
+    }
+  }, [api, recordConflict]);
+
+  const resolveConflict = useCallback((choice: 'KEEP_DRAFT' | 'USE_CURRENT') => {
+    if (!conflict || conflict.revision === null || conflict.profile === undefined) return;
+    setProfile(conflict.profile);
+    setExpectedRevision(conflict.revision);
+    if (choice === 'USE_CURRENT') {
+      if (conflict.profile) dispatchDraft({ type: 'SET_CONTENT', content: conflict.profile.content });
+      else dispatchDraft({ type: 'CLEAR' });
+      setParagraphs([]);
+    }
+    controller.startNewAttempt();
+    setConflict(null);
+    setSaveStatus(IDLE);
+  }, [conflict, controller]);
+
   const confirmSave = useCallback(async () => {
-    if (saving) return;
+    if (saving || conflict !== null || expectedRevision === null) return;
     const result = validateDraft(draft, expectedRevision);
     if (!result.canSave) {
       setSaveStatus({
@@ -267,10 +318,24 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     setSaving(true);
     try {
       const outcome = await controller.save(result.content, expectedRevision);
+      if (outcome.status.kind === 'REVISION_CONFLICT') {
+        await recordConflict(outcome.profile);
+        return;
+      }
       applyProfile(outcome.profile);
 
       switch (outcome.status.kind) {
         case 'SAVED': {
+          if (outcome.profile === null) {
+            setExpectedRevision(null);
+            try {
+              setExpectedRevision(await api.getAccountRevision());
+            } catch {
+              setLoadError('Your resume was deleted, but its current revision could not be loaded. Retry loading before saving again.');
+            }
+          } else {
+            setExpectedRevision(outcome.profile?.revision ?? outcome.status.revision);
+          }
           // When the controller already re-read the profile (possible replay), that
           // server content wins. Otherwise the submitted content is what committed.
           if (outcome.profile === undefined) {
@@ -284,7 +349,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
           }
           setParagraphs([]);
           setSelectedFile(null);
-          setPhase('PROFILE');
+          setPhase(outcome.profile === null ? 'NO_RESUME' : 'PROFILE');
           break;
         }
         case 'REVIEW_REQUIRED': {
@@ -303,14 +368,15 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       setSaving(false);
       setKeyTick((t) => t + 1);
     }
-  }, [saving, draft, expectedRevision, controller, applyProfile, profile]);
+  }, [saving, draft, expectedRevision, controller, applyProfile, profile, conflict, recordConflict, api]);
 
   const deleteProfile = useCallback(async () => {
-    if (profile === null || saving) return;
+    if (profile === null || saving || preparing) return;
     setSaving(true);
     try {
       const response = await api.deleteProfile(profile.revision);
       setProfile(null);
+      setExpectedRevision(response.resume_revision);
       dispatchDraft({ type: 'CLEAR' });
       setParagraphs([]);
       setSelectedFile(null);
@@ -344,12 +410,13 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     } finally {
       setSaving(false);
     }
-  }, [api, profile, saving, reload]);
+  }, [api, profile, saving, preparing, reload]);
 
   // keyTick forces the exposed key to be re-read after a save settles.
   void keyTick;
 
   return {
+    conflict,
     phase,
     loadError,
     profile,
@@ -367,6 +434,8 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     pendingIdempotencyKey: controller.pendingKey,
     actions: {
       reload,
+      refreshConflict,
+      resolveConflict,
       selectFiles,
       clearSelection,
       prepare,

@@ -31,6 +31,11 @@ function renderWorkspace() {
   );
 }
 
+const absentAccount = () => jsonResponse(200, {
+  user: { user_id: 'synthetic-user', display_name: null }, resume_revision: 0,
+  has_resume: false, has_matchable_resume: false, csrf_token: 'synthetic-csrf',
+});
+
 const noResume = () => jsonResponse(404, errorEnvelope('RESUME_NOT_FOUND', 'no profile'));
 
 beforeEach(() => {
@@ -39,7 +44,7 @@ beforeEach(() => {
 
 describe('empty states', () => {
   it('shows the no-resume state and still offers browsing', async () => {
-    transport.queue(noResume());
+    transport.queue(noResume(), absentAccount());
     renderWorkspace();
     expect(await screen.findByTestId('no-resume-state')).toHaveTextContent(/browse every internship/i);
   });
@@ -65,7 +70,7 @@ describe('upload', () => {
     // The file input carries accept="application/pdf,.pdf", so the OS picker already
     // filters other types. Drag-and-drop does not honour `accept`, which is the path
     // where the client-side check actually matters.
-    transport.queue(noResume());
+    transport.queue(noResume(), absentAccount());
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
 
@@ -77,7 +82,7 @@ describe('upload', () => {
   });
 
   it('accepts a PDF dropped onto the dropzone', async () => {
-    transport.queue(noResume());
+    transport.queue(noResume(), absentAccount());
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
 
@@ -90,7 +95,7 @@ describe('upload', () => {
   });
 
   it('prepares a PDF and shows the editable review screen', async () => {
-    transport.queue(noResume(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -110,6 +115,7 @@ describe('upload', () => {
   it('keeps the selected file when preparation is rejected as busy', async () => {
     transport.queue(
       noResume(),
+      absentAccount(),
       jsonResponse(503, errorEnvelope('PROCESSING_BUSY', 'busy', { retryable: true })),
     );
     const user = userEvent.setup();
@@ -131,6 +137,7 @@ describe('upload', () => {
   it('explains a scanned PDF without leaking parser detail', async () => {
     transport.queue(
       noResume(),
+      absentAccount(),
       jsonResponse(422, errorEnvelope('TEXT_REQUIRED', 'no text layer found')),
     );
     const user = userEvent.setup();
@@ -148,7 +155,7 @@ describe('upload', () => {
 
 describe('unassigned cleaned text', () => {
   it('offers the unclassified paragraphs instead of dropping them', async () => {
-    transport.queue(noResume(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -160,7 +167,7 @@ describe('unassigned cleaned text', () => {
   });
 
   it('copies a paragraph into an experience entry and removes it from the panel', async () => {
-    transport.queue(noResume(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -179,6 +186,7 @@ describe('unassigned cleaned text', () => {
   it('never sends unassigned_text in the save body', async () => {
     transport.queue(
       noResume(),
+      absentAccount(),
       jsonResponse(200, syntheticPrepareResponse),
       jsonResponse(200, { operation_id: 'op-1', result_revision: 1, changed: true }),
     );
@@ -206,6 +214,7 @@ describe('saving from the review screen', () => {
   it('returns to the saved profile view after a successful save', async () => {
     transport.queue(
       noResume(),
+      absentAccount(),
       jsonResponse(200, syntheticPrepareResponse),
       jsonResponse(200, { operation_id: 'op-1', result_revision: 1, changed: true }),
     );
@@ -223,6 +232,7 @@ describe('saving from the review screen', () => {
   it('installs the cleaned draft and waits for a second confirmation on REVIEW_REQUIRED', async () => {
     transport.queue(
       noResume(),
+      absentAccount(),
       jsonResponse(200, syntheticPrepareResponse),
       jsonResponse(
         422,
@@ -250,7 +260,7 @@ describe('saving from the review screen', () => {
   });
 
   it('blocks saving when every field has been emptied', async () => {
-    transport.queue(noResume());
+    transport.queue(noResume(), absentAccount());
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -265,7 +275,7 @@ describe('saving from the review screen', () => {
 describe('draft privacy', () => {
   it('never writes the draft to browser storage', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
-    transport.queue(noResume(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -275,5 +285,53 @@ describe('draft privacy', () => {
 
     await user.type(screen.getByLabelText('Skill 1'), 'x');
     expect(setItem).not.toHaveBeenCalled();
+  });
+});
+
+describe('review safety during requests', () => {
+  it('locks draft inputs while the submitted version is being saved', async () => {
+    transport.queue(jsonResponse(200, syntheticSavedProfile));
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.click(screen.getByRole('button', { name: 'Edit details' }));
+    let finish!: (value: import('../api/httpTransport').HttpResponse) => void;
+    vi.spyOn(transport, 'send').mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+    expect(screen.getByLabelText('Skill 1')).toBeDisabled();
+    expect(screen.getByRole('button', { name: /add skill/i })).toBeDisabled();
+    finish({ status: 200, body: { operation_id: 'op', result_revision: 5, changed: true }, header: () => null });
+    await screen.findByTestId('saved-profile');
+  });
+
+  it('blocks manual editing while PDF preparation is pending', async () => {
+    transport.queue(jsonResponse(200, syntheticSavedProfile));
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.upload(screen.getByLabelText(/choose a pdf resume/i), syntheticPdfFile());
+    let finish!: (value: import('../api/httpTransport').HttpResponse) => void;
+    vi.spyOn(transport, 'send').mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    await user.click(screen.getByRole('button', { name: /prepare for review/i }));
+    expect(screen.getByRole('button', { name: /enter my details without a pdf/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Edit details' })).toBeDisabled();
+    finish({ status: 200, body: syntheticPrepareResponse, header: () => null });
+    await screen.findByRole('heading', { name: /review your details/i });
+  });
+
+  it('shows the fetched version and requires a choice after a conflict', async () => {
+    transport.queue(jsonResponse(200, syntheticSavedProfile),
+      jsonResponse(409, errorEnvelope('REVISION_CONFLICT', 'Changed elsewhere')),
+      jsonResponse(200, { ...syntheticSavedProfile, revision: 7, content: { ...syntheticSavedProfile.content, skills: ['Java-only-in-other-tab'] } }));
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.click(screen.getByRole('button', { name: 'Edit details' }));
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+    expect(await screen.findByText('Java-only-in-other-tab')).toBeVisible();
+    expect(screen.getByRole('button', { name: /confirm and save/i })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: /discard my draft and use current version/i }));
+    expect(screen.getByLabelText('Skill 1')).toHaveValue('Java-only-in-other-tab');
+    expect(screen.getByRole('button', { name: /confirm and save/i })).toBeEnabled();
   });
 });

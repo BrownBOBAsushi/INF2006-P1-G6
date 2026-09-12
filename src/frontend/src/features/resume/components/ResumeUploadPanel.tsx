@@ -33,7 +33,7 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragActive(false);
-    onSelectFiles(Array.from(event.dataTransfer?.files ?? []));
+    if (!preparing) onSelectFiles(Array.from(event.dataTransfer?.files ?? []));
   };
 
   return (
@@ -91,7 +91,7 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
       )}
 
       <p>
-        <button type="button" onClick={onSkip}>
+        <button type="button" onClick={onSkip} disabled={preparing}>
           Enter my details without a PDF
         </button>
       </p>
