@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 // Provisional workspace configuration.
@@ -7,6 +7,10 @@ import react from '@vitejs/plugin-react';
 // deliberately contains no routing, auth or catalogue configuration.
 export default defineConfig({
   plugins: [react()],
+  build: {
+    lib: { entry: 'src/features/resume/index.ts', formats: ['es'], fileName: 'resume' },
+    rollupOptions: { external: ['react', 'react-dom', 'react/jsx-runtime'] },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
