@@ -1,0 +1,17 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+// Provisional workspace configuration.
+// Xue E owns the shared frontend shell (root router, shared API client, dev proxy).
+// This file exists so the resume feature can be built and tested in parallel; it
+// deliberately contains no routing, auth or catalogue configuration.
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    restoreMocks: true,
+  },
+});
