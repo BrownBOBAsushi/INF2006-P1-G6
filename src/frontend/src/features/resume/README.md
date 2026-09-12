@@ -13,7 +13,7 @@ later milestone and are not started.
 | Contract types | `api/contractTypes.ts` | Resume endpoints, error codes and every numeric limit from `DATA_API_CONTRACT.md` |
 | Error model | `api/errors.ts` | `ApiError` (definite server outcome) vs `UnknownOutcomeError` (outcome not established) |
 | Integration seam | `api/httpTransport.ts` | The port Xue E's shared client implements |
-| API port | `api/resumeApi.ts` | prepare / get / save / delete / operation status |
+| API port | `api/resumeApi.ts` | prepare / get / save / delete / operation status / account revision |
 | Draft model | `model/draft.ts`, `model/draftReducer.ts` | In-memory editable draft with local render ids |
 | Serialization | `model/serialize.ts` | Strict whitelist to the four contract fields |
 | Validation | `model/validation.ts`, `model/uploadValidation.ts` | Client mirror of contract bounds and file limits |
@@ -56,7 +56,7 @@ reach a production bundle.
 - **503 `PROCESSING_BUSY` is reported as "nothing was saved"** — the contract states no
   operation row is created — while a lost response is reported as *unconfirmed*. These
   are different states and the UI wording differs.
-- **A success arriving on a retry triggers `GET /api/resume`**, because it may be a
+- **A success arriving on any retry, including a manual retry, triggers `GET /api/resume`**, because it may be a
   replay of a commit whose response was lost. The replayed response is never treated as
   a description of current server content.
 - **500/502/504 are treated as unsettled**, resolved by replaying the same key rather
@@ -67,6 +67,20 @@ reach a production bundle.
   reviewable rather than silent.
 - **`accept="application/pdf,.pdf"`** means the OS picker already filters other types, so
   the client-side PDF check only matters for dropped files. Tested on the drop path.
+
+## Review fixes
+
+- Account revision is kept separately from the optional saved profile. An absent
+  profile loads `resume_revision` from `GET /api/me`; successful deletion retains
+  the response revision. Failed revision reads block saving until reloaded.
+- A successful replay with a failed refresh keeps the draft and retry key. It
+  reports the save as confirmed but does not present the draft as current server
+  content. A replay followed by a deleted profile returns to the empty state.
+- Revision conflicts show the current server content and require an explicit
+  choice to discard or keep the local draft before another save. A failed refresh
+  blocks saving and offers a retry.
+- Review controls, including unassigned-text actions, are disabled while saving.
+  Manual entry, editing and deletion are disabled while PDF preparation runs.
 
 ## Blockers and coordination needed
 
@@ -86,9 +100,10 @@ reach a production bundle.
    Vitest only — no router, no styling, no state library. Reconcile at bootstrap.
 5. **No styling.** Markup is semantic HTML with `data-testid` hooks. The design system
    is not decided; this should inherit whatever Xue E's shell establishes.
-6. **`vitest@4.1.11` crashes `npm@10.9.7`** with `Cannot read properties of null (reading
-   'edgesOut')`. Pinned `vitest@3.2.7`, which installs cleanly. Worth knowing before the
-   team locks dependency versions.
+6. **Dependency installation needs re-verification.** The original contribution
+   reported an npm/Vitest installation issue. This review could not verify the
+   declared pins because registry DNS failed. See the frontend README for the
+   actual local dependency versions used for testing.
 
 ## Not in this milestone
 
@@ -103,4 +118,5 @@ cd src/frontend
 npm install
 npm run typecheck
 npm test
+npm run build
 ```
