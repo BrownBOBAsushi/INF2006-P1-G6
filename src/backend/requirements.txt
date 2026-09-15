@@ -6,3 +6,8 @@ psycopg[binary]
 pydantic-settings
 alembic
 pgvector
+pytest
+httpx
+google-auth
+itsdangerous
+requests

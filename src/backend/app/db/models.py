@@ -3,7 +3,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     BigInteger, CheckConstraint, ForeignKey, Integer, String,
-    Text, UniqueConstraint, func,
+    Text, UniqueConstraint, func,DateTime
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -21,13 +21,13 @@ class User(Base):
     google_sub: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     display_name: Mapped[str | None] = mapped_column(String(100), nullable=True)
     resume_revision: Mapped[int] = mapped_column(
-        BigInteger, nullable=False, default=0
+        BigInteger, nullable=False, server_default="0"
     )
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
     )
 
     __table_args__ = (
@@ -43,15 +43,17 @@ class Session(Base):
         UUID(as_uuid=True),
         ForeignKey("users.user_id", ondelete="CASCADE"),
         nullable=False,
+        index=True,
     )
     csrf_token: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     last_active_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    expires_at: Mapped[datetime] = mapped_column(nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+
 
 
 class ResumeProfile(Base):
@@ -67,11 +69,12 @@ class ResumeProfile(Base):
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     embedding_version: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     updated_at: Mapped[datetime] = mapped_column(
-        server_default=func.now(), onupdate=func.now(), nullable=False
+        DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    
 
 
 class ResumeChunk(Base):
@@ -81,9 +84,10 @@ class ResumeChunk(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("resume_profiles.user_id", ondelete="CASCADE"),
-        nullable=False,
+    UUID(as_uuid=True),
+    ForeignKey("resume_profiles.user_id", ondelete="CASCADE"),
+    nullable=False,
+    index=True,
     )
     profile_revision: Mapped[int] = mapped_column(BigInteger, nullable=False)
     section: Mapped[str] = mapped_column(Text, nullable=False)
@@ -100,5 +104,37 @@ class ResumeChunk(Base):
         UniqueConstraint(
             "user_id", "section", "entry_index", "chunk_index",
             name="uq_resume_chunks_position",
+        ),
+    )
+class SaveOperation(Base):
+    __tablename__ = "save_operations"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.user_id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    operation_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True
+    )
+    payload_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    state: Mapped[str] = mapped_column(Text, nullable=False)
+    expected_revision: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    result_revision: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    failure_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "state IN ('PROCESSING','SUCCEEDED','FAILED')",
+            name="ck_save_operations_state",
         ),
     )
