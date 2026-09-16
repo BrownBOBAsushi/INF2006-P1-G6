@@ -1,6 +1,8 @@
 # Frontend
 
-Xue E coordinates root routing, shared client, auth and catalogue. Nasya owns resume review and recommendation views. Split is proposed for team coordination.
+Owner: Xue E — application shell, routing, shared API client, auth/onboarding,
+catalogue and job details. Nasya owns `src/features/resume/**` and the future
+recommendation feature. Her existing resume implementation is mounted unchanged.
 
 Read [PRD](../../docs/handoff/MVP_PRD.md) and
 [API contract](../../docs/handoff/DATA_API_CONTRACT.md). The handoff governs;
