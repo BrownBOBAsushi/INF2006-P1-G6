@@ -3,7 +3,7 @@
 ## Internship Matcher — implementation handoff
 
 The team is building a local-first internship browsing app with resume-based semantic recommendations.
-Application code and cloud deployment are not supplied by this documentation handoff.
+The frontend local milestone is implemented below; backend integration and cloud deployment remain pending.
 
 Read in order:
 
@@ -19,7 +19,7 @@ The optional [JSearch research script](docs/JSEARCH_RESEARCH.md) is not the MVP.
 
 Jiaxin and Chuying: backend. Xue E and Nasya: frontend. Zhihao: moderation, design and review. Proposed detailed ownership and environment preparation: [team setup](docs/handoff/TEAM_SETUP.md).
 
-Planned stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM, Docker Compose. Application/dependency locks are not implemented yet. There is no verified application quick-start command; bootstrap is the first implementation milestone. Each teammate will run their own local DB from shared migrations.
+Planned stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM, Docker Compose. Frontend dependency locks and local commands are available below; backend bootstrap remains pending. Each teammate will run their own local DB from shared migrations.
 
 ![Planned architecture — not deployed](evidence/architecture.svg)
 
@@ -41,3 +41,30 @@ Planned stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber
 Before final packaging, replace all pending results, export the 8–12 page report.pdf, and verify manifest paths against real artefacts. This scaffold is not submission-ready. No cloud resources created; no credentials required to read these documents. Do not include local scratch scripts in the final package without review.
 
 Copy-paste coding-agent prompts: [teammate prompts](docs/handoff/TEAM_PROMPTS.md).
+
+## Frontend local milestone
+
+The React/TypeScript shell now runs against isolated synthetic catalogue fixtures.
+Use Node 24.21.0 and npm 11.19.0:
+
+```sh
+cd src/frontend
+npm install
+npm run typecheck
+npm test
+npm run build
+npm run dev:mock
+```
+
+Open http://localhost:8080, enter the synthetic preview, confirm a synthetic display
+name and skip the optional resume step. Existing Nasya resume components are mounted;
+preparation/saving and recommendations still need backend integration.
+
+`npm run dev` uses the real API proxy at 127.0.0.1:8000. Configure only the public
+Google client ID in src/frontend/.env.local. Production builds exclude fixtures.
+Backend/Compose/OpenAPI and real Google sign-in are still pending; the complete
+local MVP gate has not passed.
+
+See [frontend integration and ownership](src/frontend/README.md),
+[actual commands/results](src/frontend/MILESTONE_VALIDATION.md) and
+[dependency notices](src/frontend/THIRD_PARTY_NOTICES.md).
