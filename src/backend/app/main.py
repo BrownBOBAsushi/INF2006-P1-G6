@@ -3,10 +3,11 @@ from sqlalchemy import create_engine, text
 import os
 from app.auth.router import router as auth_router
 from app.api.me import router as me_router
-
+from app.api.resume import router as resume_router
 app = FastAPI()
 app.include_router(auth_router)
 app.include_router(me_router)
+app.include_router(resume_router)
 
 
 engine = create_engine(os.environ["DATABASE_URL"])

@@ -3,11 +3,12 @@ from datetime import datetime, timedelta, timezone
 
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session as DBSession
-
+from fastapi import Request
 from app.db.session import get_db
 from app.db.models import Session as SessionModel, User
 from app.auth import security
-
+from app.core.config import settings
+from app.core.errors import api_error
 
 def get_current_session_and_user(
     request: Request,
@@ -46,3 +47,11 @@ def touch_session_activity(db: DBSession, session_row: SessionModel) -> None:
     if (now - session_row.last_active_at) >= timedelta(minutes=1):
         session_row.last_active_at = now
         db.commit()
+def validate_unsafe_request(request: Request, session_row) -> None:
+    origin = request.headers.get("origin")
+    if origin != settings.app_origin:
+        raise api_error(403, "CSRF_INVALID", "Origin not allowed.")
+
+    csrf_header = request.headers.get("x-csrf-token")
+    if not csrf_header or not security.constant_time_eq(csrf_header, session_row.csrf_token):
+        raise api_error(403, "CSRF_INVALID", "CSRF token missing or mismatched.")

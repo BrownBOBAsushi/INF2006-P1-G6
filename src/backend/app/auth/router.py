@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Request, Response, HTTPException, Header
 from sqlalchemy.orm import Session as DBSession
 from sqlalchemy import select
-
+from fastapi import Response as FastAPIResponse
+import hashlib
 from app.db.session import get_db
 from app.db.models import User, Session as SessionModel
 from app.core.config import settings
@@ -97,3 +98,23 @@ def google_exchange(
         "user": {"user_id": str(user.user_id), "display_name": user.display_name},
         "csrf_token": csrf_token,
     }
+@router.post("/logout", status_code=204)
+def logout(
+    request: Request,
+    response: Response,
+    db: DBSession = Depends(get_db),
+):
+    _validate_origin(request)
+
+    cookie_name = security.session_cookie_name()
+    raw_token = request.cookies.get(cookie_name)
+
+    if raw_token:
+        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+        session_row = db.get(SessionModel, token_hash)
+        if session_row is not None:
+            db.delete(session_row)
+            db.commit()
+
+    response.delete_cookie(cookie_name, path="/")
+    return FastAPIResponse(status_code=204)
