@@ -1,18 +1,36 @@
 from fastapi import FastAPI, Response
 from sqlalchemy import create_engine, text
 import os
+
+from fastapi.middleware.cors import CORSMiddleware
 from app.auth.router import router as auth_router
 from app.api.me import router as me_router
 from app.api.resume import router as resume_router
+from app.core.config import settings
+
+if os.environ.get("TEST_AUTH_BYPASS") == "true" and not settings.is_dev:
+    raise RuntimeError(
+        "TEST_AUTH_BYPASS is enabled but the APP_ENV is not 'development'. "
+        "Refusing to start - this would disable real authentication in a"
+        "non-test environment. "
+        
+    )
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.environ["APP_ORIGIN"]],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PATCH", "DELETE"],
+    allow_headers=["Content-Type", "X-CSRF-Token"],
+)
+
 app.include_router(auth_router)
 app.include_router(me_router)
 app.include_router(resume_router)
 
-
 engine = create_engine(os.environ["DATABASE_URL"])
-
-
 
 REQUIRED_TABLES = {"users", "sessions", "resume_profiles", "resume_chunks"}
 EXPECTED_EMBEDDING_DIM = 384
@@ -25,10 +43,8 @@ def live():
 def ready():
     try:
         with engine.connect() as conn:
-            # 1. Basic connectivity
             conn.execute(text("SELECT 1"))
 
-            # 2. Required schema exists
             existing_tables = {
                 row[0]
                 for row in conn.execute(
@@ -42,14 +58,12 @@ def ready():
             if existing_tables != REQUIRED_TABLES:
                 return Response(status_code=503)
 
-            # 3. vector extension enabled
             has_vector_ext = conn.execute(
                 text("SELECT 1 FROM pg_extension WHERE extname = 'vector'")
             ).first()
             if not has_vector_ext:
                 return Response(status_code=503)
 
-            # 4. resume_chunks.embedding dimension matches expected model output
             dim = conn.execute(
                 text(
                     "SELECT atttypmod FROM pg_attribute "
@@ -59,10 +73,6 @@ def ready():
             ).scalar()
             if dim != EXPECTED_EMBEDDING_DIM:
                 return Response(status_code=503)
-
-        # Model-cache readiness (embedding model actually loaded/warm) is
-        # Chuying's processing component — not yet available to check here.
-        # Wire this in once her interface exposes a model-loaded signal.
 
         return {"status": "ready"}
     except Exception:
