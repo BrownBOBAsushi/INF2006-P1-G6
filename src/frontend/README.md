@@ -122,3 +122,10 @@ It adds stale-response protection, explicit CSRF recovery, account-bound resume
 transport and real loopback HTTP tests. Backend OpenAPI/Google integration remains
 pending. Existing dependency pins are retained; @types/node 24.13.4 is the added
 development dependency for those HTTP tests.
+
+## Reference UI redesign
+
+The visual milestone, exact changed files, implementation boundaries, validation
+and review routes are documented in [FRONTEND_REDESIGN.md](FRONTEND_REDESIGN.md).
+The existing runtime, fixture isolation, API and teammate ownership rules above
+remain in effect.

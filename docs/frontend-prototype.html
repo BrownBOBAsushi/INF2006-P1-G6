@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Internship Matcher — frontend team review</title>
+<style>
+/* Shared application CSS copied from origin/dev c4d318b, src/frontend/src/styles.css. */
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #20332e; background: #f4f6f2; font-synthesis: none; line-height: 1.6; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+a { color: #12684d; text-underline-offset: .2em; }
+a:hover { color: #08432f; }
+button, input, textarea, select { font: inherit; }
+button, .button { border: 1px solid #176749; border-radius: .45rem; background: #176749; color: white; padding: .65rem 1rem; cursor: pointer; text-decoration: none; display: inline-block; }
+button:disabled { cursor: not-allowed; background: #e3e7e1; border-color: #b9c5bc; color: #506158; }
+input:not([type=checkbox]), textarea { display: block; width: 100%; padding: .7rem; border: 1px solid #829b8e; border-radius: .35rem; background: white; color: #20332e; margin: .35rem 0 1rem; }
+input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: #176749; }
+:focus-visible { outline: 3px solid #b2751f; outline-offset: 4px; }
+header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding: 1.2rem max(1.3rem, calc((100vw - 1180px)/2)); background: white; border-bottom: 1px solid #dbe2d9; }
+header nav, .actions { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.brand { font-size: 1.2rem; font-weight: 750; text-decoration: none; }
+#content { max-width: 1180px; margin: 2.5rem auto; padding: 0 1.3rem; min-height: 65vh; }
+h1 { font-size: clamp(1.8rem, 4vw, 2.7rem); letter-spacing: -.035em; line-height: 1.2; margin: .5rem 0 1.2rem; }
+h2 { font-size: 1.3rem; line-height: 1.35; }
+.eyebrow { text-transform: uppercase; letter-spacing: .12em; font-size: .8rem; color: #547261; font-weight: 700; }
+.panel { background: white; border: 1px solid #dbe2d9; border-radius: .7rem; padding: 1.5rem; margin-bottom: 1rem; }
+.narrow { max-width: 650px; margin: 3rem auto; }
+.search { display: grid; grid-template-columns: 1fr auto; align-items: start; gap: .5rem 1rem; margin: 2rem 0; }
+.search label, .search small { grid-column: 1/-1; }
+.search input { margin: 0; }
+.catalogue-layout { display: grid; grid-template-columns: 250px 1fr; gap: 2rem; }
+.catalogue-layout aside { align-self: start; }
+fieldset { border: 1px solid #dbe2d9; border-radius: .4rem; margin: 0 0 1.3rem; padding: 1rem; }
+legend { font-weight: 700; text-transform: capitalize; }
+.check { display: flex; align-items: center; gap: .6rem; margin-bottom: .5rem; text-transform: capitalize; }
+.job-list { list-style: none; padding: 0; }
+.job-list h2 { margin: .25rem 0; }
+.muted, small { color: #586a60; font-size: .9rem; }
+.preserve { white-space: pre-wrap; overflow-wrap: anywhere; }
+.mock-banner { background: #fff0cd; text-align: center; margin: 0; padding: .5rem; }
+[role=alert] { border-left: 4px solid #a63b23; padding: .6rem 1rem; background: #fff0e9; }
+.reauth { position: fixed; inset: 0; z-index: 5; overflow-y: auto; background: #e9eeebf5; padding: 1rem; }
+footer { text-align: center; color: #586a60; padding: 2rem; border-top: 1px solid #dbe2d9; }
+.skip-link { position: absolute; left: 1rem; top: -100px; background: white; padding: 1rem; z-index: 10; }
+.skip-link:focus { top: 1rem; }
+@media (max-width: 720px) { .catalogue-layout { grid-template-columns: 1fr; gap: 1rem; } header nav { gap: .65rem; } .search { grid-template-columns: 1fr; } .panel { padding: 1rem; } }
+/* Reviewer controls and small layout accommodations; not a new application theme. */
+[hidden] { display: none !important; }
+select { max-width: 100%; border: 1px solid #829b8e; border-radius: .35rem; background: white; color: inherit; padding: .55rem; }
+.prototype-tools { max-width: 1180px; margin: 1.5rem auto 0; padding: 0 1.3rem; }
+.prototype-tools summary { cursor: pointer; font-weight: 700; }
+.prototype-nav { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; margin-top: .75rem; }
+.prototype-nav a[aria-current=page] { font-weight: 750; text-decoration-thickness: 3px; }
+.prototype-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin-top: 1rem; }
+.prototype-route { overflow-wrap: anywhere; }
+.prototype-route code { color: #12684d; }
+.prototype-tools .panel { margin-bottom: 0; }
+.prototype-tools p { margin: .5rem 0; }
+#content { margin-top: 1.5rem; }
+#screen { overflow-wrap: anywhere; }
+#screen:focus { outline: none; }
+.catalogue-layout > *, fieldset { min-width: 0; }
+.resume-workspace button { margin: .3rem .45rem .3rem 0; }
+.resume-workspace section + section { margin-top: 1.5rem; }
+.resume-workspace textarea { min-height: 7rem; resize: vertical; }
+.resume-workspace li { margin-bottom: .75rem; }
+.google-sample { background: white; color: #20332e; border-color: #829b8e; }
+.prototype-note { border-left: 3px solid #829b8e; padding-left: 1rem; }
+.evidence-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.evidence-columns > * { min-width: 0; }
+blockquote { margin: 1rem 0; padding-left: 1rem; border-left: 3px solid #829b8e; }
+dialog { border: 1px solid #dbe2d9; border-radius: .7rem; color: #20332e; background: #f4f6f2; width: min(700px, calc(100% - 2rem)); max-height: 90vh; padding: 1.5rem; }
+dialog::backdrop { background: #e9eeebf5; }
+dialog .narrow { margin: 0; }
+.source-list { padding-left: 1.5rem; }
+.source-list li { overflow-wrap: anywhere; margin-bottom: .4rem; }
+.status-note { margin: 1rem 0; }
+@media(max-width:720px) { .evidence-columns { grid-template-columns: 1fr; gap: 0; } .prototype-controls { align-items: flex-start; } }
+@media print { .prototype-tools, header, .mock-banner, footer { display: none; } #content { margin: 0; max-width: none; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#screen" id="skip-link">Skip to screen</a>
+<header><a class="brand" href="#jobs">Internship Matcher</a><nav aria-label="Main navigation" id="app-nav">
+<a href="#jobs">Browse jobs</a><a href="#profile">Your resume</a><a href="#matches">Recommendations</a><a href="#onboarding">Your name</a><button type="button" data-action="signout">Sign out</button>
+</nav></header>
+<p class="mock-banner">Standalone team prototype · Fictional sample data only · No services or accounts · Changes reset on refresh</p>
+<section class="prototype-tools" aria-label="Prototype review controls"><div class="panel">
+<details open><summary>Choose a screen to review</summary>
+<p class="muted">Naysa / Nasya — resume and recommendations</p><nav class="prototype-nav" aria-label="Naysa screens">
+<a href="#upload">Resume upload</a><a href="#review">Review &amp; edit</a><a href="#profile">Saved resume</a><a href="#matches">Recommendations</a><a href="#evidence">Recommendation evidence</a>
+</nav><p class="muted">Xue — foundation, account and job browsing</p><nav class="prototype-nav" aria-label="Xue screens">
+<a href="#login">Sign in</a><a href="#onboarding">Onboarding / your name</a><a href="#jobs">Browse jobs</a><a href="#job">Job details</a><a href="#recovery">Session recovery</a><a href="#signout">Sign out</a><a href="#not-found">Page not found</a><a href="#notes">Source &amp; review notes</a>
+</nav></details>
+<p class="prototype-route"><strong id="screen-name"></strong> · Represents <code id="represented-route"></code></p>
+<p class="muted" id="screen-owner"></p>
+<div class="prototype-controls"><label for="example-state">Example state</label><select id="example-state"></select><button type="button" data-action="reset">Reset sample data</button></div>
+<p class="muted" id="source-status"></p>
+</div></section>
+<main id="content"><div id="screen" tabindex="-1"></div><noscript><section class="panel"><h1>Enable JavaScript to review the screens</h1><p>This file contains all its own scripts and styles. It does not need an internet connection or server.</p></section></noscript></main>
+<footer>Internship Matcher · Local MVP · Reference: dev c4d318b · Reviewed 19 September 2026</footer>
+<dialog id="session-dialog" aria-labelledby="session-heading"></dialog>
+<script>
+'use strict';
+// No network, storage, imports, fonts or remote assets. All mutations affect fictional samples.
+// Reference: origin/dev c4d318b2261ecedb65618e0bd35139f5e5369e26.
+const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone = value => JSON.parse(JSON.stringify(value));
+const emptyResume = () => ({skills:[], projects:[], experience:[], education:[]});
+const sampleResume = {
+ skills:['Python','PostgreSQL','React','Docker'],
+ projects:[{title:'Course project: campus event finder',description:'Built a REST API in Python with a PostgreSQL database and wrote integration tests for the booking endpoints.',technologies:['Python','PostgreSQL']}],
+ experience:[{title:'Software engineering intern',description:'Implemented API test coverage for an internal service and helped migrate a build pipeline to containers.',technologies:['Python','Docker']}],
+ education:[{qualification:'BSc Computer Science',details:'Currently studying; expected completion 2027.'}]
+};
+const sampleUnassigned = ['Co-organised a student hackathon with about forty participants.','Volunteer tutor for first-year programming labs.'];
+const jobs = Array.from({length:25}, (_,index)=>({
+ id:`00000000-0000-4000-8000-${String(index+1).padStart(12,'0')}`,
+ title:index===0?'Python Platform Intern':index===1?'C++ Research Intern':`Software Intern ${index+1}`,
+ company:index%2?'Synthetic Orchard Studio':'Synthetic Harbour Lab',location:'Singapore',job_type:index===23?'UNKNOWN':'INTERNSHIP',
+ employment_time:index%3?'FULL_TIME':'PART_TIME',work_arrangement:index===22?'UNKNOWN':index%2?'HYBRID':'REMOTE',
+ posted:index===23?null:`2026-09-${String(12-index%10).padStart(2,'0')}`,imported:'2026-09-12',active:index!==24,
+ description:index===1?'Explore C++ systems with 100% test coverage and literal_data paths. Use Python or JavaScript.':'Build Python APIs and SQL reports. Use Python or JavaScript. Learn testing with a mentor.'
+}));
+const filterOptions={job_type:['INTERNSHIP','OTHER','UNKNOWN'],employment_time:['FULL_TIME','PART_TIME','UNKNOWN'],work_arrangement:['ON_SITE','HYBRID','REMOTE','UNKNOWN']};
+const label=value=>value.toLowerCase().replaceAll('_',' ');
+const definitions={
+ upload:{name:'Resume upload',route:'/resume · NO_RESUME',owner:'Naysa / Nasya',states:['normal','selected','loading','busy','invalid-pdf','too-large','unreadable','empty'],source:'ResumeWorkspace + ResumeUploadPanel. Sample selection stands in for the native PDF picker; no real file is read.'},
+ review:{name:'Resume review / edit',route:'/resume · REVIEW',owner:'Naysa / Nasya',states:['normal','empty','saving','waiting','busy','review-required','conflict','conflict-unavailable','conflict-deleted','unknown','refresh-required','error'],source:'ResumeReviewForm, UnassignedTextPanel, ConflictReview and SaveStatusBanner. Same fields and terminology; interactions are local simulations.'},
+ profile:{name:'Saved resume / profile',route:'/resume · PROFILE',owner:'Naysa / Nasya',states:['normal','saved','loading','empty','no-chunks','deleted','delete-unknown','error'],source:'ResumeWorkspace shows revision, skills, entry counts, edit/delete controls and the upload panel. No separate profile route or expanded profile cards are defined.'},
+ matches:{name:'Recommendations',route:'/matches',owner:'Naysa / Nasya (planned)',states:['current-dev','proposed','loading','empty','no-resume','no-chunks','error','results-changed'],source:'Current dev renders a placeholder. Other states are proposals using the handoff MatchPage contract and Xue’s catalogue layout; no ranking is implemented.'},
+ evidence:{name:'Recommendation evidence / detail',route:'/matches · proposed evidence view (no dev route)',owner:'Naysa / Nasya (planned)',states:['normal','loading','empty','no-skill-evidence','closed','error'],source:'PROPOSED: dev has no evidence component or route. This combines MatchPage evidence fields with the existing JobDetails presentation.'},
+ login:{name:'Sign in',route:'/login',owner:'Xue',states:['normal','loading','error','unconfigured'],source:'App sign-in panel + GoogleSignIn. The outlined button represents the external Google control; it only advances the prototype.'},
+ onboarding:{name:'Onboarding / your name',route:'/onboarding',owner:'Xue',states:['normal','loading','error','invalid-name'],source:'Onboarding: display name, optional resume and the two next-step actions. No account is created.'},
+ jobs:{name:'Browse internships',route:'/jobs',owner:'Xue',states:['normal','loading','empty','error','results-changed'],source:'Catalogue: keyword AND search, OR within filter groups, pagination and job cards. Uses the 25 synthetic records defined in dev/catalogue.ts.'},
+ job:{name:'Job details',route:'/jobs/:id',owner:'Xue',states:['normal','loading','closed','not-found','error'],source:'JobDetails: source/freshness, requirements, alternatives, eligibility and closed-job handling. External actions are simulated locally.'},
+ recovery:{name:'Session recovery',route:'Current route (illustrated on /resume)',owner:'Xue’s recovery shell + Naysa’s in-memory draft',states:['expired','csrf','error'],source:'SessionRecovery + App. A modal keeps the underlying draft visible and unavailable until simulated reconnection.'},
+ signout:{name:'Sign out',route:'App session state (no separate route)',owner:'Xue',states:['loading','error'],source:'App logout-pending panel. Sign-out here returns to the prototype sign-in screen.'},
+ 'not-found':{name:'Page not found',route:'* (unrecognised route)',owner:'Xue',states:['normal'],source:'App fallback route.'},
+ notes:{name:'Source & review notes',route:'Prototype only',owner:'Team review',states:['normal'],source:'Reference and uncertainty notes. This screen is not part of the React application.'}
+};
+let saved=clone(sampleResume),draft=clone(sampleResume),paragraphs=[...sampleUnassigned];
+let hasProfile=true,revision=4,selected=false,displayName='Sample Student',timer;
+let keyword='',filters={},pageIndex=0,matchFilters={},matchPageIndex=0;
+let screenId='review',state='normal',params=new URLSearchParams(),previousView='';
+const screen=document.getElementById('screen'),dialog=document.getElementById('session-dialog');
+const route=(id,mode,extra={})=>{const query=new URLSearchParams(extra);if(mode&&mode!==definitions[id].states[0])query.set('state',mode);return '#'+id+(query.size?'?'+query:'');};
+function go(id,mode,extra={}){const next=route(id,mode,extra);if(location.hash===next)render();else location.hash=next;}
+const button=(text,action,attrs='')=>`<button type="button" data-action="${action}" ${attrs}>${text}</button>`;
+const link=(text,id,mode,css='')=>`<a ${css?`class="${css}"`:''} href="${route(id,mode)}">${text}</a>`;
+const status=(title,body)=>`<div role="status" class="status-note"><strong>${title}</strong><p>${body}</p></div>`;
+const error=(message,action='retry',text='Try again')=>`<div role="alert"><p>${message}</p>${button(text,action)}</div>`;
+const loading=text=>`<p role="status" aria-busy="true">${text}</p>`;
+const heading=(title,eyebrow='',body='')=>`${eyebrow?`<p class="eyebrow">${eyebrow}</p>`:''}<h1>${title}</h1>${body?`<p>${body}</p>`:''}`;
+const proposed=()=>`<div class="panel prototype-note"><strong>Proposed UI — not implemented in dev</strong><p>Sample evidence and order illustrate the documented fields. Editing a resume does not recalculate these examples.</p></div>`;
+function currentJob(){return jobs.find(j=>j.id===params.get('id'))||jobs[0];}
+function input(name,value,path,max=200){const id='field-'+path.replaceAll('.','-');return `<label for="${id}">${esc(name)}</label><input id="${id}" data-field="${path}" value="${esc(value)}" maxlength="${max}">`;}
+function uploadPanel(){
+ const busy=state==='loading';
+ return `<section><h2>Add your resume</h2><p>Upload one text-based PDF, up to 5 MiB. We remove personal contact details before showing you the result. The file itself is not stored.</p>
+ <div><p>Choose a PDF resume</p>${button('Choose sample PDF','select-file',busy?'disabled':'')}<p>or drop it here</p><p class="muted">Prototype: the button selects an invented PDF. File picking and dropping are not active; no extraction or privacy processing takes place.</p></div>
+ ${state==='invalid-pdf'?error('Choose a PDF file. Other formats are not supported.','select-file','Choose sample PDF'):''}
+ ${state==='too-large'?error('This file is larger than 5 MiB. Choose a smaller PDF.','select-file','Choose sample PDF'):''}
+ ${state==='unreadable'?error('We could not read text from this PDF. Try another text-based PDF or enter your details manually.','select-file','Choose sample PDF'):''}
+ ${selected||state==='selected'||busy||state==='busy'?`<p>Selected: synthetic-resume.pdf (0.04 MiB)</p><div>${button(busy?'Preparing…':'Prepare for review','prepare',busy?'disabled':'')}${button('Remove file','remove-file',busy?'disabled':'')}</div>`:''}
+ ${state==='busy'?error('Resume processing is busy. Your file is still selected — try again shortly.','prepare','Prepare for review'):''}
+ ${busy?loading('Preparing your resume…'):''}<p>${button('Enter my details without a PDF','manual',busy?'disabled':'')}</p></section>`;
+}
+function uploadView(){return `<div class="resume-workspace">${heading('Your resume')}<p>You have not added a resume yet. You can still browse every internship without one.</p>${uploadPanel()}</div>`;}
+function reviewBanner(){
+ const messages={
+ saving:['Saving your resume…','Sending your reviewed details.'],waiting:['Waiting to try again','Trying again in 3 seconds. Your draft is still here.'],
+ busy:['Could not save','Resume processing is busy. Nothing was saved and your draft is unchanged. Try again shortly.'],
+ 'review-required':['Review the corrected version','The privacy check removed personal details from what you submitted. Review the corrected version below, then confirm again. Nothing has been saved yet.'],
+ conflict:['Your resume changed elsewhere','Your resume was changed somewhere else after this page loaded. Nothing was overwritten. Review the current version before saving again.'],
+ 'conflict-unavailable':['Your resume changed elsewhere','Nothing was overwritten. Review the current version before saving again.'],
+ 'conflict-deleted':['Your resume changed elsewhere','Your resume was deleted elsewhere. Nothing was overwritten. Review the current version before saving again.'],
+ unknown:['Save result unconfirmed','We could not confirm whether your resume was saved. Your draft is still here. Retry to check safely — retrying cannot save it twice.'],
+ 'refresh-required':['Save confirmed; current version unavailable','Your earlier save completed, but the current resume could not be loaded. Your draft is still here. Retry to check the current version.'],
+ error:['Could not save','That save did not complete. Your draft is still here; confirm again to retry.']
+ };
+ return messages[state]?status(...messages[state]):'';
+}
+function conflictPanel(){
+ if(!state.startsWith('conflict'))return '';
+ if(state==='conflict-unavailable')return `<section aria-label="Current saved version"><h2>Review the current saved version</h2><p>The current version could not be loaded. Your draft is still below. Saving is paused until you can review the current version.</p>${button('Retry loading current version','load-conflict')}</section>`;
+ return `<section aria-label="Current saved version"><h2>Review the current saved version</h2>${state==='conflict-deleted'?'<p>Your resume was deleted elsewhere.</p>':`<h3>Skills</h3><p>Python, PostgreSQL, Docker, Git</p><h3>Projects</h3><h4>Course project: campus event finder</h4><p>Built a Python API and added integration tests for bookings and cancellations.</p><p>Python, PostgreSQL</p><h3>Experience</h3><p>Software engineering intern — implemented API test coverage.</p><h3>Education</h3><p>BSc Computer Science · Currently studying</p>`}<p>Keeping your draft means your next save will replace this version. No changes are saved by choosing below.</p>${button('Discard my draft and use current version','use-current')}${button('I reviewed this version; keep my draft','keep-draft')}</section>`;
+}
+function entries(section,title){
+ return `<section><h3>${title}</h3>${draft[section].map((entry,i)=>`<fieldset><legend>${title} ${i+1}</legend>
+ ${input('Title',entry.title,`${section}.${i}.title`)}<label for="desc-${section}-${i}">Description</label><textarea id="desc-${section}-${i}" data-field="${section}.${i}.description" maxlength="5000">${esc(entry.description)}</textarea>
+ <fieldset><legend>Technologies</legend>${entry.technologies.map((tech,t)=>`${input(`Technology ${t+1} for ${title.toLowerCase()} ${i+1}`,tech,`${section}.${i}.technologies.${t}`,100)}${button(`Remove technology ${t+1}`,'remove-tech',`data-section="${section}" data-index="${i}" data-tech="${t}"`)}`).join('')}
+ ${button(`Add technology to ${title.toLowerCase()} ${i+1}`,'add-tech',`data-section="${section}" data-index="${i}" ${entry.technologies.length>=30?'disabled':''}`)}</fieldset>
+ ${button(`Remove ${title.toLowerCase()} ${i+1}`,'remove-entry',`data-section="${section}" data-index="${i}"`)}</fieldset>`).join('')}
+ ${button(`Add ${title.toLowerCase()}`,'add-entry',`data-section="${section}" ${draft[section].length>=20?'disabled':''}`)}</section>`;
+}
+function reviewView(){
+ const disabled=state==='saving'||state==='waiting',blocked=state.startsWith('conflict')||state==='refresh-required';
+ return `<div class="resume-workspace">${heading('Your resume')}${reviewBanner()}
+ ${state==='refresh-required'?button('Check current saved version','check-saved'):''}<fieldset ${disabled?'disabled':''}>
+ ${paragraphs.length?`<p role="note">Some paragraphs could not be matched to a section. Review them before saving.</p><section><h3>Not placed in a section</h3><p>We could not tell which section these belong to. Add one to a project or experience entry to include it, or leave it out. Text left here is not saved.</p><ul>${paragraphs.map((text,i)=>`<li><p>${esc(text)}</p>${button('Add as project','assign',`data-section="projects" data-index="${i}"`)}${button('Add as experience','assign',`data-section="experience" data-index="${i}"`)}${button('Leave out','dismiss',`data-index="${i}"`)}</li>`).join('')}</ul></section>`:''}
+ ${conflictPanel()}<section><h2>Review your details</h2><p>Check what we extracted, then confirm. Nothing is saved until you confirm, and this draft is only held in this browser tab.</p>
+ <p class="muted">Prototype: confirm updates only this file’s in-memory sample. Refresh resets all changes.</p><p id="draft-error" role="alert" hidden></p>
+ <section><h3>Skills</h3><p>Skills are your own confirmed claims. They are used to show where a job names a skill you listed; they are not a check of ability.</p>
+ <ul>${draft.skills.map((skill,i)=>`<li>${input(`Skill ${i+1}`,skill,`skills.${i}`,100)}${button(`Remove skill ${i+1}`,'remove-skill',`data-index="${i}"`)}</li>`).join('')}</ul>${button('Add skill','add-skill',draft.skills.length>=100?'disabled':'')}</section>
+ ${entries('projects','Project')}${entries('experience','Experience')}
+ <section><h3>Education</h3><p>Education is kept on your profile but is not used for matching in this version.</p>${draft.education.map((entry,i)=>`<fieldset><legend>Education ${i+1}</legend>${input('Qualification',entry.qualification,`education.${i}.qualification`)}${input('Details',entry.details,`education.${i}.details`,5000)}${button(`Remove education ${i+1}`,'remove-entry',`data-section="education" data-index="${i}"`)}</fieldset>`).join('')}${button('Add education','add-education',draft.education.length>=10?'disabled':'')}</section>
+ <p id="matchable-hint" ${draft.projects.length||draft.experience.length?'hidden':''}>You can save this, but recommendations need at least one project or experience entry. Without one we can only show you the full internship list.</p>
+ ${button(disabled?'Saving…':'Confirm and save','save',`id="save-resume" ${blocked?'disabled':''}`)}${button('Discard changes','discard')}</section></fieldset></div>`;
+}
+function profileView(){
+ if(state==='loading')return heading('Your resume')+loading('Loading your resume…');
+ if(state==='error')return heading('Your resume')+error('Your saved resume could not be loaded. Check your connection and try again.','retry','Retry loading resume');
+ if(state==='empty'||state==='deleted'||!hasProfile)return `<div class="resume-workspace">${heading('Your resume')}${state==='deleted'?status('Resume details deleted','Your account and browsing are unaffected. (Sample deletion only.)'):''}<p>You have not added a resume yet. You can still browse every internship without one.</p>${uploadPanel()}</div>`;
+ const data=state==='no-chunks'?{...emptyResume(),skills:['Python','Figma']}:saved;
+ return `<div class="resume-workspace">${heading('Your resume')}${state==='saved'?status('Resume saved',`Saved as revision ${revision}. (In-memory sample only.)`):''}${state==='delete-unknown'?status('Save result unconfirmed','We could not confirm whether your resume was deleted. Reload to see the current state.')+button('Check current saved version','check-saved'):''}
+ <section><h2>Saved resume details</h2><p>Revision ${revision}.</p>${!data.projects.length&&!data.experience.length?'<p>Your saved details do not yet include a project or experience entry, so we cannot produce recommendations. Add one to get personalised results.</p>':''}
+ <ul>${data.skills.map(skill=>`<li>${esc(skill)}</li>`).join('')}</ul><p>${data.projects.length} project(s), ${data.experience.length} experience entry/entries, ${data.education.length} education entry/entries.</p>
+ ${button('Edit details','edit')}${button('Delete resume details','delete')}${uploadPanel()}</section></div>`;
+}
+function filtersPanel(forMatches=false){
+ const active=forMatches?matchFilters:filters;
+ return `<aside class="panel" aria-label="Job filters">${Object.entries(filterOptions).map(([key,values])=>`<fieldset><legend>${label(key)}</legend>${values.map(value=>`<label class="check"><input type="checkbox" data-filter="${key}" value="${value}" ${(active[key]||[]).includes(value)?'checked':''}>${label(value)}</label>`).join('')}</fieldset>`).join('')}<p class="muted">Any selected value within a group; all selected groups together.</p>${button(forMatches?'Clear filters':'Clear search and filters','clear-filters')}</aside>`;
+}
+function filteredJobs(forMatches=false){
+ const active=forMatches?matchFilters:filters,terms=forMatches?[]:keyword.trim().toLowerCase().split(/\s+/).filter(Boolean);
+ const result=jobs.filter(j=>j.active&&terms.every(t=>`${j.title} ${j.company} ${j.description}`.toLowerCase().includes(t))&&Object.entries(active).every(([key,values])=>!values.length||values.includes(j[key])));
+ if(!forMatches)result.sort((a,b)=>(b.posted||'').localeCompare(a.posted||'')||a.id.localeCompare(b.id));
+ return result;
+}
+function pagination(total,forMatches=false){const index=forMatches?matchPageIndex:pageIndex;return `<nav class="actions" aria-label="Pagination">${button('Previous','previous',index===0?'disabled':'')}<span>Page ${index+1}</span>${button('Next','next',(index+1)*20>=total?'disabled':'')}</nav>`;}
+function jobCard(j,match=false,index=0){
+ return `<li class="panel">${match?`<p class="eyebrow">Recommendation ${index+1}</p>`:''}<p class="muted">${j.company}</p><h2><a href="${route(match?'evidence':'job',undefined,{id:j.id})}">${j.title}</a></h2><p>${j.location} · ${label(j.employment_time)} · ${label(j.work_arrangement)}</p><p class="muted">Posted: ${j.posted||'Unknown'} · Last imported: ${j.imported}</p>${match?`<p>Closest passage: ${esc(sampleResume.projects[0].description)}</p><p>Explicit skill evidence: Python</p><p class="muted">Eligibility needs your review. Fixed sample order; no match percentage.</p><a href="${route('evidence',undefined,{id:j.id})}">Review recommendation evidence</a>`:''}</li>`;
+}
+function catalogueView(){
+ const data=state==='empty'?[]:filteredJobs();
+ const body=state==='loading'?loading('Loading jobs…'):state==='error'?error('Jobs could not load. Please retry.','retry','Retry loading jobs'):`${state==='results-changed'?status('Results restarted','The catalogue changed. Results restarted from the first page.'):''}<p role="status">${data.length} active opportunities</p>${!data.length?'<div class="panel"><h2>No jobs found</h2><p>Try fewer keywords or change your filters.</p></div>':''}<ul class="job-list">${data.slice(pageIndex*20,pageIndex*20+20).map(j=>jobCard(j)).join('')}</ul>${pagination(data.length)}`;
+ return `${heading('Browse internships','Find your next step','Explore opportunities. A resume is optional.')}<form class="search" id="search-form"><label for="keywords">Keywords</label><input id="keywords" value="${esc(keyword)}" maxlength="200" placeholder="Python software"><button type="submit">Search jobs</button><small>Every term must appear in the title, company or description. Punctuation is literal.</small></form><div class="catalogue-layout">${filtersPanel()}<div>${body}</div></div>`;
+}
+function jobDetails(){
+ const j=currentJob();
+ if(state==='loading')return loading('Loading job details…');
+ if(state==='not-found')return heading('Job not found.')+link('Browse jobs','jobs');
+ if(state==='error')return heading('Job details could not load. Please retry.')+error('Please check your connection and retry.','retry','Retry loading details');
+ const closed=state==='closed'||!j.active;
+ return `<article class="panel">${link('Browse jobs','jobs')}${heading(j.title,j.company)}<p>${j.location} · ${label(j.job_type)} · ${label(j.employment_time)} · ${label(j.work_arrangement)}</p>
+ ${closed?'<p role="status">This listing is closed. Its details remain available.</p>':''}<div class="actions">${button(closed?'Apply unavailable':'Apply on source website','apply',closed?'disabled':'')}</div><p>Apply opens the source in a new tab. We do not send your resume. Confirm availability on the source website.</p><p class="muted">Prototype: Apply displays a local explanation; it opens no website.</p><div id="application-note" role="status"></div>
+ <h2>About this internship</h2><p class="preserve">${j.description}</p><h2>Requirements</h2><ul><li><strong>required: </strong>Use Python or JavaScript.<p>Alternatives (any one): Use Python. OR Use JavaScript.</p><blockquote>Use Python or JavaScript.</blockquote></li></ul><h2>Eligibility notes</h2><ul><li>Currently enrolled students may apply.</li></ul><h2>Source and freshness</h2><p>SYNTHETIC</p><p>Posted: ${j.posted||'Unknown'} · Last imported: ${j.imported}</p><p>Last verified: Not verified. Import time does not mean live availability.</p></article>`;
+}
+function matchesView(){
+ if(state==='current-dev')return `<section class="panel">${heading('Recommendations')}<p>This view is not available yet. You can browse all active jobs.</p>${link('Browse jobs','jobs')}<hr><p class="muted">This is the exact placeholder in dev. Select “Proposed normal state” above to review a possible future layout.</p></section>`;
+ const title=proposed()+heading('Recommendations','Based on your resume','Explore opportunities related to your projects and experience.');
+ if(state==='loading')return title+loading('Loading recommendations…');
+ if(state==='error')return title+error('Recommendations are unavailable. Please try again.','retry','Retry recommendations');
+ if(state==='no-resume')return title+`<section class="panel"><h2>Add a resume to see recommendations</h2><p>You can still browse every active internship.</p>${link('Add your resume','upload','normal','button')} ${link('Browse jobs','jobs')}</section>`;
+ if(state==='no-chunks')return title+`<section class="panel"><h2>Add a project or experience entry</h2><p>Skills and education alone do not produce recommendation passages. Describe a project or work experience to continue.</p>${button('Edit details','edit')} ${link('Browse jobs','jobs')}</section>`;
+ const data=state==='empty'?[]:filteredJobs(true);
+ return title+`${state==='results-changed'?status('Results restarted','The catalogue or resume changed. Results restarted from the first page.'):''}<div class="catalogue-layout">${filtersPanel(true)}<div><p role="status">${data.length} sample recommendations</p><p class="muted">Fixed illustrative order and evidence. Only required requirements affect the intended ranking; eligibility is separate.</p>${data.length?'':'<section class="panel"><h2>No recommendations found</h2><p>Try changing your filters, or browse all active internships.</p><a href="#jobs">Browse jobs</a></section>'}<ol class="job-list">${data.slice(matchPageIndex*20,matchPageIndex*20+20).map((j,i)=>jobCard(j,true,matchPageIndex*20+i)).join('')}</ol>${pagination(data.length,true)}</div></div>`;
+}
+function evidenceView(){
+ const j=currentJob(),title=proposed()+link('Back to recommendations','matches','proposed')+heading(j.title,j.company);
+ if(state==='loading')return title+loading('Loading supporting passages…');
+ if(state==='error')return title+error('Recommendation evidence could not load.','retry','Retry evidence');
+ if(state==='empty')return title+`<section class="panel"><h2>No supporting passages available</h2><p>Review your project and experience entries, or browse other internships.</p>${button('Review resume','edit')}</section>`;
+ return title+`${state==='closed'?status('This listing is closed','Its details remain available.'):''}<section class="panel"><h2>Required: Use Python or JavaScript.</h2><p>Any one alternative is acceptable: Python OR JavaScript.</p><h3>Closest resume passage</h3><p class="muted">PROJECT · Entry 1 · Fixed fictional sample</p><blockquote>${sampleResume.projects[0].description}</blockquote><p>A related passage is not proof that you meet a requirement.</p></section><div class="evidence-columns"><section class="panel"><h2>Explicit skill evidence</h2>${state==='no-skill-evidence'?'<p>None of the named alternatives is listed in the example’s confirmed skills.</p><p>Named skills not evidenced (one OR group): Python OR JavaScript.</p>':'<p>Python is listed in the sample’s confirmed skills.</p><p>No missing alternative is flagged: Python satisfies the named OR group.</p>'}<p class="muted">Skills are self-reported claims, not verified ability. This view uses fixed sample evidence.</p></section><section class="panel"><h2>Eligibility notes</h2><p>Currently enrolled students may apply.</p><blockquote>Currently enrolled students may apply.</blockquote><p class="muted">Check this with the employer. Eligibility is not inferred from resume passages.</p></section></div><section class="panel"><h2>About this internship</h2><p>${j.description}</p><p class="muted">Posted: ${j.posted||'Unknown'} · Last imported: ${j.imported} · Not verified</p>${state==='closed'?button('Apply unavailable','apply','disabled'):`<a class="button" href="${route('job','normal',{id:j.id})}">View job details</a>`}</section>`;
+}
+function loginView(){return `<section class="panel narrow">${heading('Find an internship that fits')}<p>Sign in to browse internships. You can skip uploading a resume.</p>${state==='error'?error('Google sign-in could not load.','retry','Retry Google sign-in'):''}${state==='unconfigured'?'<p role="status">Google sign-in is not configured for this local environment.</p>':button('Sign in with Google','signin',`class="google-sample" ${state==='loading'?'disabled':''}`)}${state==='loading'?loading('Checking session…'):''}<p>${button('Retry connection','retry',state==='loading'?'disabled':'')}</p><p class="muted">Prototype only: continue as a fictional student. No Google login or credentials are used.</p></section>`;}
+function onboardingView(){return `<section class="panel narrow">${heading('Welcome to Internship Matcher','Make yourself at home','Confirm your display name. It is excluded from matching.')}<form id="onboarding-form"><label for="display-name">Display name</label><input id="display-name" value="${esc(displayName)}" maxlength="100" autocomplete="off" ${state==='loading'?'disabled':''}><h2>A resume is optional</h2><p>Browse every internship without uploading one. Add it later to prepare for personalised recommendations.</p><p id="name-error" role="alert" ${state==='error'||state==='invalid-name'?'':'hidden'}>${state==='invalid-name'?'Enter a display name of 1–100 characters without control characters.':'Could not confirm your name. Please retry.'}</p>${state==='loading'?loading('Confirming your name…'):''}<div class="actions"><button type="submit" ${state==='loading'?'disabled':''}>Skip resume and browse jobs</button>${button('Continue to resume','onboard-resume',state==='loading'?'disabled':'')}</div></form><p>${link('Back to jobs','jobs')}</p></section>`;}
+function recoveryView(){return `<div class="resume-workspace">${heading('Your resume')}<p>Your open draft stays in memory during session recovery.</p>${button('Open recovery dialog','open-recovery')}<fieldset disabled><legend>Draft preview</legend>${input('Skill 1',draft.skills[0]||'','recovery-skill',100)}<label for="recovery-description">Project description</label><textarea id="recovery-description">${esc(draft.projects[0]?.description||'')}</textarea></fieldset><p class="muted">Use the dialog to simulate reconnecting, or close it to return to reviewer controls. No actual session exists in this file.</p></div>`;}
+function openRecovery(){dialog.innerHTML=`<section class="panel narrow"><h1 id="session-heading">${state==='csrf'?'Refresh your session':'Your session ended'}</h1><p>Your open draft stays in memory. Reconnect or sign in before saving. Do not refresh this page.</p>${state==='error'?'<p role="alert">Could not reconnect. Please try again.</p>':''}<div class="actions">${button('Sign in with Google','reconnect','class="google-sample"')}${button('Retry connection','reconnect')}${button('Sign out instead','signout')}</div><p class="muted">Local simulation only.</p>${button('Back to prototype controls','close-recovery')}</section>`;if(!dialog.open)dialog.showModal();}
+const inspected=[
+'src/frontend/src/App.tsx','src/frontend/src/main.tsx','src/frontend/src/styles.css','src/frontend/README.md',
+'src/frontend/src/features/auth/GoogleSignIn.tsx','src/frontend/src/features/auth/Onboarding.tsx','src/frontend/src/features/auth/SessionRecovery.tsx',
+'src/frontend/src/features/catalogue/Catalogue.tsx','src/frontend/src/features/catalogue/JobDetails.tsx','src/frontend/src/api/contracts.ts','src/frontend/src/dev/catalogue.ts','src/frontend/src/dev/mockFetch.tsx',
+'src/frontend/src/features/resume/README.md','src/frontend/src/features/resume/api/contractTypes.ts','src/frontend/src/features/resume/components/ResumeWorkspace.tsx','src/frontend/src/features/resume/components/ResumeUploadPanel.tsx','src/frontend/src/features/resume/components/ResumeReviewForm.tsx','src/frontend/src/features/resume/components/UnassignedTextPanel.tsx','src/frontend/src/features/resume/components/SaveStatusBanner.tsx','src/frontend/src/features/resume/components/ConflictReview.tsx','src/frontend/src/features/resume/fixtures/resumeFixtures.ts','src/frontend/src/features/resume/model/saveController.ts (status wording)','src/frontend/src/features/resume/hooks/useResumeWorkspace.ts (load/delete states)',
+'docs/handoff/TEAM_PROMPTS.md','docs/handoff/DATA_API_CONTRACT.md'
+];
+function notesView(){return `<section class="panel">${heading('Source & review notes')}<p>Reference: <strong>origin/dev c4d318b2261ecedb65618e0bd35139f5e5369e26</strong>, “Merge branch 'xue' into dev”. Remote commit checked on 19 September 2026. Read using Git object inspection; no checkout or merge.</p><h2>What is implemented in dev</h2><ul><li><strong>Xue:</strong> application shell, sign-in, onboarding/display name, catalogue search/filter/pagination, job details, session recovery, sign-out and route fallback.</li><li><strong>Naysa (spelled Nasya in the repository):</strong> resume upload, review/editing, unassigned-text handling, saved summary, deletion, status banners and revision conflict review. They are all states of <code>/resume</code>.</li></ul><h2>What remains uncertain</h2><ul><li><code>/matches</code> is a placeholder. The resume README explicitly says recommendations and evidence are not started. The prototype defaults to that placeholder and separately offers a proposed normal state.</li><li>Recommendation evidence has no defined UI component or route. Its proposed presentation uses the MatchPage fields: closest passage, explicit skill evidence, named skills not evidenced and eligibility notes. It is not a new claimed application route.</li><li>The existing saved profile is a revision, skill list and entry counts, with edit/delete/upload controls. Rich profile cards are not defined, so they have not been invented here.</li><li>Resume components rely on semantic markup and shared global styles. Their long form and dense green action buttons reflect dev; the team should review those against Xue’s white catalogue cards.</li><li>The external Google-rendered button is represented with a local outlined control. Browser-native PDF selection is replaced with a sample selection button. No files are read and no external site is opened.</li><li>Recommended results are fixed synthetic examples. There is no extraction, redaction, scoring, authentication, API or database. Timer and retry actions only demonstrate transitions.</li><li>The proposed evidence columns, screen/state controls and this notes page are prototype-only additions. All font, colour, button, card and main-layout rules come from dev’s shared CSS.</li></ul><h2>Review flows</h2><ol><li>Sign in → confirm a fictional name → browse jobs or continue to resume.</li><li>Choose sample PDF → prepare → assign or dismiss unclassified text → edit skills/projects/experience/education → confirm → saved summary.</li><li>Edit saved details, discard edits, delete the sample, or switch to a recovery/conflict/uncertain-outcome example.</li><li>Recommendations → switch from current dev to proposed → open evidence → inspect eligibility separately → view job details.</li></ol><p>Use the state selector for stable screenshots. It holds loading/error examples until changed; actual sample prepare/save buttons advance after a brief pause. Drafts stay in memory. Reset sample data restores all fixtures. Refresh also resets everything. Blank entries are omitted from the simulated saved summary; this is a visual prototype, not a replica of all validation rules.</p><h2>Files inspected in dev</h2><ul class="source-list">${inspected.map(path=>`<li><code>${path}</code></li>`).join('')}</ul><h2>How to share</h2><p>Send this single HTML file. Open it directly in a modern browser. All styles and scripts are embedded, and a content security policy blocks network connections. No npm command or server is needed.</p></section>`;}
+const renders={upload:uploadView,review:reviewView,profile:profileView,matches:matchesView,evidence:evidenceView,login:loginView,onboarding:onboardingView,jobs:catalogueView,job:jobDetails,recovery:recoveryView,notes:notesView,signout:()=>`<section class="panel">${heading('Signing out')}${state==='error'?error('Sign-out could not be confirmed. Please retry.','signout','Retry sign-out'):loading('Signing out…')}${state==='loading'?button('Complete sample sign-out','signout'):''}</section>`,'not-found':()=>heading('Page not found')+link('Browse jobs','jobs')};
+const stateLabel=s=>({'current-dev':'Current dev placeholder',proposed:'Proposed normal state','no-chunks':'No project / experience passages',unknown:'Save result unconfirmed','refresh-required':'Save confirmed; refresh failed',csrf:'Refresh session (CSRF)',selected:'PDF selected','review-required':'Corrected content needs review'}[s]||s.replaceAll('-',' ').replace(/^./,c=>c.toUpperCase()));
+function render(){
+ clearTimeout(timer);if(dialog.open)dialog.close();
+ const parts=location.hash.slice(1).split('?');
+ screenId=Object.hasOwn(definitions,parts[0])?parts[0]:parts[0]?'not-found':'review';
+ params=new URLSearchParams(parts[1]||'');const def=definitions[screenId];
+ state=def.states.includes(params.get('state'))?params.get('state'):def.states[0];
+ const view=screenId+'/'+state;
+ if(view!==previousView&&screenId==='review'){
+  if(state==='empty'){draft=emptyResume();paragraphs=[];}
+  else if(previousView==='review/empty'){draft=clone(saved);paragraphs=[...sampleUnassigned];}
+  if(state==='review-required'){draft=clone(sampleResume);draft.projects[0].description+=' Contact details removed.';paragraphs=[];}
+ }
+ previousView=view;
+ document.getElementById('screen-name').textContent=def.name;
+ document.getElementById('represented-route').textContent=def.route;
+ document.getElementById('screen-owner').textContent='Primary ownership: '+def.owner;
+ document.getElementById('source-status').textContent=def.source;
+ document.getElementById('example-state').innerHTML=def.states.map(s=>`<option value="${s}" ${s===state?'selected':''}>${stateLabel(s)}</option>`).join('');
+ document.querySelectorAll('.prototype-nav a').forEach(a=>{if(a.hash==='#'+screenId)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+ document.getElementById('app-nav').hidden=screenId==='login';screen.innerHTML=renders[screenId]();
+ document.title=def.name+' — Internship Matcher prototype';
+ if(screenId==='review')validateDraft();if(screenId==='recovery')openRecovery();
+}
+function validateDraft(){
+ const values=[...draft.skills,...draft.projects.flatMap(e=>[e.title,e.description,...e.technologies]),...draft.experience.flatMap(e=>[e.title,e.description,...e.technologies]),...draft.education.flatMap(e=>[e.qualification,e.details])];
+ const length=values.map(v=>v.trim()).join('\n').length;
+ const message=!values.some(v=>v.trim())?'Add at least one skill, project, experience or education detail.':length>50000?'Shorten your resume to 50,000 characters or fewer.':'';
+ const alert=document.getElementById('draft-error'),saveButton=document.getElementById('save-resume');
+ if(alert){alert.textContent=message;alert.hidden=!message;}
+ if(saveButton)saveButton.disabled=Boolean(message)||state.startsWith('conflict')||state==='refresh-required';
+ const hint=document.getElementById('matchable-hint');if(hint)hint.hidden=[...draft.projects,...draft.experience].some(e=>e.title.trim()||e.description.trim());
+ return !message;
+}
+function cleanDraft(){
+ const content=clone(draft);content.skills=[...new Set(content.skills.map(s=>s.trim()).filter(Boolean))];
+ for(const section of ['projects','experience'])content[section]=content[section].map(e=>({title:e.title.trim(),description:e.description.trim(),technologies:e.technologies.map(t=>t.trim()).filter(Boolean)})).filter(e=>e.title||e.description||e.technologies.length);
+ content.education=content.education.map(e=>({qualification:e.qualification.trim(),details:e.details.trim()})).filter(e=>e.qualification||e.details);return content;
+}
+function transition(mode,callback){
+ const next=route(screenId,mode,Object.fromEntries([...params].filter(([k])=>k!=='state')));
+ history.replaceState(null,'',next);render();timer=setTimeout(callback,700);
+}
+function finishOnboarding(destination){
+ const field=document.getElementById('display-name'),name=field.value.trim(),alert=document.getElementById('name-error');
+ if(!name||[...name].length>100||/[\u0000-\u001f\u007f-\u009f]/u.test(name)){alert.textContent='Enter a display name of 1–100 characters without control characters.';alert.hidden=false;field.focus();return;}
+ displayName=name;go(destination);
+}
+function chooseState(next){if(screenId==='jobs')pageIndex=0;if(screenId==='matches')matchPageIndex=0;go(screenId,next,Object.fromEntries([...params].filter(([k])=>k!=='state')));}
+function resetData(){saved=clone(sampleResume);draft=clone(sampleResume);paragraphs=[...sampleUnassigned];hasProfile=true;revision=4;selected=false;displayName='Sample Student';keyword='';filters={};matchFilters={};pageIndex=0;matchPageIndex=0;previousView='';go(screenId);}
+document.getElementById('example-state').addEventListener('change',e=>chooseState(e.target.value));
+document.addEventListener('input',e=>{const path=e.target.dataset.field;if(!path||screenId!=='review')return;const keys=path.split('.');let target=draft;for(const key of keys.slice(0,-1))target=target[key];target[keys.at(-1)]=e.target.value;validateDraft();});
+document.addEventListener('change',e=>{const key=e.target.dataset.filter;if(!key)return;const active=screenId==='matches'?matchFilters:filters;active[key]=(active[key]||[]).filter(v=>v!==e.target.value);if(e.target.checked)active[key].push(e.target.value);if(screenId==='matches')matchPageIndex=0;else pageIndex=0;go(screenId,screenId==='matches'?'proposed':'normal');});
+document.addEventListener('submit',e=>{e.preventDefault();if(e.target.id==='search-form'){keyword=document.getElementById('keywords').value;pageIndex=0;go('jobs');}if(e.target.id==='onboarding-form')finishOnboarding('jobs');});
+document.addEventListener('click',e=>{
+ const control=e.target.closest('[data-action]');if(!control||control.matches(':disabled'))return;
+ const action=control.dataset.action,i=Number(control.dataset.index),section=control.dataset.section,t=Number(control.dataset.tech);
+ switch(action){
+ case 'reset':resetData();break;
+ case 'retry':go(screenId,screenId==='matches'?'proposed':undefined,Object.fromEntries([...params].filter(([k])=>k!=='state')));break;
+ case 'select-file':selected=true;go(screenId,definitions[screenId].states.includes('selected')?'selected':'normal');break;
+ case 'remove-file':selected=false;go(screenId);break;
+ case 'prepare':selected=true;transition('loading',()=>{draft=clone(sampleResume);paragraphs=[...sampleUnassigned];go('review');});break;
+ case 'manual':draft=emptyResume();paragraphs=[];go('review','empty');break;
+ case 'edit':draft=state==='no-chunks'?{...emptyResume(),skills:['Python','Figma']}:clone(saved);paragraphs=[];previousView='';go('review');break;
+ case 'discard':draft=clone(saved);paragraphs=[];go('profile');break;
+ case 'delete':hasProfile=false;revision++;draft=emptyResume();paragraphs=[];go('profile','deleted');break;
+ case 'save':if(validateDraft()){const toSave=cleanDraft();previousView='';transition('saving',()=>{saved=toSave;draft=clone(toSave);hasProfile=true;revision++;paragraphs=[];go('profile','saved');});}break;
+ case 'check-saved':go('profile');break;
+ case 'load-conflict':go('review','conflict');break;
+ case 'keep-draft':revision++;go('review');break;
+ case 'use-current':if(state==='conflict-deleted'){hasProfile=false;go('profile','empty');}else{saved=clone(sampleResume);saved.skills=['Python','PostgreSQL','Docker','Git'];saved.projects[0].description='Built a Python API and added integration tests for bookings and cancellations.';draft=clone(saved);revision++;go('profile');}break;
+ case 'assign':draft[section].push({title:'Student activity',description:paragraphs[i],technologies:[]});paragraphs.splice(i,1);render();break;
+ case 'dismiss':paragraphs.splice(i,1);render();break;
+ case 'add-skill':draft.skills.push('');render();break;
+ case 'remove-skill':draft.skills.splice(i,1);render();break;
+ case 'add-entry':draft[section].push({title:'',description:'',technologies:[]});render();break;
+ case 'remove-entry':draft[section].splice(i,1);render();break;
+ case 'add-tech':draft[section][i].technologies.push('');render();break;
+ case 'remove-tech':draft[section][i].technologies.splice(t,1);render();break;
+ case 'add-education':draft.education.push({qualification:'',details:''});render();break;
+ case 'clear-filters':if(screenId==='matches'){matchFilters={};matchPageIndex=0;go('matches','proposed');}else{filters={};keyword='';pageIndex=0;go('jobs');}break;
+ case 'previous':if(screenId==='matches')matchPageIndex=Math.max(0,matchPageIndex-1);else pageIndex=Math.max(0,pageIndex-1);render();break;
+ case 'next':if(screenId==='matches')matchPageIndex++;else pageIndex++;render();break;
+ case 'apply':document.getElementById('application-note').textContent='Sample application action only. In the real app, this opens the source website in a new tab without sending your resume.';break;
+ case 'signin':go('onboarding');break;
+ case 'onboard-resume':finishOnboarding('upload');break;
+ case 'open-recovery':openRecovery();break;
+ case 'close-recovery':dialog.close();break;
+ case 'reconnect':dialog.close();go('review');break;
+ case 'signout':if(dialog.open)dialog.close();resetData();go('login');break;
+ }
+});
+document.getElementById('skip-link').addEventListener('click',e=>{e.preventDefault();screen.focus();screen.scrollIntoView();});
+window.addEventListener('hashchange',()=>{render();if(!dialog.open)screen.focus({preventScroll:true});window.scrollTo(0,0);});
+render();
+</script>
+</body>
+</html>

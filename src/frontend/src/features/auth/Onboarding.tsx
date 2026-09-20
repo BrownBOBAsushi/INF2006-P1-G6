@@ -21,17 +21,23 @@ export function Onboarding({ client, me, refresh }: { client: ApiClient; me: Me;
     } catch { setError('Could not confirm your name. Please retry.'); }
     finally { setBusy(false); }
   }
-  return <section className="panel narrow">
-    <p className="eyebrow">Make yourself at home</p><h1>Welcome to Internship Matcher</h1>
-    <p>Confirm your display name. It is excluded from matching.</p>
+  return <div className="onboard-wrap"><section className="panel onboard-card">
+    <div className="onboard-top"><div><p className="eyebrow">Make yourself at home</p><h1>Welcome to Internship Matcher</h1>
+      <p className="muted">Confirm your display name. It is excluded from matching.</p></div><span className="step">Your profile</span></div>
     <form onSubmit={event => { event.preventDefault(); void confirm('/jobs'); }}>
-      <label htmlFor="display-name">Display name</label>
-      <input id="display-name" value={name} maxLength={100} onChange={event => setName(event.target.value)} autoComplete="nickname" />
-      <h2>A resume is optional</h2><p>Browse every internship without uploading one. Add it later to prepare for personalised recommendations.</p>
-      {error && <p role="alert">{error}</p>}
-      <div className="actions"><button disabled={busy} type="submit">Skip resume and browse jobs</button>
-      <button disabled={busy} type="button" onClick={() => void confirm('/resume')}>Continue to resume</button></div>
+      <div className="onboard-field"><label htmlFor="display-name">Display name</label>
+        <input id="display-name" value={name} maxLength={100} onChange={event => setName(event.target.value)} autoComplete="nickname" aria-describedby={error ? 'onboard-error' : undefined} />
+      </div>
+      <section className="optional-resume" aria-labelledby="optional-resume-title">
+        <span className="upload-symbol" aria-hidden="true">↑</span><div><h2 id="optional-resume-title">A resume is optional</h2>
+          <p>Browse every internship without uploading one. Add a text-based PDF or enter your details in your resume workspace.</p></div>
+        <button className="button-secondary" disabled={busy} type="button" onClick={() => void confirm('/resume')}>Continue to resume</button>
+      </section>
+      {error && <p role="alert" id="onboard-error">{error}</p>}
+      {busy && <p role="status">Confirming your name…</p>}
+      <div className="actions onboard-actions"><button className="button-secondary" disabled={busy} type="button" onClick={() => void confirm('/jobs')}>Skip for now</button>
+        <button disabled={busy} type="submit">Continue to jobs <span aria-hidden="true">→</span></button></div>
     </form>
     {me.user.display_name && <p><Link to="/jobs">Back to jobs</Link></p>}
-  </section>;
+  </section></div>;
 }
