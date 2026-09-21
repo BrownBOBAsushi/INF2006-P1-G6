@@ -1,0 +1,278 @@
+{
+  "note": "Expected outcomes are the design intent from docs/handoff (DATA_API_CONTRACT.md), not measured behaviour of an implemented pipeline. All identities are fictional. No PDF exceeds a few tens of KB; an oversize (>5,242,880 byte) file is not committed and must be generated in the test that needs it.",
+  "files": [
+    {
+      "file": "resume_P01.pdf",
+      "bytes": 2805,
+      "sha256": "c4a782b77c0f00f692b3be0716b2a15b05877c8e738213cdc5ad5142ab212c9f",
+      "kind": "valid_text_resume",
+      "profile_id": "P01",
+      "pii_must_not_survive_cleanup": [
+        "Priya Ramanathan Nair",
+        "synthetic.student01@example.com",
+        "+65 9000 0001",
+        "Blk 101 Synthetic Road #02-001, Singapore 000000",
+        "S0000001Z",
+        "https://example.com/in/synthetic-student-01"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Campus event booking service",
+        "Inventory microservice (coursework)",
+        "Nightly data loader",
+        "Teaching assistant, introductory programming"
+      ]
+    },
+    {
+      "file": "resume_P02.pdf",
+      "bytes": 2744,
+      "sha256": "31d5e39e9c9754ca84ad195aef470f1c09ae15ac62eebb734afb70ab59dd3b33",
+      "kind": "valid_text_resume",
+      "profile_id": "P02",
+      "pii_must_not_survive_cleanup": [
+        "Daniel Ong Wei Jie",
+        "synthetic.student02@example.com",
+        "9000 0002",
+        "Blk 102 Synthetic Road #03-002, Singapore 000000",
+        "S0000002Z",
+        "https://example.com/in/synthetic-student-02"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Retail sales dashboard",
+        "Housing price study",
+        "Survey cleaning task",
+        "Part-time stock assistant"
+      ]
+    },
+    {
+      "file": "resume_P03.pdf",
+      "bytes": 2905,
+      "sha256": "fec127456eb6ce53604abb05fb3ac34988118a0f3b18226483a20d989adbb575",
+      "kind": "valid_text_resume",
+      "profile_id": "P03",
+      "pii_must_not_survive_cleanup": [
+        "Aisha Binte Rahman",
+        "synthetic.student03@example.com",
+        "+65 9000 0003",
+        "Blk 103 Synthetic Road #04-003, Singapore 000000",
+        "S0000003Z",
+        "https://example.com/in/synthetic-student-03"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Sentiment classifier for product reviews",
+        "News headline clustering",
+        "Handwritten digit recogniser",
+        "Undergraduate research assistant"
+      ]
+    },
+    {
+      "file": "resume_P04.pdf",
+      "bytes": 2794,
+      "sha256": "257899482be3b91268278897bc9e0160919efb4ff85184f1f6f0872a3e9b272c",
+      "kind": "valid_text_resume",
+      "profile_id": "P04",
+      "pii_must_not_survive_cleanup": [
+        "Kevin Lim Zhi Hao",
+        "synthetic.student04@example.com",
+        "9000 0004",
+        "Blk 104 Synthetic Road #05-004, Singapore 000000",
+        "S0000004Z",
+        "https://example.com/in/synthetic-student-04"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Community volunteering web app",
+        "Bus arrival app redesign",
+        "Accessible portfolio site",
+        "Design club committee member"
+      ]
+    },
+    {
+      "file": "resume_P05.pdf",
+      "bytes": 2854,
+      "sha256": "e53ab9ac7e2832aa6922b6d0b583d06e8e3b431d3fbd39e978eb4a1316b18fae",
+      "kind": "valid_text_resume",
+      "profile_id": "P05",
+      "pii_must_not_survive_cleanup": [
+        "Sarah Tan Mei Ling",
+        "synthetic.student05@example.com",
+        "+65 9000 0005",
+        "Blk 105 Synthetic Road #06-005, Singapore 000000",
+        "S0000005Z",
+        "https://example.com/in/synthetic-student-05"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Home network monitoring lab",
+        "Log analysis script",
+        "Capture-the-flag team",
+        "Student helpdesk volunteer"
+      ]
+    },
+    {
+      "file": "resume_P06.pdf",
+      "bytes": 2830,
+      "sha256": "5e1f3785e6a80c8f7b1b6db09863b62c33982925461f1af52b2a4a97b58dbe7a",
+      "kind": "valid_text_resume",
+      "profile_id": "P06",
+      "pii_must_not_survive_cleanup": [
+        "Rohan Krishnan",
+        "synthetic.student06@example.com",
+        "9000 0006",
+        "Blk 106 Synthetic Road #07-006, Singapore 000000",
+        "S0000006Z",
+        "https://example.com/in/synthetic-student-06"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Recipe sharing web app",
+        "Containerised deployment",
+        "Server hardening exercise",
+        "Freelance website builder"
+      ]
+    },
+    {
+      "file": "resume_P07.pdf",
+      "bytes": 2794,
+      "sha256": "75d5960bdc9a8f2138f0dd0bddbf6fd80338669bf6b3b700ae814f799b7bf9a5",
+      "kind": "valid_text_resume",
+      "profile_id": "P07",
+      "pii_must_not_survive_cleanup": [
+        "Nur Amirah Ismail",
+        "synthetic.student07@example.com",
+        "+65 9000 0007",
+        "Blk 107 Synthetic Road #08-007, Singapore 000000",
+        "S0000007Z",
+        "https://example.com/in/synthetic-student-07"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Bike-share data pipeline",
+        "Scheduled ingestion",
+        "Warehouse reporting views",
+        "Data intern at a student-run startup"
+      ]
+    },
+    {
+      "file": "resume_P08.pdf",
+      "bytes": 3074,
+      "sha256": "c769fd31341097f6d66ba35004c0626c8948e31d32722dce9510dce6ac42e420",
+      "kind": "valid_text_resume",
+      "profile_id": "P08",
+      "pii_must_not_survive_cleanup": [
+        "Jason Chua Kai Xiang",
+        "synthetic.student08@example.com",
+        "9000 0008",
+        "Blk 108 Synthetic Road #09-008, Singapore 000000",
+        "S0000008Z",
+        "https://example.com/in/synthetic-student-08"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Plant moisture monitor",
+        "STM32 motor controller",
+        "Small RTOS task scheduler",
+        "2D collision demo",
+        "Sensor logger on a single-board computer",
+        "Robotics club firmware volunteer"
+      ]
+    },
+    {
+      "file": "resume_P09.pdf",
+      "bytes": 2841,
+      "sha256": "b783fc04e46ebd208ae4b6b5c0ef5cd7b93c6c43b52447d2e4145c1b188aefc3",
+      "kind": "valid_text_resume",
+      "profile_id": "P09",
+      "pii_must_not_survive_cleanup": [
+        "Melissa Goh Shu Ting",
+        "synthetic.student09@example.com",
+        "+65 9000 0009",
+        "Blk 109 Synthetic Road #01-009, Singapore 000000",
+        "S0000009Z",
+        "https://example.com/in/synthetic-student-09"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Stock pitch competition",
+        "Club fundraising campaign",
+        "Warehouse simulation case",
+        "Part-time customer service assistant"
+      ]
+    },
+    {
+      "file": "resume_P10.pdf",
+      "bytes": 5320,
+      "sha256": "82c19177e9d2b063a77f084093d98320dbdf1a1b330373abe1f0215dfe10989c",
+      "kind": "valid_text_resume",
+      "profile_id": "P10",
+      "pii_must_not_survive_cleanup": [
+        "Ethan Lee Jun Hao",
+        "synthetic.student10@example.com",
+        "9000 0010",
+        "Blk 110 Synthetic Road #02-010, Singapore 000000",
+        "S0000010Z",
+        "https://example.com/in/synthetic-student-10"
+      ],
+      "expected_prepare_outcome": "200 draft with skills/projects/experience/education; no PII in draft",
+      "content_must_survive": [
+        "Commuter Android app",
+        "Order processing service",
+        "Algorithms practice repository",
+        "Team chat web app",
+        "Personal blog engine",
+        "Game jam platformer",
+        "Software engineering intern",
+        "Hackathon mentor",
+        "Open source contributor",
+        "Volunteer developer for a local charity"
+      ]
+    },
+    {
+      "file": "edge_unfamiliar_headings.pdf",
+      "bytes": 2819,
+      "sha256": "50987d857155961e977ac01155270e5fa68ab01471b2d779b75fc30b56d8485e",
+      "kind": "unfamiliar_section_headings",
+      "profile_id": "P01",
+      "pii_must_not_survive_cleanup": [
+        "Priya Ramanathan Nair",
+        "synthetic.student01@example.com",
+        "+65 9000 0001",
+        "Blk 101 Synthetic Road #02-001, Singapore 000000",
+        "S0000001Z",
+        "https://example.com/in/synthetic-student-01"
+      ],
+      "expected_prepare_outcome": "200 with warning SECTION_REVIEW_NEEDED and non-empty unassigned_text; no text silently dropped"
+    },
+    {
+      "file": "edge_scanned_image_only.pdf",
+      "bytes": 20322,
+      "sha256": "caa37edbebdb34896d2f214567fc6b4ee86571f608cb8c199075ad1c6100c0e3",
+      "kind": "no_text_layer",
+      "expected_prepare_outcome": "422 TEXT_REQUIRED (no OCR in MVP)"
+    },
+    {
+      "file": "edge_encrypted.pdf",
+      "bytes": 3334,
+      "sha256": "41717cefc3288e8e58a4c2282e9a535671ca6d73aacbab500304d972cdb0f651",
+      "kind": "encrypted",
+      "expected_prepare_outcome": "422 PDF_ENCRYPTED",
+      "note": "user password is the public test value 'synthetic-test-only'; output is not byte-deterministic"
+    },
+    {
+      "file": "edge_11_pages.pdf",
+      "bytes": 6444,
+      "sha256": "c043a680f0fc1d24f829d49761077247bba9692064c23cfcecd6234139def514",
+      "kind": "too_many_pages",
+      "expected_prepare_outcome": "rejected: contract allows at most 10 pages (error code for page limit is not specified in the contract)"
+    },
+    {
+      "file": "edge_not_a_pdf.pdf",
+      "bytes": 48,
+      "sha256": "e3c772c3467f9d986992941321ea37101193c30074fbd27615ee2c5c4a7d878f",
+      "kind": "not_a_pdf",
+      "expected_prepare_outcome": "415 PDF_REQUIRED"
+    }
+  ]
+}

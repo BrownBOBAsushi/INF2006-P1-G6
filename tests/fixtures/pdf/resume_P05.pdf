@@ -1,0 +1,39 @@
+Sarah Tan Mei Ling
+Email: synthetic.student05@example.com
+Phone: +65 9000 0005
+Address: Blk 105 Synthetic Road #06-005, Singapore 000000
+NRIC: S0000005Z
+Profile: https://example.com/in/synthetic-student-05
+
+Skills
+Linux, Bash, Python, Wireshark, Nmap, Networking
+
+Projects
+Home network monitoring lab
+Captured traffic with Wireshark on a virtual lab network and identified a port scan and a DNS
+tunnelling attempt by reading packet captures. Documented what each alert meant and how it could
+be blocked with firewall rules.
+Technologies: Wireshark, DNS, firewalls
+
+Log analysis script
+Wrote a Python script that parses authentication logs from a Linux server and flags repeated failed
+logins from the same address. Packaged it in a Docker container and scheduled it through cron.
+Technologies: Python, Linux, Bash, Docker
+
+Capture-the-flag team
+Solved web and forensics challenges with a university CTF team, including decoding traffic dumps
+and recovering hidden data.
+Technologies: Linux
+
+
+Experience
+Student helpdesk volunteer
+Fixed laptop and Wi-Fi problems for fellow students, reset accounts on Windows and helped
+configure IP settings and DHCP on the campus network. Explained fixes to non-technical users in
+plain language.
+Technologies: Windows
+
+
+Education
+BSc Information Security - Networking and operating systems modules completed
+

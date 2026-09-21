@@ -1,0 +1,686 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "profile_id": "P01",
+      "split": "development",
+      "focus": "backend and web services (Python, Java, SQL)",
+      "notes": "short resume",
+      "content": {
+        "skills": [
+          "Python",
+          "Java",
+          "SQL",
+          "PostgreSQL",
+          "Flask",
+          "Spring Boot",
+          "Git",
+          "Linux",
+          "HTML"
+        ],
+        "projects": [
+          {
+            "title": "Campus event booking service",
+            "description": "Built a Flask application exposing endpoints that let students reserve seats at campus events. Designed the PostgreSQL tables, wrote SQL for the availability checks and added pytest cases covering the reservation rules.",
+            "technologies": [
+              "Python",
+              "Flask",
+              "PostgreSQL",
+              "pytest"
+            ]
+          },
+          {
+            "title": "Inventory microservice (coursework)",
+            "description": "Implemented a Spring Boot service in Java with controllers, services and repositories using dependency injection. The service exposes REST endpoints for stock items and calls a second service for supplier data.",
+            "technologies": [
+              "Java",
+              "Spring Boot",
+              "REST"
+            ]
+          },
+          {
+            "title": "Nightly data loader",
+            "description": "Wrote a Python script that reads exported CSV files, cleans the columns and loads them into PostgreSQL every night through a cron entry. Logged rejected rows for later review.",
+            "technologies": [
+              "Python",
+              "SQL",
+              "cron"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Teaching assistant, introductory programming",
+            "description": "Ran weekly lab sessions for 25 first-year students and marked Python assignments.",
+            "technologies": [
+              "Python"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Computer Science",
+            "details": "Currently in year 2"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P02",
+      "split": "development",
+      "focus": "data analysis and dashboards (SQL, Tableau, Excel, statistics)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "SQL",
+          "Excel",
+          "Tableau",
+          "Python",
+          "pandas",
+          "Statistics"
+        ],
+        "projects": [
+          {
+            "title": "Retail sales dashboard",
+            "description": "Combined three years of store sales tables using SQL joins and aggregations, then built an interactive Tableau dashboard that shows monthly revenue by region. Presented the findings to a mock panel of store managers.",
+            "technologies": [
+              "SQL",
+              "Tableau"
+            ]
+          },
+          {
+            "title": "Housing price study",
+            "description": "Fitted a linear regression to public housing data in Python and checked the residuals to see whether the assumptions held. Wrote a short report explaining in plain language which factors moved prices.",
+            "technologies": [
+              "Python",
+              "pandas",
+              "regression"
+            ]
+          },
+          {
+            "title": "Survey cleaning task",
+            "description": "Cleaned messy responses from a 300-person student survey in Excel, removing duplicates and standardising answers, before summarising trends with pivot tables.",
+            "technologies": [
+              "Excel"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Part-time stock assistant",
+            "description": "Counted stock and kept the weekly sales log up to date in a spreadsheet.",
+            "technologies": [
+              "Excel"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Business Analytics",
+            "details": "Statistics and probability modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P03",
+      "split": "development",
+      "focus": "machine learning and NLP (PyTorch, scikit-learn, computer vision basics)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "Python",
+          "PyTorch",
+          "scikit-learn",
+          "NumPy",
+          "OpenCV",
+          "Git",
+          "LaTeX"
+        ],
+        "projects": [
+          {
+            "title": "Sentiment classifier for product reviews",
+            "description": "Trained a recurrent neural network in PyTorch to label product reviews as positive or negative. Split the data into training, validation and test sets and reported accuracy and F1 on the held-out portion.",
+            "technologies": [
+              "Python",
+              "PyTorch"
+            ]
+          },
+          {
+            "title": "News headline clustering",
+            "description": "Turned headlines into TF-IDF vectors and grouped them with k-means in scikit-learn, then inspected the clusters by hand to name topics.",
+            "technologies": [
+              "Python",
+              "scikit-learn"
+            ]
+          },
+          {
+            "title": "Handwritten digit recogniser",
+            "description": "Built a small convolutional network on the MNIST image set and compared it against a plain feed-forward network. Used OpenCV to resize and normalise the digit images and wrote the backpropagation step by hand with NumPy matrix operations.",
+            "technologies": [
+              "PyTorch",
+              "CNN",
+              "OpenCV",
+              "NumPy"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Undergraduate research assistant",
+            "description": "Cleaned a corpus of 20,000 tweets, wrote scripts to tokenise the text and helped run experiments on a text-classification model. Also fitted a linear regression to simulated demand data to check a forecasting idea.",
+            "technologies": [
+              "Python"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Computer Science (AI specialisation)",
+            "details": "Probability and statistics modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P04",
+      "split": "development",
+      "focus": "front-end development and UI/UX design (React, Figma)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "HTML",
+          "CSS",
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Figma",
+          "Git"
+        ],
+        "projects": [
+          {
+            "title": "Community volunteering web app",
+            "description": "Built the front end for a volunteer sign-up site using React components and TypeScript, connecting the pages to a REST service to fetch and submit shifts. Reviewed teammates' pull requests on GitHub.",
+            "technologies": [
+              "React",
+              "TypeScript",
+              "Git"
+            ]
+          },
+          {
+            "title": "Bus arrival app redesign",
+            "description": "Interviewed six commuters about their frustrations, sketched new flows and made a clickable Figma prototype. Ran a usability test with five users and revised the design based on where they hesitated.",
+            "technologies": [
+              "Figma"
+            ]
+          },
+          {
+            "title": "Accessible portfolio site",
+            "description": "Rebuilt a personal site to meet WCAG contrast and keyboard-navigation guidelines and checked it with a screen reader.",
+            "technologies": [
+              "HTML",
+              "CSS",
+              "JavaScript"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Design club committee member",
+            "description": "Produced posters and social graphics for club events in Adobe Illustrator and kept the club's colour and font guidelines consistent.",
+            "technologies": [
+              "Adobe Illustrator"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Information Systems",
+            "details": "Human-computer interaction module completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P05",
+      "split": "development",
+      "focus": "cybersecurity, networking and Linux (Wireshark, log analysis, helpdesk)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "Linux",
+          "Bash",
+          "Python",
+          "Wireshark",
+          "Nmap",
+          "Networking"
+        ],
+        "projects": [
+          {
+            "title": "Home network monitoring lab",
+            "description": "Captured traffic with Wireshark on a virtual lab network and identified a port scan and a DNS tunnelling attempt by reading packet captures. Documented what each alert meant and how it could be blocked with firewall rules.",
+            "technologies": [
+              "Wireshark",
+              "DNS",
+              "firewalls"
+            ]
+          },
+          {
+            "title": "Log analysis script",
+            "description": "Wrote a Python script that parses authentication logs from a Linux server and flags repeated failed logins from the same address. Packaged it in a Docker container and scheduled it through cron.",
+            "technologies": [
+              "Python",
+              "Linux",
+              "Bash",
+              "Docker"
+            ]
+          },
+          {
+            "title": "Capture-the-flag team",
+            "description": "Solved web and forensics challenges with a university CTF team, including decoding traffic dumps and recovering hidden data.",
+            "technologies": [
+              "Linux"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Student helpdesk volunteer",
+            "description": "Fixed laptop and Wi-Fi problems for fellow students, reset accounts on Windows and helped configure IP settings and DHCP on the campus network. Explained fixes to non-technical users in plain language.",
+            "technologies": [
+              "Windows"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Information Security",
+            "details": "Networking and operating systems modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P06",
+      "split": "held_out",
+      "focus": "full-stack web development with cloud deployment (React, Node.js, Docker, AWS)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Node.js",
+          "PostgreSQL",
+          "Docker",
+          "AWS",
+          "Git",
+          "Linux"
+        ],
+        "projects": [
+          {
+            "title": "Recipe sharing web app",
+            "description": "Built a React and TypeScript interface for browsing and rating recipes, backed by a Node.js API and a PostgreSQL database. Wrote the API routes and the SQL queries, connected the front end to them and reviewed teammates' pull requests. Wrote Jest unit tests for the API routes and Playwright browser tests for the sign-up flow.",
+            "technologies": [
+              "React",
+              "TypeScript",
+              "Node.js",
+              "PostgreSQL",
+              "Jest",
+              "Playwright",
+              "Git"
+            ]
+          },
+          {
+            "title": "Containerised deployment",
+            "description": "Packaged the recipe app in Docker containers and deployed it to an AWS virtual machine. Set up a GitHub Actions workflow that runs the tests and rebuilds the containers on every merge.",
+            "technologies": [
+              "Docker",
+              "AWS",
+              "GitHub Actions"
+            ]
+          },
+          {
+            "title": "Server hardening exercise",
+            "description": "Configured a Linux server from the command line, set up SSH keys and a firewall, and wrote Bash scripts to automate backups.",
+            "technologies": [
+              "Linux",
+              "Bash"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Freelance website builder",
+            "description": "Built and launched a five-page website for a local bakery using HTML, CSS and JavaScript and handled the customer's change requests.",
+            "technologies": [
+              "HTML",
+              "CSS",
+              "JavaScript"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Computer Science",
+            "details": "Currently in year 3"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P07",
+      "split": "held_out",
+      "focus": "data engineering and analytics (Python, SQL, Airflow, Tableau)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "Python",
+          "SQL",
+          "pandas",
+          "PostgreSQL",
+          "Airflow",
+          "Spark",
+          "Git",
+          "Docker"
+        ],
+        "projects": [
+          {
+            "title": "Bike-share data pipeline",
+            "description": "Wrote Python scripts that download monthly trip files, clean and reshape them with pandas and load them into a PostgreSQL warehouse using SQL COPY and INSERT statements. Added checks that stop the load when the row count or null rate looks wrong.",
+            "technologies": [
+              "Python",
+              "pandas",
+              "PostgreSQL",
+              "SQL"
+            ]
+          },
+          {
+            "title": "Scheduled ingestion",
+            "description": "Scheduled the pipeline to run every night using Apache Airflow and cron, and wrote alerts for failed runs.",
+            "technologies": [
+              "Airflow",
+              "cron"
+            ]
+          },
+          {
+            "title": "Warehouse reporting views",
+            "description": "Created SQL views that join and aggregate the trip tables so analysts could build weekly reports, then built an interactive Tableau dashboard on top of them.",
+            "technologies": [
+              "SQL",
+              "Tableau"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Data intern at a student-run startup",
+            "description": "Consolidated customer spreadsheets into one database table and explained the data quality issues to the founders in plain language.",
+            "technologies": [
+              "SQL",
+              "Excel"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Data Science",
+            "details": "Databases and distributed systems modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P08",
+      "split": "held_out",
+      "focus": "embedded firmware (C/C++, microcontrollers, RTOS)",
+      "notes": "narrow profile; few relevant jobs exist in the fixture set",
+      "content": {
+        "skills": [
+          "C",
+          "C++",
+          "Arduino",
+          "STM32",
+          "Python",
+          "Git",
+          "I2C",
+          "SPI"
+        ],
+        "projects": [
+          {
+            "title": "Plant moisture monitor",
+            "description": "Programmed an Arduino microcontroller in C++ to read a soil sensor over I2C, sleep between readings and send data over a serial link. Used interrupts to wake the board on a timer.",
+            "technologies": [
+              "C++",
+              "Arduino",
+              "I2C"
+            ]
+          },
+          {
+            "title": "STM32 motor controller",
+            "description": "Wrote a driver in C for an STM32 board to drive a motor through PWM and read a wheel encoder using SPI. Used an oscilloscope and logic analyser to debug timing problems on the real hardware and read the datasheet to set registers.",
+            "technologies": [
+              "C",
+              "STM32",
+              "SPI"
+            ]
+          },
+          {
+            "title": "Small RTOS task scheduler",
+            "description": "Ran three tasks on FreeRTOS: sensor sampling, display update and logging, and used queues to share data safely.",
+            "technologies": [
+              "FreeRTOS",
+              "C"
+            ]
+          },
+          {
+            "title": "2D collision demo",
+            "description": "Wrote a small interactive 2D physics demo in C++ where the arrow keys move a ball, using vector maths to detect and resolve collisions with walls.",
+            "technologies": [
+              "C++"
+            ]
+          },
+          {
+            "title": "Sensor logger on a single-board computer",
+            "description": "Wrote a Python program on a Raspberry Pi that stores sensor readings in a SQLite database with SQL insert statements and exposes the latest readings through a small Flask endpoint.",
+            "technologies": [
+              "Python",
+              "Flask",
+              "SQLite"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Robotics club firmware volunteer",
+            "description": "Fixed hardware bugs on the club's line-following robot before competitions.",
+            "technologies": [
+              "C++"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BEng Electrical and Computer Engineering",
+            "details": "Digital systems and microcontroller modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P09",
+      "split": "held_out",
+      "focus": "business studies: finance modelling and digital marketing (Excel, SEO, analytics)",
+      "notes": "no coding content",
+      "content": {
+        "skills": [
+          "Excel",
+          "PowerPoint",
+          "Financial modelling",
+          "SEO basics",
+          "Google Analytics",
+          "Canva"
+        ],
+        "projects": [
+          {
+            "title": "Stock pitch competition",
+            "description": "Built a three-sheet Excel model with linked formulas to forecast a listed company's revenue and profit, and analysed its income statement, balance sheet and cash-flow statement before presenting a recommendation.",
+            "technologies": [
+              "Excel"
+            ]
+          },
+          {
+            "title": "Club fundraising campaign",
+            "description": "Planned and ran an online campaign for the business club, wrote the posts and web copy, chose keywords for the landing page title and description, and used Google Analytics to summarise which posts brought the most visits.",
+            "technologies": [
+              "Google Analytics",
+              "SEO"
+            ]
+          },
+          {
+            "title": "Warehouse simulation case",
+            "description": "In a case competition, organised inventory data in Excel using filters and pivot tables and coordinated a four-person team to hit the submission deadline.",
+            "technologies": [
+              "Excel"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Part-time customer service assistant",
+            "description": "Handled customer queries in person and by phone, updated the customer log in a spreadsheet and followed up on unresolved cases.",
+            "technologies": [
+              "Excel"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BBA Finance",
+            "details": "Accounting and corporate finance modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P10",
+      "split": "held_out",
+      "focus": "generalist software engineering (Kotlin/Android, Java/Spring, React, Python, Unity)",
+      "notes": "long resume: many entries and many chunks; tests the max-over-chunks length bias",
+      "content": {
+        "skills": [
+          "Java",
+          "Kotlin",
+          "Python",
+          "C++",
+          "C#",
+          "SQL",
+          "Git",
+          "Android",
+          "Spring Boot",
+          "React",
+          "Docker",
+          "Linux",
+          "Unity"
+        ],
+        "projects": [
+          {
+            "title": "Commuter Android app",
+            "description": "Built an Android app in Kotlin that shows live bus arrivals. Used activities and fragments and handled the activity lifecycle correctly when the screen rotated. Stored favourite stops on the device with a local Room database so they were available offline. Connected the app to a public transport web service and parsed its JSON responses. Published a beta build to the Play Store for classmates and fixed the crashes they reported.",
+            "technologies": [
+              "Kotlin",
+              "Android",
+              "Room"
+            ]
+          },
+          {
+            "title": "Order processing service",
+            "description": "Implemented REST endpoints in Java using Spring Boot and dependency injection for a mock online shop. Separated the code into controllers, services and repositories. Wrote object-oriented domain classes for orders, customers and products. Added integration tests with an in-memory database. Documented the endpoints so a teammate could consume them from the front end.",
+            "technologies": [
+              "Java",
+              "Spring Boot",
+              "REST"
+            ]
+          },
+          {
+            "title": "Algorithms practice repository",
+            "description": "Solved sixty algorithm problems in C++ and Java covering graphs, dynamic programming, heaps and string matching. Wrote short notes on the time and space complexity of each solution. Compared several sorting implementations on random and nearly sorted inputs to see how they behaved. Took part in two university programming contests.",
+            "technologies": [
+              "C++",
+              "Java"
+            ]
+          },
+          {
+            "title": "Team chat web app",
+            "description": "Built a React front end for a team chat application with channels, message history and typing indicators. Connected the interface to a WebSocket server and a REST API for message history. Managed the work with Git branches and pull requests in a team of four. Styled the interface to work on both phones and laptops.",
+            "technologies": [
+              "React",
+              "JavaScript",
+              "Git"
+            ]
+          },
+          {
+            "title": "Personal blog engine",
+            "description": "Wrote a small blog engine in Python with Flask that stores posts and comments in a relational database. Wrote SQL queries for tag pages and pagination. Added unit tests for the post-creation and comment rules. Deployed the blog in a Docker container on a rented Linux server and set up automatic restarts.",
+            "technologies": [
+              "Python",
+              "Flask",
+              "SQL",
+              "Docker",
+              "Linux"
+            ]
+          },
+          {
+            "title": "Game jam platformer",
+            "description": "Programmed a small platformer in Unity with C# during a 48-hour game jam. Wrote the player movement, enemy patrol behaviour and simple collision responses using vectors. Tuned jump height and acceleration until the controls felt responsive. Shared a playable build with the other jam participants.",
+            "technologies": [
+              "Unity",
+              "C#"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Software engineering intern",
+            "description": "Worked in a team of six on a Java service that processes customer invoices. Fixed reported bugs, wrote unit tests for the modules I changed and took part in daily stand-ups and code reviews. Added a new validation rule for invoice totals and updated the related documentation.",
+            "technologies": [
+              "Java",
+              "Git"
+            ]
+          },
+          {
+            "title": "Hackathon mentor",
+            "description": "Helped first-time participants at two weekend hackathons debug their Python and JavaScript projects. Explained version control basics and how to split a project into tasks the team could finish in a weekend.",
+            "technologies": [
+              "Python",
+              "JavaScript"
+            ]
+          },
+          {
+            "title": "Open source contributor",
+            "description": "Fixed several small issues in an open-source command line tool written in Python, including a crash on empty input and unclear error messages. Wrote tests for each fix and responded to maintainers' review comments.",
+            "technologies": [
+              "Python",
+              "Git"
+            ]
+          },
+          {
+            "title": "Volunteer developer for a local charity",
+            "description": "Maintained the charity's volunteer roster website, added an event calendar page and fixed layout problems on mobile phones. Trained two staff members to update the content themselves.",
+            "technologies": [
+              "HTML",
+              "CSS",
+              "JavaScript"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Computer Science",
+            "details": "Data structures, operating systems and software engineering modules completed"
+          }
+        ]
+      }
+    }
+  ]
+}

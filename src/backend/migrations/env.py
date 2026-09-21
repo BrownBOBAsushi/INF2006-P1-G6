@@ -27,6 +27,7 @@ if config.config_file_name is not None:
 # target_metadata = mymodel.Base.metadata
 from app.db.base import Base
 from app.db import models  # noqa: F401 — ensures models are registered on Base.metadata
+from app.catalogue import models as catalogue_models  # noqa: F401 — catalogue tables (Chuying), same Base
 
 target_metadata = Base.metadata
 # other values from the config, defined by the needs of env.py,

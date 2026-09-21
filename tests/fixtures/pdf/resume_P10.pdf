@@ -1,0 +1,82 @@
+Ethan Lee Jun Hao
+Email: synthetic.student10@example.com
+Phone: 9000 0010
+Address: Blk 110 Synthetic Road #02-010, Singapore 000000
+NRIC: S0000010Z
+Profile: https://example.com/in/synthetic-student-10
+
+Skills
+Java, Kotlin, Python, C++, C#, SQL, Git, Android, Spring Boot, React, Docker, Linux, Unity
+
+Projects
+Commuter Android app
+Built an Android app in Kotlin that shows live bus arrivals. Used activities and fragments and handled
+the activity lifecycle correctly when the screen rotated. Stored favourite stops on the device with a
+local Room database so they were available offline. Connected the app to a public transport web
+service and parsed its JSON responses. Published a beta build to the Play Store for classmates and
+fixed the crashes they reported.
+Technologies: Kotlin, Android, Room
+
+Order processing service
+Implemented REST endpoints in Java using Spring Boot and dependency injection for a mock online
+shop. Separated the code into controllers, services and repositories. Wrote object-oriented domain
+classes for orders, customers and products. Added integration tests with an in-memory database.
+Documented the endpoints so a teammate could consume them from the front end.
+Technologies: Java, Spring Boot, REST
+
+Algorithms practice repository
+Solved sixty algorithm problems in C++ and Java covering graphs, dynamic programming, heaps and
+string matching. Wrote short notes on the time and space complexity of each solution. Compared
+several sorting implementations on random and nearly sorted inputs to see how they behaved. Took
+part in two university programming contests.
+Technologies: C++, Java
+
+Team chat web app
+Built a React front end for a team chat application with channels, message history and typing
+indicators. Connected the interface to a WebSocket server and a REST API for message history.
+Managed the work with Git branches and pull requests in a team of four. Styled the interface to work
+on both phones and laptops.
+Technologies: React, JavaScript, Git
+
+Personal blog engine
+Wrote a small blog engine in Python with Flask that stores posts and comments in a relational
+database. Wrote SQL queries for tag pages and pagination. Added unit tests for the post-creation
+and comment rules. Deployed the blog in a Docker container on a rented Linux server and set up
+automatic restarts.
+Technologies: Python, Flask, SQL, Docker, Linux
+
+Game jam platformer
+Programmed a small platformer in Unity with C# during a 48-hour game jam. Wrote the player
+movement, enemy patrol behaviour and simple collision responses using vectors. Tuned jump height
+and acceleration until the controls felt responsive. Shared a playable build with the other jam
+participants.
+Technologies: Unity, C#
+Experience
+Software engineering intern
+Worked in a team of six on a Java service that processes customer invoices. Fixed reported bugs,
+wrote unit tests for the modules I changed and took part in daily stand-ups and code reviews. Added
+a new validation rule for invoice totals and updated the related documentation.
+Technologies: Java, Git
+
+Hackathon mentor
+Helped first-time participants at two weekend hackathons debug their Python and JavaScript projects.
+Explained version control basics and how to split a project into tasks the team could finish in a
+weekend.
+Technologies: Python, JavaScript
+
+Open source contributor
+Fixed several small issues in an open-source command line tool written in Python, including a crash
+on empty input and unclear error messages. Wrote tests for each fix and responded to maintainers'
+review comments.
+Technologies: Python, Git
+
+Volunteer developer for a local charity
+Maintained the charity's volunteer roster website, added an event calendar page and fixed layout
+problems on mobile phones. Trained two staff members to update the content themselves.
+Technologies: HTML, CSS, JavaScript
+
+
+Education
+BSc Computer Science - Data structures, operating systems and software engineering modules
+completed
+

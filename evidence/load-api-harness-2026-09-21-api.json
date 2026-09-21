@@ -1,0 +1,238 @@
+{
+  "date": "2026-09-21",
+  "machine": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "cpu": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+    "logical_cpus": 16,
+    "ram_gb": 31.3,
+    "python": "3.11.9",
+    "numpy": "2.4.6",
+    "blas_threads_env": {
+      "OMP_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null
+    }
+  },
+  "git": {
+    "commit": "c95f9624c66bfd349c718fcbf5a53465bf09f611",
+    "dirty_outside_evidence": false
+  },
+  "target": {
+    "kind": "harness",
+    "base_url": "http://127.0.0.1:<port> (reference harness)",
+    "description": "tests/load/harness_app.py: NOT the project's API; no auth/CSRF/database"
+  },
+  "harness_ready_seconds": 15.7,
+  "pdf": "resume_P10.pdf",
+  "pdf_bytes": 5320,
+  "deadline_s": 60.0,
+  "quick": false,
+  "scenarios": {
+    "api-concurrency": {
+      "note": "closed-loop concurrent resume-prepare requests. 'busy' (503 PROCESSING_BUSY) is a controlled rejection, not useful throughput; 'admitted_ok_per_s' counts only completed preparations.",
+      "pdf_bytes": 5320,
+      "rows": [
+        {
+          "concurrency": 1,
+          "requests": 15,
+          "wall_s": 13.1,
+          "admitted_ok_per_s": 1.14,
+          "busy_rate": 0.0,
+          "error_rate": 0.0,
+          "total": 15,
+          "ok": {
+            "count": 15,
+            "n": 15,
+            "p50_ms": 811.3,
+            "p95_ms": 1086.3,
+            "max_ms": 1087.6,
+            "mean_ms": 846.8
+          },
+          "busy": {
+            "count": 0
+          },
+          "timeout": {
+            "count": 0
+          },
+          "error": {
+            "count": 0
+          },
+          "error_codes": {}
+        },
+        {
+          "concurrency": 5,
+          "requests": 30,
+          "wall_s": 1.39,
+          "admitted_ok_per_s": 0.72,
+          "busy_rate": 0.967,
+          "error_rate": 0.0,
+          "total": 30,
+          "ok": {
+            "count": 1,
+            "n": 1,
+            "p50_ms": 793.6,
+            "p95_ms": 793.6,
+            "max_ms": 793.6,
+            "mean_ms": 793.6
+          },
+          "busy": {
+            "count": 29,
+            "n": 29,
+            "p50_ms": 2.6,
+            "p95_ms": 4.8,
+            "max_ms": 5.2,
+            "mean_ms": 2.8
+          },
+          "timeout": {
+            "count": 0
+          },
+          "error": {
+            "count": 0
+          },
+          "error_codes": {}
+        },
+        {
+          "concurrency": 10,
+          "requests": 50,
+          "wall_s": 1.54,
+          "admitted_ok_per_s": 0.65,
+          "busy_rate": 0.98,
+          "error_rate": 0.0,
+          "total": 50,
+          "ok": {
+            "count": 1,
+            "n": 1,
+            "p50_ms": 818.4,
+            "p95_ms": 818.4,
+            "max_ms": 818.4,
+            "mean_ms": 818.4
+          },
+          "busy": {
+            "count": 49,
+            "n": 49,
+            "p50_ms": 1.9,
+            "p95_ms": 11.9,
+            "max_ms": 23.5,
+            "mean_ms": 3.2
+          },
+          "timeout": {
+            "count": 0
+          },
+          "error": {
+            "count": 0
+          },
+          "error_codes": {}
+        },
+        {
+          "concurrency": 25,
+          "requests": 100,
+          "wall_s": 2.08,
+          "admitted_ok_per_s": 0.48,
+          "busy_rate": 0.99,
+          "error_rate": 0.0,
+          "total": 100,
+          "ok": {
+            "count": 1,
+            "n": 1,
+            "p50_ms": 984.4,
+            "p95_ms": 984.4,
+            "max_ms": 984.4,
+            "mean_ms": 984.4
+          },
+          "busy": {
+            "count": 99,
+            "n": 99,
+            "p50_ms": 1.4,
+            "p95_ms": 3.2,
+            "max_ms": 24.1,
+            "mean_ms": 2.4
+          },
+          "timeout": {
+            "count": 0
+          },
+          "error": {
+            "count": 0
+          },
+          "error_codes": {}
+        }
+      ]
+    },
+    "browse-during-processing": {
+      "note": "4 browse clients (GET /api/jobs, 50 ms think time) alone for 5 s, then for 25 s together with 5 clients repeatedly submitting resume-prepare requests (closed loop).",
+      "browse_baseline": {
+        "total": 330,
+        "ok": {
+          "count": 330,
+          "n": 330,
+          "p50_ms": 3.2,
+          "p95_ms": 4.8,
+          "max_ms": 15.0,
+          "mean_ms": 3.4
+        },
+        "busy": {
+          "count": 0
+        },
+        "timeout": {
+          "count": 0
+        },
+        "error": {
+          "count": 0
+        },
+        "error_codes": {}
+      },
+      "browse_during_processing": {
+        "total": 1720,
+        "ok": {
+          "count": 1720,
+          "n": 1720,
+          "p50_ms": 5.3,
+          "p95_ms": 8.7,
+          "max_ms": 21.1,
+          "mean_ms": 5.5
+        },
+        "busy": {
+          "count": 0
+        },
+        "timeout": {
+          "count": 0
+        },
+        "error": {
+          "count": 0
+        },
+        "error_codes": {}
+      },
+      "processing": {
+        "total": 26599,
+        "ok": {
+          "count": 27,
+          "n": 27,
+          "p50_ms": 901.2,
+          "p95_ms": 1180.4,
+          "max_ms": 1203.4,
+          "mean_ms": 932.4
+        },
+        "busy": {
+          "count": 26572,
+          "n": 26572,
+          "p50_ms": 3.4,
+          "p95_ms": 5.9,
+          "max_ms": 35.7,
+          "mean_ms": 3.6
+        },
+        "timeout": {
+          "count": 0
+        },
+        "error": {
+          "count": 0
+        },
+        "error_codes": {}
+      },
+      "architecture_targets_for_reference": {
+        "busy_response_target_ms": 1000,
+        "busy_response_p95_ms_measured": 5.9,
+        "admitted_processing_target_s": 60,
+        "admitted_processing_max_s_measured": 1.2,
+        "note": "targets come from ARCHITECTURE.md 'Local acceptance'; they concern the real API, so they are only indicative here."
+      }
+    }
+  }
+}

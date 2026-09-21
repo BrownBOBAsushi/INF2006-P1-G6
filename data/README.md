@@ -1,6 +1,6 @@
 # Data and provenance
 
-Status: dataset not yet created. Local development must use synthetic jobs and resumes.
+Status: synthetic evaluation fixtures created 2026-09-20 in `evaluation/` (30 jobs, 10 profiles, 300 labels; labels AI-drafted, human review pending). Synthetic resume PDFs (fictional PII, plus edge cases) are in `../tests/fixtures/pdf/`. `synthetic_jobs.json` for the importer is not yet created. Local development must use synthetic jobs and resumes.
 Owner: Chuying; Zhihao reviews provenance and evaluation labels.
 
 Create synthetic_jobs.json matching the import contract and synthetic PDF fixtures under tests/fixtures/. Label examples synthetic in the UI when used for demos. Never use real student resumes as committed fixtures.

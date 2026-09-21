@@ -1,0 +1,47 @@
+Jason Chua Kai Xiang
+Email: synthetic.student08@example.com
+Phone: 9000 0008
+Address: Blk 108 Synthetic Road #09-008, Singapore 000000
+NRIC: S0000008Z
+Profile: https://example.com/in/synthetic-student-08
+
+Skills
+C, C++, Arduino, STM32, Python, Git, I2C, SPI
+
+Projects
+Plant moisture monitor
+Programmed an Arduino microcontroller in C++ to read a soil sensor over I2C, sleep between
+readings and send data over a serial link. Used interrupts to wake the board on a timer.
+Technologies: C++, Arduino, I2C
+
+STM32 motor controller
+Wrote a driver in C for an STM32 board to drive a motor through PWM and read a wheel encoder
+using SPI. Used an oscilloscope and logic analyser to debug timing problems on the real hardware
+and read the datasheet to set registers.
+Technologies: C, STM32, SPI
+
+Small RTOS task scheduler
+Ran three tasks on FreeRTOS: sensor sampling, display update and logging, and used queues to
+share data safely.
+Technologies: FreeRTOS, C
+
+2D collision demo
+Wrote a small interactive 2D physics demo in C++ where the arrow keys move a ball, using vector
+maths to detect and resolve collisions with walls.
+Technologies: C++
+
+Sensor logger on a single-board computer
+Wrote a Python program on a Raspberry Pi that stores sensor readings in a SQLite database with
+SQL insert statements and exposes the latest readings through a small Flask endpoint.
+Technologies: Python, Flask, SQLite
+
+
+Experience
+Robotics club firmware volunteer
+Fixed hardware bugs on the club's line-following robot before competitions.
+Technologies: C++
+
+
+Education
+BEng Electrical and Computer Engineering - Digital systems and microcontroller modules completed
+

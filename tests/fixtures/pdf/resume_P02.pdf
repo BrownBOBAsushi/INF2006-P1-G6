@@ -1,0 +1,37 @@
+Daniel Ong Wei Jie
+Email: synthetic.student02@example.com
+Phone: 9000 0002
+Address: Blk 102 Synthetic Road #03-002, Singapore 000000
+NRIC: S0000002Z
+Profile: https://example.com/in/synthetic-student-02
+
+Skills
+SQL, Excel, Tableau, Python, pandas, Statistics
+
+Projects
+Retail sales dashboard
+Combined three years of store sales tables using SQL joins and aggregations, then built an
+interactive Tableau dashboard that shows monthly revenue by region. Presented the findings to a
+mock panel of store managers.
+Technologies: SQL, Tableau
+
+Housing price study
+Fitted a linear regression to public housing data in Python and checked the residuals to see whether
+the assumptions held. Wrote a short report explaining in plain language which factors moved prices.
+Technologies: Python, pandas, regression
+
+Survey cleaning task
+Cleaned messy responses from a 300-person student survey in Excel, removing duplicates and
+standardising answers, before summarising trends with pivot tables.
+Technologies: Excel
+
+
+Experience
+Part-time stock assistant
+Counted stock and kept the weekly sales log up to date in a spreadsheet.
+Technologies: Excel
+
+
+Education
+BSc Business Analytics - Statistics and probability modules completed
+

@@ -1,0 +1,38 @@
+Nur Amirah Ismail
+Email: synthetic.student07@example.com
+Phone: +65 9000 0007
+Address: Blk 107 Synthetic Road #08-007, Singapore 000000
+NRIC: S0000007Z
+Profile: https://example.com/in/synthetic-student-07
+
+Skills
+Python, SQL, pandas, PostgreSQL, Airflow, Spark, Git, Docker
+
+Projects
+Bike-share data pipeline
+Wrote Python scripts that download monthly trip files, clean and reshape them with pandas and load
+them into a PostgreSQL warehouse using SQL COPY and INSERT statements. Added checks that
+stop the load when the row count or null rate looks wrong.
+Technologies: Python, pandas, PostgreSQL, SQL
+
+Scheduled ingestion
+Scheduled the pipeline to run every night using Apache Airflow and cron, and wrote alerts for failed
+runs.
+Technologies: Airflow, cron
+
+Warehouse reporting views
+Created SQL views that join and aggregate the trip tables so analysts could build weekly reports, then
+built an interactive Tableau dashboard on top of them.
+Technologies: SQL, Tableau
+
+
+Experience
+Data intern at a student-run startup
+Consolidated customer spreadsheets into one database table and explained the data quality issues
+to the founders in plain language.
+Technologies: SQL, Excel
+
+
+Education
+BSc Data Science - Databases and distributed systems modules completed
+

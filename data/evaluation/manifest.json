@@ -1,0 +1,48 @@
+{
+  "dataset": "internship-matcher-synthetic-evaluation",
+  "version": 1,
+  "created": "2026-09-20",
+  "synthetic_only": true,
+  "contains_real_people_or_scraped_data": false,
+  "counts": {
+    "profiles": 10,
+    "jobs": 30,
+    "labels": 300,
+    "development_profiles": 5,
+    "held_out_profiles": 5
+  },
+  "split": {
+    "development": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05"
+    ],
+    "held_out": [
+      "P06",
+      "P07",
+      "P08",
+      "P09",
+      "P10"
+    ]
+  },
+  "label_scale": {
+    "0": "irrelevant",
+    "1": "partly relevant",
+    "2": "relevant"
+  },
+  "criteria_file": "LABELLING_CRITERIA.md",
+  "label_provenance": {
+    "author": "AI assistant (Claude), drafted from LABELLING_CRITERIA.md",
+    "drafted_on": "2026-09-20",
+    "drafted_before_any_model_output": true,
+    "model_output_used_to_write_or_adjust_labels": false
+  },
+  "label_review": {
+    "status": "PENDING",
+    "reviewer": null,
+    "date": null,
+    "note": "No human on the team has reviewed these labels yet; results are provisional until status is COMPLETED."
+  }
+}

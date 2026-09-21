@@ -1,0 +1,38 @@
+Priya Ramanathan Nair
+Email: synthetic.student01@example.com
+Phone: +65 9000 0001
+Address: Blk 101 Synthetic Road #02-001, Singapore 000000
+NRIC: S0000001Z
+Profile: https://example.com/in/synthetic-student-01
+
+Skills
+Python, Java, SQL, PostgreSQL, Flask, Spring Boot, Git, Linux, HTML
+
+Projects
+Campus event booking service
+Built a Flask application exposing endpoints that let students reserve seats at campus events.
+Designed the PostgreSQL tables, wrote SQL for the availability checks and added pytest cases
+covering the reservation rules.
+Technologies: Python, Flask, PostgreSQL, pytest
+
+Inventory microservice (coursework)
+Implemented a Spring Boot service in Java with controllers, services and repositories using
+dependency injection. The service exposes REST endpoints for stock items and calls a second
+service for supplier data.
+Technologies: Java, Spring Boot, REST
+
+Nightly data loader
+Wrote a Python script that reads exported CSV files, cleans the columns and loads them into
+PostgreSQL every night through a cron entry. Logged rejected rows for later review.
+Technologies: Python, SQL, cron
+
+
+Experience
+Teaching assistant, introductory programming
+Ran weekly lab sessions for 25 first-year students and marked Python assignments.
+Technologies: Python
+
+
+Education
+BSc Computer Science - Currently in year 2
+
