@@ -128,9 +128,13 @@ legend { font-weight: 700; text-transform: capitalize; }
 kbd { display: grid; place-items: center; width: 25px; height: 25px; font-size: .75rem; background: white; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); }
 .search-submit { padding: 1rem 1.5rem; border-radius: 14px; box-shadow: 0 10px 24px rgb(36 81 196 / 18%); }
 .filter-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; padding-top: .9rem; }.refine-label { font-size: .65rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: var(--muted); margin-right: .25rem; }
-.dropdown-filter { position: relative; min-width: 0; }.dropdown-trigger { background: #f9fbfd; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: .65rem .85rem; gap: .5rem; min-height: 42px; }
+.dropdown-filter { position: relative; min-width: 0; width: 260px; max-width: 100%; }
+.dropdown-trigger { display: grid; grid-template-columns: 112px minmax(0,1fr) 13px; align-items: center; justify-content: stretch; width: 100%; min-width: 188px; height: 42px; background: #f9fbfd; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 0 13px 0 14px; gap: 8px; text-align: left; line-height: 1; }
 .dropdown-trigger:hover:not(:disabled),.dropdown-trigger[aria-expanded=true] { background: white; color: var(--ink); border-color: #adbed1; box-shadow: 0 4px 16px rgb(10 25 48 / 5%); }
-.drop-label { color: var(--muted); font-size: .7rem; font-weight: 600; }.drop-value { font-size: .78rem; text-transform: capitalize; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }.drop-caret { color: var(--muted); margin-left: auto; }
+.drop-label { color: var(--muted); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.drop-value { min-width: 0; font-size: 13px; font-weight: 700; text-transform: capitalize; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drop-caret { display: grid; place-items: center; width: 13px; height: 13px; color: var(--muted); font-size: 13px; line-height: 1; transition: transform .18s ease; }
+.dropdown-trigger[aria-expanded=true] .drop-caret { transform: rotate(180deg); }
 .dropdown-menu { position: absolute; left: 0; top: calc(100% + 8px); width: 260px; max-width: calc(100vw - 66px); max-height: min(340px,50vh); overflow-y: auto; z-index: 25; padding: .5rem; background: white; border: 1px solid var(--line); border-radius: 16px; box-shadow: 0 20px 42px rgb(10 25 48 / 15%); }
 .dropdown-menu fieldset { padding: 0; border: 0; margin: 0; }.dropdown-all { width: 100%; justify-content: flex-start; background: transparent; color: var(--muted); font-size: .8rem; padding: .65rem .7rem; }
 .dropdown-all:hover:not(:disabled) { background: var(--soft); color: var(--ink); box-shadow: none; }
@@ -156,7 +160,7 @@ kbd { display: grid; place-items: center; width: 25px; height: 25px; font-size: 
 @media(max-width:1000px) { .jobs-layout { grid-template-columns: minmax(0,1fr); }.catalogue-aside { box-shadow: none; } }
 @media(max-width:720px) {
   .search-dock { padding: .8rem; border-radius: 16px; }.search-command-row { grid-template-columns: 1fr; gap: .5rem; }.search-submit { padding: .65rem; }.command-search { padding: .5rem .7rem; min-height: 58px; }
-  .refine-label { display: none; }.filter-row { gap: .4rem; }.dropdown-filter { flex: 1 1 130px; }.dropdown-trigger { width: 100%; border-radius: 12px; flex-wrap: wrap; gap: .15rem .4rem; padding: .5rem .6rem; }.drop-label { width: calc(100% - 18px); text-align: left; }.drop-value { max-width: 125px; }.drop-caret { position: absolute; right: .6rem; top: .5rem; }.dropdown-menu { width: 100%; min-width: 180px; }.dropdown-filter:nth-of-type(2) .dropdown-menu { left: auto; right: 0; }
+  .refine-label { display: none; }.filter-row { gap: .4rem; }.dropdown-filter { width: 100%; }.dropdown-menu { width: 100%; min-width: 0; max-width: 100%; }
   .dock-toolbar > span { font-size: .6rem; }.pin-toggle { font-size: .68rem; }.search-help { font-size: .65rem; }.suggestion-row { margin-top: .6rem; }.job-card { padding: 1.2rem; }.job-top { flex-wrap: wrap; gap: .7rem; }.job-card h2 { font-size: 1.1rem; }.job-identity .company-badge { display: none; }.job-bottom { align-items: flex-start; flex-direction: column; }
 }
 /* Job detail keeps source content and actions visually distinct. */

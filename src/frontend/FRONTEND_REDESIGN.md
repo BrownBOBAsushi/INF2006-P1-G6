@@ -186,3 +186,46 @@ Regular `npm run dev` uses the actual same-origin API and Google integration,
 with no fixture fallback. It was also launched as `npm run dev -- --port 8091`
 for an entry-screen check. A live sign-in review should use the configured Google
 origin (normally port 8080), its public client ID, and Jiaxin's backend.
+
+## Presentation follow-up: review consistency
+
+Following the standalone review, the user requested these presentation-only
+corrections on 21 September 2026:
+
+- Catalogue filters share a 42px height, 188px minimum width and 260px desktop
+  width. A fixed label column, flexible selected-value column and 13px chevron
+  column preserve alignment with 8px gaps and reference-style horizontal padding.
+  On mobile all three controls use full-width rows with the same height and
+  alignment. Long selections truncate visually and expose their text on hover.
+- The decorative chevron now uses the reference glyph and rotates on disclosure.
+  Native checkbox multi-select, keyboard/focus behavior, dismissal, query state,
+  filtering and menu-placement calculations remain unchanged.
+- Catalogue cards no longer render a leading company-initial badge. The existing
+  detail-page company context and initials are unchanged.
+- `docs/xue-ui-review.html` is regenerated directly from the updated components
+  and stylesheet. It restores the existing React Matches hero/unavailable state,
+  without adding recommendation data or scores. Resume remains outside the HTML
+  review scope; no teammate-owned component is bundled.
+
+Production source edits are limited to `styles.css`, `FilterDropdown.tsx` and
+`JobCard.tsx`. No changes to production routes/App, API contracts/client, backend,
+auth/session code, resume code, filter handlers, query logic or dependencies.
+Scope and preview adaptations are recorded in `docs/XUE_UI_REVIEW.md`.
+
+Validation using the existing Node 24.21.0/npm 11.19.0 runtime:
+
+- `npm run typecheck`: passed.
+- `npm test`: **189 tests passed across 15 files**.
+- `npm run build`: passed; production fixture-exclusion guard passed.
+- Headless Chrome opened the HTML directly with networking disabled: **84 browser
+  assertions passed**, with no uncaught exceptions, browser errors or HTTP(S)
+  requests. Existing flows and native multi-select behavior passed.
+- At widths 1440, 768, 390 and 320, filter dimensions and value/chevron alignment
+  passed for All and multiple selections. Catalogue/detail/onboarding/login/Matches
+  had no horizontal overflow. Dropdown bounds and the 320 × 568 pin suspension
+  check passed. Desktop catalogue/Matches and mobile catalogue were visually inspected.
+- `git diff --check`: passed. Protected behavior paths have no diff.
+
+Build/browser helpers remain in the Windows temporary folder. Vitest/Vite/esbuild
+and hidden headless Chrome required the existing subprocess sandbox escalation.
+No production deployment, commit, push, dependency install or backend change.
