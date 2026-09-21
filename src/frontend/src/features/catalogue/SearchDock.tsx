@@ -19,6 +19,7 @@ export function SearchDock({ search, setSearch, params, onSearch, onFilter, onCl
     const measure = () => {
       const height = dock.current?.getBoundingClientRect().height;
       if (!height) return;
+      document.documentElement.style.setProperty('--search-dock-height', `${height}px`);
       const nav = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 80;
       setPinFits((window.visualViewport?.height ?? window.innerHeight) >= nav + height + 180);
     };
@@ -26,7 +27,7 @@ export function SearchDock({ search, setSearch, params, onSearch, onFilter, onCl
     const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(measure);
     if (dock.current) observer?.observe(dock.current);
     window.addEventListener('resize', measure); window.visualViewport?.addEventListener('resize', measure);
-    return () => { observer?.disconnect(); window.removeEventListener('resize', measure); window.visualViewport?.removeEventListener('resize', measure); };
+    return () => { observer?.disconnect(); window.removeEventListener('resize', measure); window.visualViewport?.removeEventListener('resize', measure); document.documentElement.style.removeProperty('--search-dock-height'); };
   }, []);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {

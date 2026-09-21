@@ -15,11 +15,19 @@ function setup(path = '/jobs', fetcher = createMockFetch()) {
   return { client, request, user: userEvent.setup() };
 }
 async function enter(user: ReturnType<typeof userEvent.setup>) {
+  await user.click(await screen.findByRole('button', { name: /Browse roles/ }));
   await user.click(await screen.findByRole('button', { name: 'Enter synthetic preview' }));
   await user.type(await screen.findByLabelText('Display name'), 'Synthetic Student');
   await user.click(screen.getByRole('button', { name: 'Skip for now' }));
   await screen.findByRole('heading', { name: 'Browse internships' });
 }
+test('recommendations redirects to onboarding before a display name is set', async () => {
+  const { user } = setup('/matches');
+  await user.click(await screen.findByRole('button', { name: /Browse roles/ }));
+  await user.click(await screen.findByRole('button', { name: 'Enter synthetic preview' }));
+  expect(await screen.findByRole('heading', { name: 'Welcome to Internship Matcher' })).toBeInTheDocument();
+  expect(screen.getByTestId('location')).toHaveTextContent('/onboarding');
+});
 test('bootstrap/exchange CSRF, optional resume skip, paging, filter reset and literal keyword search', async () => {
   const { user, request } = setup();
   await enter(user);
@@ -57,7 +65,8 @@ test('closed details remain visible with Apply disabled; unknown UUID is not fou
   expect(screen.getByRole('button', { name: 'Apply unavailable' })).toBeDisabled();
   expect(screen.queryByRole('link', { name: 'Apply on source website' })).not.toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Logout' }));
-  await screen.findByRole('button', { name: 'Enter synthetic preview' });
+  await screen.findByRole('button', { name: /Browse roles/ });
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
 test('unknown job detail is not found after authenticated session restoration', async () => {
   const fetcher = createMockFetch();
@@ -72,8 +81,9 @@ test('resume seam mounts existing Nasya workspace and logout clears private UI',
   await user.click(screen.getByRole('link', { name: 'Resume' }));
   expect(await screen.findByTestId('no-resume-state')).toBeInTheDocument();
   await user.click(screen.getByRole('button', { name: 'Logout' }));
-  await screen.findByRole('button', { name: 'Enter synthetic preview' });
+  await screen.findByRole('button', { name: /Browse roles/ });
   expect(screen.queryByTestId('no-resume-state')).not.toBeInTheDocument();
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(window.localStorage.length).toBe(0); expect(window.sessionStorage.length).toBe(0);
 });
 test('RESULTS_CHANGED restarts paging with a visible notice', async () => {

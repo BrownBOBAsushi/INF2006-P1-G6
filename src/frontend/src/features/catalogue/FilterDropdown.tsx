@@ -42,7 +42,7 @@ export function FilterDropdown({ title, options, selected, open, onOpen, onChang
   }}>
     <button type="button" ref={trigger} className="dropdown-trigger" aria-expanded={open} aria-controls={id} onClick={() => onOpen(!open)}
       onKeyDown={event => { if (event.key === 'ArrowDown') { event.preventDefault(); if (open) firstOption.current?.focus(); else { focusOnOpen.current = true; onOpen(true); } } }}>
-      <span className="drop-label">{title}</span><span className="drop-value" title={summary}>{summary}</span><span className="drop-caret" aria-hidden="true">▾</span>
+      <span className="drop-label">{title}</span><span className="drop-value" title={summary}><span className="drop-value-full">{summary}</span><span className="drop-value-count">{selected.length ? `${selected.length} selected` : 'All'}</span></span><span className="drop-caret" aria-hidden="true">▾</span>
     </button>
     <div id={id} className="dropdown-menu" hidden={!open} data-above={placement?.above} style={placement ? { maxHeight: placement.maxHeight } : undefined}>
       <button type="button" className="dropdown-all" onClick={() => { onClear(); onOpen(false); trigger.current?.focus(); }}>All {title.toLowerCase()}</button>

@@ -2,6 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
 import { ApiClient } from '../../api/client';
+import { jobs } from '../../dev/catalogue';
 import { createMockFetch } from '../../dev/mockFetch';
 import { Catalogue } from './Catalogue';
 import { SEARCH_DOCK_PIN_KEY } from './SearchDock';
@@ -78,6 +79,24 @@ test('pinning still works when browser storage is blocked', async () => {
   const { user } = await setup();
   await user.click(screen.getByRole('button', { name: 'Unpin search dock' }));
   expect(screen.getByRole('button', { name: 'Pin search dock' })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('desktop card selection keeps the current query and exposes the selected job in the URL', async () => {
+  const { user } = await setup('/jobs?q=Python');
+  await user.click(screen.getByRole('link', { name: jobs[0]!.title }));
+  const query = new URLSearchParams(screen.getByTestId('location').textContent!);
+  expect(query.get('q')).toBe('Python');
+  expect(query.get('selected')).toBe(jobs[0]!.job_id);
+  expect(screen.getByRole('complementary', { name: 'Selected job' })).toBeInTheDocument();
+});
+
+test('desktop selection returns the detail pane to its top when the job changes', async () => {
+  const { user } = await setup();
+  const pane = screen.getByRole('complementary', { name: 'Selected job' });
+  pane.scrollTop = 902;
+  await user.click(screen.getByRole('link', { name: 'Software Intern 17' }));
+  await waitFor(() => expect(screen.getByTestId('location')).toHaveTextContent(jobs[16]!.job_id));
+  expect(pane.scrollTop).toBe(0);
 });
 
 test('slash cannot move focus into an inert workspace during session recovery', async () => {
