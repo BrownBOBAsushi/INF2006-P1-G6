@@ -2,7 +2,8 @@
 
 Status: RUN on 2026-09-20. **Results are provisional: the relevance labels are AI-drafted and have not yet been
 reviewed by a human team member.** They are not human ground truth until `data/evaluation/manifest.json`
-`label_review.status` is `COMPLETED`.
+`label_review.status` is `COMPLETED`. Later partial team input (12 adjudicated pairs, 48 labels of unverified origin) is described in
+"Label provenance and later label sets" at the end of this file.
 
 - **Objective:** Measure ranking quality (Precision@5, NDCG@5) of the contract's requirement-level embedding
   ranking against two baselines (keyword/BM25, pooled-chunk embedding; plus a truncating whole-resume
@@ -98,3 +99,23 @@ reviewed by a human team member.** They are not human ground truth until `data/e
   7. Reproducibility rerun of the documented default command: MiniLM numbers identical to run 5 in all 24 cells; tests passed again (16).
 - **Failure diagnosis / rerun:** No failures. Held-out was scored only after code freeze and no method, parameter or
   label was changed after seeing any result. To reproduce: follow `analytics/README.md`.
+
+## Label provenance and later label sets (added 2026-09-22; written by Chuying, awaiting review by Zhihao)
+
+The headline run above used the AI-drafted `labels.csv` and is unchanged. Two further runs used label sets that include some team input. Neither is independent
+human ground truth; `manifest.json` `label_review.status` is still `PENDING`.
+
+| Label set | Contents | Held-out requirement-level, MiniLM / bge (strict / lenient / NDCG@5) | Evidence |
+|---|---|---|---|
+| `labels.csv` | 300 AI-drafted labels | 0.640 / 0.760 / 0.922 and 0.640 / 0.720 / 0.912 | `data-ai-eval-2026-09-20.md/.json` |
+| `labels_adjudicated_v1.csv` | AI draft with 12 disputed pairs decided by Chuying **after seeing the AI labels** (6 changed) | 0.680 / 0.760 / 0.919 and 0.680 / 0.720 / 0.912 | `data-ai-eval-2026-09-22-adjudicated-v1.md/.json` |
+| `labels_merged_v2_unverified48.csv` (not kept; rebuilt from `labels_adjudicated_v1.csv` + `labels_48.csv`, see `data/evaluation/README.md`) | adjudicated set with 48 team-supplied labels of **unverified origin** (3 changed, agree with the draft on 45/48) | 0.640 / 0.760 / 0.919 and 0.680 / 0.720 / 0.925 | `data-ai-eval-2026-09-22-merged-v2-unverified48.md/.json` |
+
+Held-out BM25 over the same sets: 0.640 / 0.720 / 0.910, 0.640 / 0.680 / 0.868 and 0.640 / 0.680 / 0.881. Requirement-level stays at or above BM25 on NDCG@5 in
+all three, but with 5 held-out profiles this is not tested for significance and no method or model winner is claimed. Labels were changed after the first
+results existed; the changes come from a person's review, none was tuned to improve a score, and all result sets are kept side by side.
+
+Limits: only 12 pairs are personally decided by a team member (4 %), and that was not blind; 48 further labels have unverified origin; about 240 pairs
+remain AI-drafted only. The plan in `LABELLING_CRITERIA.md` (independent blind labelling) has not been completed. Other label files supplied during
+review were checked and not used because their origin could not be established. Files: `data/evaluation/labels_human_adjudication12.csv`,
+`labels_48.csv`.

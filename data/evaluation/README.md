@@ -68,3 +68,18 @@ embeds both sides identically). To show how much that choice matters, one extra 
 requirement texts only for bge-small (`--requirement-prefix`); baselines are unchanged. It is reported as a
 labelled sensitivity analysis alongside, not instead of, the headline run; it is not a selection step and no
 setting is chosen from it.
+
+
+## Label files (added 2026-09-22)
+
+Only `labels.csv` is the original AI draft. The others are kept because `evidence/test-data-ai.md` and the evidence runs refer to them.
+No file here is independent human ground truth; `manifest.json` `label_review.status` is `PENDING`.
+
+| File | What it is |
+|---|---|
+| `labels.csv` | 300 labels drafted by an AI assistant before any model output (used by the headline run). |
+| `labelling_sheet_blank.csv` | Empty sheet for a blind human labelling pass (see `LABELLING_CRITERIA.md`). |
+| `labels_human_adjudication12.csv` | 12 disputed pairs decided by Chuying after seeing the AI labels, with reasons. |
+| `labels_adjudicated_v1.csv` | The AI draft with those 12 pairs replaced (6 changed). |
+| `labels_48.csv` | 48 team-supplied labels (origin unverified; see `AI_USE_DECLARATION.md`). |
+| *(not kept)* `labels_merged_v2_unverified48.csv` | Used by `evidence/data-ai-eval-2026-09-22-merged-v2-unverified48.*`. Rebuild: take `labels_adjudicated_v1.csv` and replace the `relevance` of the 48 pairs in `labels_48.csv` (3 change). Checked to give identical relevance values; the rationale column and file hash differ. |
