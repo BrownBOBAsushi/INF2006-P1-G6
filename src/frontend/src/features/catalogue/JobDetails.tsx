@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { ApiClient, ApiError } from '../../api/client';
 import type { JobDetail } from '../../api/contracts';
-import { label } from './Catalogue';
+import { displayDate, initials, label } from './jobPresentation';
 
 export function safeExternalUrl(value: string): string | undefined {
   try { const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password && value.length <= 2048 ? url.href : undefined; }
@@ -23,24 +23,51 @@ export function JobDetails({ client, accessRevision = 0 }: { client: ApiClient; 
       .catch(cause => { if (active) setError(cause instanceof ApiError && cause.status === 404 ? 'Job not found.' : 'Job details could not load. Please retry.'); });
     return () => { active = false; controller.abort(); };
   }, [client, id, retry, accessRevision]);
-  if (error) return <section><h1>{error}</h1><Link to="/jobs">Browse jobs</Link>{error !== 'Job not found.' && <button onClick={() => setRetry(value => value + 1)}>Retry loading details</button>}</section>;
-  if (!job) return <p role="status">Loading job details…</p>;
+  if (error) return <section className="panel empty-state"><p className="eyebrow">Internship details</p><h1>{error}</h1><div className="actions"><Link to="/jobs">Browse jobs</Link>{error !== 'Job not found.' && <button onClick={() => setRetry(value => value + 1)}>Retry loading details</button>}</div></section>;
+  if (!job) return <section className="panel" aria-busy="true"><p role="status">Loading job details…</p><div className="skeleton" aria-hidden="true" /></section>;
   const apply = safeExternalUrl(job.apply_url), source = safeExternalUrl(job.source_url);
-  return <article className="panel">
-    <Link to="/jobs">Browse jobs</Link><p className="eyebrow">{job.company_name}</p><h1>{job.title}</h1>
-    <p>{job.location} · {label(job.job_type)} · {label(job.employment_time)} · {label(job.work_arrangement)}</p>
-    {!job.is_active && <p role="status">This listing is closed. Its details remain available.</p>}
-    <div className="actions">{job.is_active && apply ? <a className="button" href={apply} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Apply on source website</a> : <button disabled>Apply unavailable</button>}</div>
-    <p>Apply opens the source in a new tab. We do not send your resume. Confirm availability on the source website.</p>
-    <h2>About this internship</h2><p className="preserve">{job.description}</p>
-    <h2>Requirements</h2><ul>{job.requirements.map(requirement => <li key={requirement.requirement_id}>
-      <strong>{label(requirement.importance)}: </strong>{requirement.requirement_text}
-      {requirement.alternatives.length > 0 && <p>Alternatives (any one): {requirement.alternatives.join(' OR ')}</p>}
-      <blockquote>{requirement.source_quote}</blockquote>
-    </li>)}</ul>
-    {job.eligibility_notes.length > 0 && <><h2>Eligibility notes</h2><ul>{job.eligibility_notes.map((note, index) => <li key={index}>{note.text}</li>)}</ul></>}
-    <h2>Source and freshness</h2><p>{source ? <a href={source} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{job.source}</a> : job.source}</p>
-    <p>Posted: {job.posted_at?.slice(0, 10) ?? 'Unknown'} · Last imported: {job.last_imported_at.slice(0, 10)}</p>
-    <p>Last verified: {job.last_verified_at?.slice(0, 10) ?? 'Not verified'}. Import time does not mean live availability.</p>
+  const firstParagraph = job.description.split(/\n\s*\n/)[0] ?? '';
+  const summary = firstParagraph.length > 240 ? firstParagraph.slice(0, 240).replace(/\s+\S*$/, '') + '…' : firstParagraph;
+  return <article className="job-detail">
+    <Link className="back-link" to="/jobs"><span aria-hidden="true">← </span>Browse jobs</Link>
+    <header className="panel detail-hero">
+      <div className="detail-context"><div className="job-identity"><span className="company-badge" aria-hidden="true">{initials(job.company_name)}</span><div><p className="eyebrow">{job.company_name}</p><p className="company">{job.location} · {job.country_code}</p></div></div><span className={'status-pill' + (job.is_active ? '' : ' closed')}>{job.is_active ? 'Open' : 'Closed'}</span></div>
+      <h1>{job.title}</h1>
+      {summary && <p className="role-summary">{summary}</p>}
+      <div className="pills"><span className="pill">{label(job.job_type)}</span><span className="pill">{label(job.employment_time)}</span><span className="pill">{label(job.work_arrangement)}</span><span className="pill source-pill">Imported listing</span></div>
+      {!job.is_active && <p className="notice" role="status">This listing is closed. Its details remain available.</p>}
+    </header>
+    <div className="detail-layout">
+      <div className="detail-body">
+        <section className="panel" aria-labelledby="role-info-heading"><p className="eyebrow">At a glance</p><h2 id="role-info-heading">Role information</h2>
+          <dl className="job-meta-grid">
+            <div><dt>Job type</dt><dd>{label(job.job_type)}</dd></div><div><dt>Employment time</dt><dd>{label(job.employment_time)}</dd></div>
+            <div><dt>Work arrangement</dt><dd>{label(job.work_arrangement)}</dd></div><div><dt>Location</dt><dd>{job.location}</dd></div>
+            <div><dt>Country</dt><dd>{job.country_code}</dd></div><div><dt>Posted</dt><dd>{displayDate(job.posted_at)}</dd></div>
+          </dl>
+        </section>
+        <section className="panel detail-description" aria-labelledby="about-role-heading"><p className="eyebrow">The opportunity</p><h2 id="about-role-heading">About this internship</h2><p className="preserve">{job.description}</p></section>
+        <section className="panel" aria-labelledby="requirements-heading"><p className="eyebrow">What the role asks for</p><h2 id="requirements-heading">Requirements</h2>
+          {job.requirements.length ? <ul className="requirements-list">{job.requirements.map(requirement => <li key={requirement.requirement_id}>
+            <span className={'requirement-level ' + requirement.importance.toLowerCase()}>{label(requirement.importance)}</span><p>{requirement.requirement_text}</p>
+            {requirement.alternatives.length > 0 && <p className="alternatives">Alternatives (any one): {requirement.alternatives.join(' OR ')}</p>}
+            {requirement.source_quote && <blockquote><span className="quote-label">From the source</span>{requirement.source_quote}</blockquote>}
+          </li>)}</ul> : <p className="muted">No separate requirements were supplied with this listing. Check the source for full details.</p>}
+        </section>
+        {job.eligibility_notes.length > 0 && <section className="panel" aria-labelledby="eligibility-heading"><p className="eyebrow">Before applying</p><h2 id="eligibility-heading">Eligibility notes</h2><ul className="eligibility-list">{job.eligibility_notes.map((note, index) => <li key={index}><p>{note.text}</p>{note.source_quote && <blockquote><span className="quote-label">From the source</span>{note.source_quote}</blockquote>}</li>)}</ul></section>}
+      </div>
+      <aside className="detail-rail" aria-label="Application and source">
+        <section className="apply-panel"><p className="eyebrow">Your next step</p><h2>{job.is_active ? 'Explore this opportunity' : 'Applications are closed'}</h2>
+          <p>{job.is_active ? 'Read the original listing and check the application requirements before you apply.' : 'You can still review the role and its source information.'}</p>
+          {job.is_active && apply ? <a className="button" href={apply} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">Apply on source website <span aria-hidden="true">↗</span></a> : <button disabled>Apply unavailable</button>}
+          <p className="apply-note">Apply opens the source in a new tab. We do not send your resume. Confirm availability on the source website.</p>
+        </section>
+        <section className="panel source-panel" aria-labelledby="source-heading"><p className="eyebrow">Listing provenance</p><h2 id="source-heading">Source and freshness</h2>
+          <p>{source ? <a href={source} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{job.source} <span aria-hidden="true">↗</span><span className="sr-only"> (opens in a new tab)</span></a> : job.source}</p>
+          <dl className="source-meta"><div><dt>Posted</dt><dd>{displayDate(job.posted_at)}</dd></div><div><dt>Last imported</dt><dd>{displayDate(job.last_imported_at)}</dd></div><div><dt>Last verified</dt><dd>{job.last_verified_at ? displayDate(job.last_verified_at) : 'Not verified'}</dd></div></dl>
+          <p className="source-note">Import time does not mean live availability.</p><details><summary>Catalogue identifier</summary><p className="record-id">{job.job_id}</p></details>
+        </section>
+      </aside>
+    </div>
   </article>;
 }

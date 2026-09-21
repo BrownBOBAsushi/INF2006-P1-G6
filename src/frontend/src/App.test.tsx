@@ -17,7 +17,7 @@ function setup(path = '/jobs', fetcher = createMockFetch()) {
 async function enter(user: ReturnType<typeof userEvent.setup>) {
   await user.click(await screen.findByRole('button', { name: 'Enter synthetic preview' }));
   await user.type(await screen.findByLabelText('Display name'), 'Synthetic Student');
-  await user.click(screen.getByRole('button', { name: 'Skip resume and browse jobs' }));
+  await user.click(screen.getByRole('button', { name: 'Skip for now' }));
   await screen.findByRole('heading', { name: 'Browse internships' });
 }
 test('bootstrap/exchange CSRF, optional resume skip, paging, filter reset and literal keyword search', async () => {
@@ -32,11 +32,12 @@ test('bootstrap/exchange CSRF, optional resume skip, paging, filter reset and li
   await user.click(screen.getByRole('button', { name: 'Next' }));
   await screen.findByText('Page 2');
   expect(screen.getByTestId('location')).toHaveTextContent('offset=20&catalogue_revision=1');
+  await user.click(screen.getByRole('button', { name: /Work arrangement/ }));
   await user.click(screen.getByRole('checkbox', { name: 'remote' }));
   await screen.findByText('Page 1');
   expect(screen.getByTestId('location')).not.toHaveTextContent('offset');
   expect(screen.getByTestId('location')).not.toHaveTextContent('catalogue_revision');
-  await user.click(screen.getByRole('button', { name: 'Clear search and filters' }));
+  await user.click(screen.getByRole('button', { name: 'Reset filters' }));
   await user.type(screen.getByLabelText('Keywords'), 'C++ 100%');
   await user.click(screen.getByRole('button', { name: 'Search jobs' }));
   await screen.findByText('1 active opportunities');
@@ -55,7 +56,7 @@ test('closed details remain visible with Apply disabled; unknown UUID is not fou
   await screen.findByText('This listing is closed. Its details remain available.');
   expect(screen.getByRole('button', { name: 'Apply unavailable' })).toBeDisabled();
   expect(screen.queryByRole('link', { name: 'Apply on source website' })).not.toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Sign out' }));
+  await user.click(screen.getByRole('button', { name: 'Logout' }));
   await screen.findByRole('button', { name: 'Enter synthetic preview' });
 });
 test('unknown job detail is not found after authenticated session restoration', async () => {
@@ -68,9 +69,9 @@ test('unknown job detail is not found after authenticated session restoration', 
 test('resume seam mounts existing Nasya workspace and logout clears private UI', async () => {
   const { user } = setup();
   await enter(user);
-  await user.click(screen.getByRole('link', { name: 'Your resume' }));
+  await user.click(screen.getByRole('link', { name: 'Resume' }));
   expect(await screen.findByTestId('no-resume-state')).toBeInTheDocument();
-  await user.click(screen.getByRole('button', { name: 'Sign out' }));
+  await user.click(screen.getByRole('button', { name: 'Logout' }));
   await screen.findByRole('button', { name: 'Enter synthetic preview' });
   expect(screen.queryByTestId('no-resume-state')).not.toBeInTheDocument();
   expect(window.localStorage.length).toBe(0); expect(window.sessionStorage.length).toBe(0);
@@ -111,7 +112,7 @@ test('session expiry preserves the open resume draft through same-account reauth
   };
   const { user } = setup('/jobs', fetcher);
   await enter(user);
-  await user.click(screen.getByRole('link', { name: 'Your resume' }));
+  await user.click(screen.getByRole('link', { name: 'Resume' }));
   await user.click(await screen.findByRole('button', { name: 'Enter my details without a PDF' }));
   await user.click(screen.getByRole('button', { name: 'Add project' }));
   await user.type(screen.getByLabelText('Title'), 'Synthetic course project');
@@ -127,7 +128,7 @@ test('session expiry preserves the open resume draft through same-account reauth
 });
 
 async function startResumeDraft(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('link', { name: 'Your resume' }));
+  await user.click(screen.getByRole('link', { name: 'Resume' }));
   await user.click(await screen.findByRole('button', { name: 'Enter my details without a PDF' }));
   await user.click(screen.getByRole('button', { name: 'Add project' }));
   await user.type(screen.getByLabelText('Title'), 'Synthetic retained project');
