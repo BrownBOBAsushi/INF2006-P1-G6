@@ -1,0 +1,301 @@
+profile_id,job_id,relevance,split,rationale
+P01,J01,2,development,"Flask booking service with SQL and pytest covers API, SQL and automated-test requirements directly (wording differs: 'exposing endpoints')."
+P01,J02,2,development,Spring Boot coursework service with dependency injection and REST endpoints covers all three Java requirements.
+P01,J03,0,development,No direct evidence for the full-stack web job's core requirements; profile focus is backend and web services.
+P01,J04,0,development,No direct evidence for the cloud/DevOps job's core requirements; profile focus is backend and web services.
+P01,J05,0,development,No direct evidence for the Android job's core requirements; profile focus is backend and web services.
+P01,J06,1,development,SQL joins/availability queries are relevant to the first requirement; no charts/dashboards or statistics explanation.
+P01,J07,2,development,"Nightly Python CSV cleaner loading PostgreSQL via cron covers scripts, SQL load and scheduling."
+P01,J08,0,development,No direct evidence for the NLP machine learning job's core requirements; profile focus is backend and web services.
+P01,J09,0,development,No direct evidence for the computer vision job's core requirements; profile focus is backend and web services.
+P01,J10,0,development,No direct evidence for the BI dashboards job's core requirements; profile focus is backend and web services.
+P01,J11,0,development,No direct evidence for the forecasting/statistics job's core requirements; profile focus is backend and web services.
+P01,J12,0,development,No direct evidence for the security operations job's core requirements; profile focus is backend and web services.
+P01,J13,0,development,No direct evidence for the embedded firmware job's core requirements; profile focus is backend and web services.
+P01,J14,1,development,Wrote pytest cases (test-script requirement); no defect-reporting evidence and the role is UI/browser testing focused.
+P01,J15,0,development,No direct evidence for the digital marketing job's core requirements; profile focus is backend and web services.
+P01,J16,0,development,No direct evidence for the social/video content job's core requirements; profile focus is backend and web services.
+P01,J17,0,development,No direct evidence for the financial modelling job's core requirements; profile focus is backend and web services.
+P01,J18,0,development,No direct evidence for the audit job's core requirements; profile focus is backend and web services.
+P01,J19,0,development,No direct evidence for the HR/recruiting job's core requirements; profile focus is backend and web services.
+P01,J20,0,development,No direct evidence for the UX design job's core requirements; profile focus is backend and web services.
+P01,J21,0,development,No direct evidence for the graphic design job's core requirements; profile focus is backend and web services.
+P01,J22,0,development,No direct evidence for the mechanical CAD job's core requirements; profile focus is backend and web services.
+P01,J23,0,development,No direct evidence for the civil engineering job's core requirements; profile focus is backend and web services.
+P01,J24,0,development,No direct evidence for the laboratory research job's core requirements; profile focus is backend and web services.
+P01,J25,0,development,No direct evidence for the supply chain/operations job's core requirements; profile focus is backend and web services.
+P01,J26,0,development,No direct evidence for the sales operations job's core requirements; profile focus is backend and web services.
+P01,J27,0,development,No direct evidence for the product management job's core requirements; profile focus is backend and web services.
+P01,J28,0,development,No direct evidence for the IT support job's core requirements; profile focus is backend and web services.
+P01,J29,0,development,"Keyword overlap (Python, API, Git) is incidental: no writing evidence and the role does not involve writing production code."
+P01,J30,0,development,No direct evidence for the game development job's core requirements; profile focus is backend and web services.
+P02,J01,0,development,No direct evidence for the backend Python job's core requirements; profile focus is data analysis and dashboards.
+P02,J02,0,development,No direct evidence for the Java services job's core requirements; profile focus is data analysis and dashboards.
+P02,J03,0,development,No direct evidence for the full-stack web job's core requirements; profile focus is data analysis and dashboards.
+P02,J04,0,development,No direct evidence for the cloud/DevOps job's core requirements; profile focus is data analysis and dashboards.
+P02,J05,0,development,No direct evidence for the Android job's core requirements; profile focus is data analysis and dashboards.
+P02,J06,2,development,"SQL joins and aggregations, Tableau dashboard and plain-language reporting cover all three requirements."
+P02,J07,1,development,"Python/pandas and SQL used for analysis, but no pipeline loading or scheduled jobs."
+P02,J08,0,development,Uses Python/pandas but has not trained a neural network.
+P02,J09,0,development,No direct evidence for the computer vision job's core requirements; profile focus is data analysis and dashboards.
+P02,J10,2,development,Interactive Tableau dashboard plus SQL data preparation and presenting to managers cover the requirements.
+P02,J11,2,development,"Fitted and checked a regression in Python, explained results, and completed statistics/probability modules."
+P02,J12,0,development,No direct evidence for the security operations job's core requirements; profile focus is data analysis and dashboards.
+P02,J13,0,development,No direct evidence for the embedded firmware job's core requirements; profile focus is data analysis and dashboards.
+P02,J14,0,development,No direct evidence for the QA automation job's core requirements; profile focus is data analysis and dashboards.
+P02,J15,0,development,No direct evidence for the digital marketing job's core requirements; profile focus is data analysis and dashboards.
+P02,J16,0,development,No direct evidence for the social/video content job's core requirements; profile focus is data analysis and dashboards.
+P02,J17,0,development,No direct evidence for the financial modelling job's core requirements; profile focus is data analysis and dashboards.
+P02,J18,0,development,No direct evidence for the audit job's core requirements; profile focus is data analysis and dashboards.
+P02,J19,0,development,No direct evidence for the HR/recruiting job's core requirements; profile focus is data analysis and dashboards.
+P02,J20,0,development,No direct evidence for the UX design job's core requirements; profile focus is data analysis and dashboards.
+P02,J21,0,development,No direct evidence for the graphic design job's core requirements; profile focus is data analysis and dashboards.
+P02,J22,0,development,No direct evidence for the mechanical CAD job's core requirements; profile focus is data analysis and dashboards.
+P02,J23,0,development,No direct evidence for the civil engineering job's core requirements; profile focus is data analysis and dashboards.
+P02,J24,0,development,No direct evidence for the laboratory research job's core requirements; profile focus is data analysis and dashboards.
+P02,J25,1,development,Excel pivot tables and stock log are relevant; no coordination or logistics evidence.
+P02,J26,1,development,Spreadsheet skills and presenting findings are relevant; no customer follow-up or CRM/pipeline evidence.
+P02,J27,1,development,Reads and summarises data for stakeholders; no user-story or product team evidence.
+P02,J28,0,development,No direct evidence for the IT support job's core requirements; profile focus is data analysis and dashboards.
+P02,J29,0,development,No direct evidence for the technical writing job's core requirements; profile focus is data analysis and dashboards.
+P02,J30,0,development,No direct evidence for the game development job's core requirements; profile focus is data analysis and dashboards.
+P03,J01,0,development,No direct evidence for the backend Python job's core requirements; profile focus is machine learning and NLP.
+P03,J02,0,development,No direct evidence for the Java services job's core requirements; profile focus is machine learning and NLP.
+P03,J03,0,development,No direct evidence for the full-stack web job's core requirements; profile focus is machine learning and NLP.
+P03,J04,0,development,No direct evidence for the cloud/DevOps job's core requirements; profile focus is machine learning and NLP.
+P03,J05,0,development,No direct evidence for the Android job's core requirements; profile focus is machine learning and NLP.
+P03,J06,0,development,No direct evidence for the data analysis job's core requirements; profile focus is machine learning and NLP.
+P03,J07,1,development,Python scripts that clean and tokenise data are relevant; no SQL loading or scheduled jobs.
+P03,J08,2,development,"Trained PyTorch text classifier with train/test split and accuracy/F1, plus a tweet-corpus research role."
+P03,J09,2,development,"CNN on MNIST with OpenCV preprocessing and hand-written backpropagation with NumPy matrices covers image DL, OpenCV and linear algebra."
+P03,J10,0,development,No direct evidence for the BI dashboards job's core requirements; profile focus is machine learning and NLP.
+P03,J11,2,development,Fitted a linear regression to simulated demand data with Python and completed probability/statistics modules.
+P03,J12,0,development,No direct evidence for the security operations job's core requirements; profile focus is machine learning and NLP.
+P03,J13,0,development,No direct evidence for the embedded firmware job's core requirements; profile focus is machine learning and NLP.
+P03,J14,0,development,No direct evidence for the QA automation job's core requirements; profile focus is machine learning and NLP.
+P03,J15,0,development,No direct evidence for the digital marketing job's core requirements; profile focus is machine learning and NLP.
+P03,J16,0,development,No direct evidence for the social/video content job's core requirements; profile focus is machine learning and NLP.
+P03,J17,0,development,No direct evidence for the financial modelling job's core requirements; profile focus is machine learning and NLP.
+P03,J18,0,development,No direct evidence for the audit job's core requirements; profile focus is machine learning and NLP.
+P03,J19,0,development,No direct evidence for the HR/recruiting job's core requirements; profile focus is machine learning and NLP.
+P03,J20,0,development,No direct evidence for the UX design job's core requirements; profile focus is machine learning and NLP.
+P03,J21,0,development,No direct evidence for the graphic design job's core requirements; profile focus is machine learning and NLP.
+P03,J22,0,development,No direct evidence for the mechanical CAD job's core requirements; profile focus is machine learning and NLP.
+P03,J23,0,development,No direct evidence for the civil engineering job's core requirements; profile focus is machine learning and NLP.
+P03,J24,0,development,No direct evidence for the laboratory research job's core requirements; profile focus is machine learning and NLP.
+P03,J25,0,development,No direct evidence for the supply chain/operations job's core requirements; profile focus is machine learning and NLP.
+P03,J26,0,development,No direct evidence for the sales operations job's core requirements; profile focus is machine learning and NLP.
+P03,J27,0,development,No direct evidence for the product management job's core requirements; profile focus is machine learning and NLP.
+P03,J28,0,development,No direct evidence for the IT support job's core requirements; profile focus is machine learning and NLP.
+P03,J29,0,development,"Reads Python but no evidence of writing technical explanations; documentation role, not ML."
+P03,J30,0,development,No direct evidence for the game development job's core requirements; profile focus is machine learning and NLP.
+P04,J01,0,development,No direct evidence for the backend Python job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J02,0,development,No direct evidence for the Java services job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J03,2,development,"React/TypeScript front end connected to a REST service, with pull-request review, covers all three requirements."
+P04,J04,0,development,No direct evidence for the cloud/DevOps job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J05,0,development,No direct evidence for the Android job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J06,0,development,No direct evidence for the data analysis job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J07,0,development,No direct evidence for the data engineering job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J08,0,development,No direct evidence for the NLP machine learning job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J09,0,development,No direct evidence for the computer vision job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J10,0,development,No direct evidence for the BI dashboards job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J11,0,development,No direct evidence for the forecasting/statistics job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J12,0,development,No direct evidence for the security operations job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J13,0,development,No direct evidence for the embedded firmware job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J14,0,development,No direct evidence for the QA automation job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J15,0,development,No direct evidence for the digital marketing job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J16,1,development,Produced social graphics for a club (photo/graphic content); no video editing evidence.
+P04,J17,0,development,No direct evidence for the financial modelling job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J18,0,development,No direct evidence for the audit job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J19,0,development,No direct evidence for the HR/recruiting job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J20,2,development,"Figma prototype, user interviews and usability test, plus WCAG accessibility work and front-end coding."
+P04,J21,2,development,Illustrator posters and social graphics with consistent colour/font guidelines cover the artwork and typography requirements; portfolio site partly covers the portfolio requirement.
+P04,J22,0,development,No direct evidence for the mechanical CAD job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J23,0,development,No direct evidence for the civil engineering job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J24,0,development,No direct evidence for the laboratory research job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J25,0,development,No direct evidence for the supply chain/operations job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J26,0,development,No direct evidence for the sales operations job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J27,1,development,User research and design-team work are relevant; no user-story writing or analytics evidence.
+P04,J28,0,development,No direct evidence for the IT support job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J29,0,development,No direct evidence for the technical writing job's core requirements; profile focus is front-end development and UI/UX design.
+P04,J30,0,development,No direct evidence for the game development job's core requirements; profile focus is front-end development and UI/UX design.
+P05,J01,0,development,Python scripting but no web API or database evidence.
+P05,J02,0,development,"No direct evidence for the Java services job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J03,0,development,"No direct evidence for the full-stack web job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J04,1,development,Linux and a Docker container scheduled with cron are relevant; no CI pipeline evidence.
+P05,J05,0,development,"No direct evidence for the Android job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J06,0,development,"No direct evidence for the data analysis job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J07,1,development,Python log-parsing script scheduled through cron; no SQL or data-loading evidence.
+P05,J08,0,development,"No direct evidence for the NLP machine learning job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J09,0,development,"No direct evidence for the computer vision job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J10,0,development,"No direct evidence for the BI dashboards job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J11,0,development,"No direct evidence for the forecasting/statistics job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J12,2,development,"Wireshark packet-capture analysis, DNS/firewall knowledge and Python auth-log analysis on Linux cover all three requirements."
+P05,J13,0,development,"No direct evidence for the embedded firmware job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J14,0,development,"No direct evidence for the QA automation job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J15,0,development,"No direct evidence for the digital marketing job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J16,0,development,"No direct evidence for the social/video content job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J17,0,development,"No direct evidence for the financial modelling job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J18,0,development,"No direct evidence for the audit job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J19,0,development,"No direct evidence for the HR/recruiting job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J20,0,development,"No direct evidence for the UX design job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J21,0,development,"No direct evidence for the graphic design job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J22,0,development,"No direct evidence for the mechanical CAD job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J23,0,development,"No direct evidence for the civil engineering job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J24,0,development,"No direct evidence for the laboratory research job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J25,0,development,"No direct evidence for the supply chain/operations job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J26,0,development,"No direct evidence for the sales operations job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J27,0,development,"No direct evidence for the product management job's core requirements; profile focus is cybersecurity, networking and Linux."
+P05,J28,2,development,"Helpdesk volunteering fixing Windows/Wi-Fi problems, IP/DHCP configuration and plain-language explanations cover all requirements."
+P05,J29,0,development,Reads Python scripts but no evidence of writing technical explanations for others.
+P05,J30,0,development,"No direct evidence for the game development job's core requirements; profile focus is cybersecurity, networking and Linux."
+P06,J01,2,held_out,Node.js API with SQL queries and Jest tests; Node is a similar backend language to the 'Python or similar' requirement.
+P06,J02,0,held_out,Backend evidence is Node.js/TypeScript; no Java/Kotlin or Spring evidence.
+P06,J03,2,held_out,"React/TypeScript UI connected to a Node API, with pull-request review, covers all three requirements."
+P06,J04,2,held_out,"Linux command line, Docker deployment to AWS and a GitHub Actions CI workflow cover all three requirements."
+P06,J05,0,held_out,No direct evidence for the Android job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J06,0,held_out,No direct evidence for the data analysis job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J07,0,held_out,No direct evidence for the data engineering job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J08,0,held_out,No direct evidence for the NLP machine learning job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J09,0,held_out,No direct evidence for the computer vision job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J10,0,held_out,No direct evidence for the BI dashboards job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J11,0,held_out,No direct evidence for the forecasting/statistics job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J12,1,held_out,Linux and firewall configuration are relevant; no log or packet analysis evidence.
+P06,J13,0,held_out,No direct evidence for the embedded firmware job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J14,1,held_out,Wrote Playwright and Jest tests and CI runs them; no defect-report evidence.
+P06,J15,0,held_out,No direct evidence for the digital marketing job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J16,0,held_out,No direct evidence for the social/video content job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J17,0,held_out,No direct evidence for the financial modelling job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J18,0,held_out,No direct evidence for the audit job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J19,0,held_out,No direct evidence for the HR/recruiting job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J20,0,held_out,No direct evidence for the UX design job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J21,0,held_out,No direct evidence for the graphic design job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J22,0,held_out,No direct evidence for the mechanical CAD job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J23,0,held_out,No direct evidence for the civil engineering job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J24,0,held_out,No direct evidence for the laboratory research job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J25,0,held_out,No direct evidence for the supply chain/operations job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J26,0,held_out,No direct evidence for the sales operations job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J27,0,held_out,No direct evidence for the product management job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J28,0,held_out,No direct evidence for the IT support job's core requirements; profile focus is full-stack web development with cloud deployment.
+P06,J29,0,held_out,"Reads JavaScript and uses Git, but no writing evidence; documentation role."
+P06,J30,0,held_out,No direct evidence for the game development job's core requirements; profile focus is full-stack web development with cloud deployment.
+P07,J01,1,held_out,SQL and Python scripting are relevant; no web API or automated-test evidence.
+P07,J02,0,held_out,No direct evidence for the Java services job's core requirements; profile focus is data engineering and analytics.
+P07,J03,0,held_out,No direct evidence for the full-stack web job's core requirements; profile focus is data engineering and analytics.
+P07,J04,0,held_out,No direct evidence for the cloud/DevOps job's core requirements; profile focus is data engineering and analytics.
+P07,J05,0,held_out,No direct evidence for the Android job's core requirements; profile focus is data engineering and analytics.
+P07,J06,2,held_out,"SQL views that join/aggregate tables, Tableau dashboard and plain-language explanation of data issues."
+P07,J07,2,held_out,"Python/pandas loading PostgreSQL with SQL, scheduled nightly with Airflow and cron covers all three requirements."
+P07,J08,0,held_out,No direct evidence for the NLP machine learning job's core requirements; profile focus is data engineering and analytics.
+P07,J09,0,held_out,No direct evidence for the computer vision job's core requirements; profile focus is data engineering and analytics.
+P07,J10,2,held_out,Interactive Tableau dashboard on SQL views for analysts plus explaining issues to non-technical founders.
+P07,J11,0,held_out,No direct evidence for the forecasting/statistics job's core requirements; profile focus is data engineering and analytics.
+P07,J12,0,held_out,No direct evidence for the security operations job's core requirements; profile focus is data engineering and analytics.
+P07,J13,0,held_out,No direct evidence for the embedded firmware job's core requirements; profile focus is data engineering and analytics.
+P07,J14,0,held_out,No direct evidence for the QA automation job's core requirements; profile focus is data engineering and analytics.
+P07,J15,0,held_out,No direct evidence for the digital marketing job's core requirements; profile focus is data engineering and analytics.
+P07,J16,0,held_out,No direct evidence for the social/video content job's core requirements; profile focus is data engineering and analytics.
+P07,J17,0,held_out,No direct evidence for the financial modelling job's core requirements; profile focus is data engineering and analytics.
+P07,J18,0,held_out,No direct evidence for the audit job's core requirements; profile focus is data engineering and analytics.
+P07,J19,0,held_out,No direct evidence for the HR/recruiting job's core requirements; profile focus is data engineering and analytics.
+P07,J20,0,held_out,No direct evidence for the UX design job's core requirements; profile focus is data engineering and analytics.
+P07,J21,0,held_out,No direct evidence for the graphic design job's core requirements; profile focus is data engineering and analytics.
+P07,J22,0,held_out,No direct evidence for the mechanical CAD job's core requirements; profile focus is data engineering and analytics.
+P07,J23,0,held_out,No direct evidence for the civil engineering job's core requirements; profile focus is data engineering and analytics.
+P07,J24,0,held_out,No direct evidence for the laboratory research job's core requirements; profile focus is data engineering and analytics.
+P07,J25,0,held_out,No direct evidence for the supply chain/operations job's core requirements; profile focus is data engineering and analytics.
+P07,J26,0,held_out,Role needs customer follow-up and CRM pipeline reporting; no customer-facing evidence.
+P07,J27,0,held_out,No direct evidence for the product management job's core requirements; profile focus is data engineering and analytics.
+P07,J28,0,held_out,No direct evidence for the IT support job's core requirements; profile focus is data engineering and analytics.
+P07,J29,0,held_out,No direct evidence for the technical writing job's core requirements; profile focus is data engineering and analytics.
+P07,J30,0,held_out,No direct evidence for the game development job's core requirements; profile focus is data engineering and analytics.
+P08,J01,1,held_out,Small Python/Flask endpoint with SQL inserts is relevant; thin evidence and no automated tests.
+P08,J02,0,held_out,No direct evidence for the Java services job's core requirements; profile focus is embedded firmware.
+P08,J03,0,held_out,No direct evidence for the full-stack web job's core requirements; profile focus is embedded firmware.
+P08,J04,0,held_out,Linux/hardware bring-up is not container deployment or CI.
+P08,J05,0,held_out,No direct evidence for the Android job's core requirements; profile focus is embedded firmware.
+P08,J06,0,held_out,No direct evidence for the data analysis job's core requirements; profile focus is embedded firmware.
+P08,J07,0,held_out,No direct evidence for the data engineering job's core requirements; profile focus is embedded firmware.
+P08,J08,0,held_out,No direct evidence for the NLP machine learning job's core requirements; profile focus is embedded firmware.
+P08,J09,0,held_out,No direct evidence for the computer vision job's core requirements; profile focus is embedded firmware.
+P08,J10,0,held_out,No direct evidence for the BI dashboards job's core requirements; profile focus is embedded firmware.
+P08,J11,0,held_out,No direct evidence for the forecasting/statistics job's core requirements; profile focus is embedded firmware.
+P08,J12,0,held_out,No direct evidence for the security operations job's core requirements; profile focus is embedded firmware.
+P08,J13,2,held_out,"C/C++ on Arduino and STM32, interrupts, I2C/SPI, oscilloscope debugging and FreeRTOS cover every requirement."
+P08,J14,0,held_out,No direct evidence for the QA automation job's core requirements; profile focus is embedded firmware.
+P08,J15,0,held_out,No direct evidence for the digital marketing job's core requirements; profile focus is embedded firmware.
+P08,J16,0,held_out,No direct evidence for the social/video content job's core requirements; profile focus is embedded firmware.
+P08,J17,0,held_out,No direct evidence for the financial modelling job's core requirements; profile focus is embedded firmware.
+P08,J18,0,held_out,No direct evidence for the audit job's core requirements; profile focus is embedded firmware.
+P08,J19,0,held_out,No direct evidence for the HR/recruiting job's core requirements; profile focus is embedded firmware.
+P08,J20,0,held_out,No direct evidence for the UX design job's core requirements; profile focus is embedded firmware.
+P08,J21,0,held_out,No direct evidence for the graphic design job's core requirements; profile focus is embedded firmware.
+P08,J22,0,held_out,No direct evidence for the mechanical CAD job's core requirements; profile focus is embedded firmware.
+P08,J23,0,held_out,No direct evidence for the civil engineering job's core requirements; profile focus is embedded firmware.
+P08,J24,0,held_out,No direct evidence for the laboratory research job's core requirements; profile focus is embedded firmware.
+P08,J25,0,held_out,No direct evidence for the supply chain/operations job's core requirements; profile focus is embedded firmware.
+P08,J26,0,held_out,No direct evidence for the sales operations job's core requirements; profile focus is embedded firmware.
+P08,J27,0,held_out,No direct evidence for the product management job's core requirements; profile focus is embedded firmware.
+P08,J28,0,held_out,No direct evidence for the IT support job's core requirements; profile focus is embedded firmware.
+P08,J29,0,held_out,No direct evidence for the technical writing job's core requirements; profile focus is embedded firmware.
+P08,J30,2,held_out,"Interactive C++ 2D physics demo with vector-based collision handling covers prototype, C++ and game maths."
+P09,J01,0,held_out,No direct evidence for the backend Python job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J02,0,held_out,No direct evidence for the Java services job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J03,0,held_out,No direct evidence for the full-stack web job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J04,0,held_out,No direct evidence for the cloud/DevOps job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J05,0,held_out,No direct evidence for the Android job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J06,0,held_out,No SQL and no dashboard evidence beyond Excel modelling.
+P09,J07,0,held_out,No direct evidence for the data engineering job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J08,0,held_out,No direct evidence for the NLP machine learning job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J09,0,held_out,No direct evidence for the computer vision job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J10,0,held_out,No direct evidence for the BI dashboards job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J11,0,held_out,No direct evidence for the forecasting/statistics job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J12,0,held_out,No direct evidence for the security operations job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J13,0,held_out,No direct evidence for the embedded firmware job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J14,0,held_out,No direct evidence for the QA automation job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J15,2,held_out,"Ran an online campaign, chose SEO keywords and summarised Google Analytics results."
+P09,J16,1,held_out,Wrote campaign posts and web copy; no video/photo production or editing evidence.
+P09,J17,2,held_out,Linked multi-sheet Excel model and analysis of the three financial statements.
+P09,J18,1,held_out,Accounting coursework and Excel use are relevant; no evidence of checking or testing records.
+P09,J19,0,held_out,"Only generic overlap (communication, team deadline); no event or schedule organisation and no confidentiality evidence."
+P09,J20,0,held_out,No direct evidence for the UX design job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J21,0,held_out,No direct evidence for the graphic design job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J22,0,held_out,No direct evidence for the mechanical CAD job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J23,0,held_out,No direct evidence for the civil engineering job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J24,0,held_out,No direct evidence for the laboratory research job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J25,2,held_out,Excel filters/pivot tables on inventory data and coordinated a team to a deadline.
+P09,J26,2,held_out,"Spreadsheet customer log, phone/in-person communication and follow-up on unresolved cases."
+P09,J27,1,held_out,Read analytics and worked in a team; no user-story or requirements-writing evidence.
+P09,J28,0,held_out,No direct evidence for the IT support job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J29,0,held_out,No direct evidence for the technical writing job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P09,J30,0,held_out,No direct evidence for the game development job's core requirements; profile focus is business studies: finance modelling and digital marketing.
+P10,J01,2,held_out,"Flask blog engine with SQL queries and unit tests, plus Java service internship, covers API, SQL and tests."
+P10,J02,2,held_out,"Spring Boot order service with dependency injection and REST endpoints, plus Java internship."
+P10,J03,2,held_out,React chat front end connected to WebSocket and REST APIs with Git pull requests.
+P10,J04,1,held_out,Docker deployment on a Linux server is relevant; no CI pipeline evidence.
+P10,J05,2,held_out,Published Kotlin Android app using activity lifecycle and on-device Room storage.
+P10,J06,0,held_out,No direct evidence for the data analysis job's core requirements; profile focus is generalist software engineering.
+P10,J07,0,held_out,No direct evidence for the data engineering job's core requirements; profile focus is generalist software engineering.
+P10,J08,0,held_out,No direct evidence for the NLP machine learning job's core requirements; profile focus is generalist software engineering.
+P10,J09,0,held_out,No direct evidence for the computer vision job's core requirements; profile focus is generalist software engineering.
+P10,J10,0,held_out,No direct evidence for the BI dashboards job's core requirements; profile focus is generalist software engineering.
+P10,J11,0,held_out,No direct evidence for the forecasting/statistics job's core requirements; profile focus is generalist software engineering.
+P10,J12,0,held_out,No direct evidence for the security operations job's core requirements; profile focus is generalist software engineering.
+P10,J13,0,held_out,No direct evidence for the embedded firmware job's core requirements; profile focus is generalist software engineering.
+P10,J14,1,held_out,Writes unit tests and tests for fixes; no browser-automation or defect-report evidence.
+P10,J15,0,held_out,No direct evidence for the digital marketing job's core requirements; profile focus is generalist software engineering.
+P10,J16,0,held_out,No direct evidence for the social/video content job's core requirements; profile focus is generalist software engineering.
+P10,J17,0,held_out,No direct evidence for the financial modelling job's core requirements; profile focus is generalist software engineering.
+P10,J18,0,held_out,No direct evidence for the audit job's core requirements; profile focus is generalist software engineering.
+P10,J19,0,held_out,No direct evidence for the HR/recruiting job's core requirements; profile focus is generalist software engineering.
+P10,J20,0,held_out,No direct evidence for the UX design job's core requirements; profile focus is generalist software engineering.
+P10,J21,0,held_out,No direct evidence for the graphic design job's core requirements; profile focus is generalist software engineering.
+P10,J22,0,held_out,No direct evidence for the mechanical CAD job's core requirements; profile focus is generalist software engineering.
+P10,J23,0,held_out,No direct evidence for the civil engineering job's core requirements; profile focus is generalist software engineering.
+P10,J24,0,held_out,No direct evidence for the laboratory research job's core requirements; profile focus is generalist software engineering.
+P10,J25,0,held_out,No direct evidence for the supply chain/operations job's core requirements; profile focus is generalist software engineering.
+P10,J26,0,held_out,No direct evidence for the sales operations job's core requirements; profile focus is generalist software engineering.
+P10,J27,0,held_out,No direct evidence for the product management job's core requirements; profile focus is generalist software engineering.
+P10,J28,0,held_out,No direct evidence for the IT support job's core requirements; profile focus is generalist software engineering.
+P10,J29,0,held_out,Engineering profile with no documentation-writing evidence beyond one note on endpoint docs; not a match for a no-code writing role.
+P10,J30,2,held_out,Unity C# platformer using vector maths and collision responses.

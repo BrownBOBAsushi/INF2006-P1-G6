@@ -1,0 +1,49 @@
+profile_id,job_id,relevance,rationale
+P01,J01,2,Built a Flask API with PostgreSQL and wrote pytest cases for it.
+P01,J06,1,Has SQL experience but no direct dashboard or chart-building project.
+P01,J11,0,Backend projects do not show regression or time-series modelling.
+P01,J16,0,No evidence of public short-form video or video editing.
+P01,J21,0,No Adobe Illustrator or Photoshop artwork or design portfolio.
+P01,J26,0,No sales operations or customer follow-up experience.
+P02,J01,0,Has SQL but no evidence of building a web API or backend service.
+P02,J06,2,Built a Tableau dashboard with SQL joins and explained the findings.
+P02,J11,2,Fitted linear regression in Python and completed statistics modules.
+P02,J16,0,No evidence of producing public short-form video or using video editing software.
+P02,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P02,J26,0,Has spreadsheet experience but no clear customer follow-up or sales operations work.
+P03,J01,0,ML projects do not show web API or backend service development.
+P03,J06,0,No evidence of SQL joins or dashboard/chart building.
+P03,J16,0,Research and ML work does not show public video content or video editing.
+P03,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P03,J26,0,No sales operations or customer follow-up experience is shown.
+P04,J01,0,Frontend projects do not provide evidence of building a backend API or writing SQL tests.
+P04,J06,0,UI and frontend work does not show SQL querying or dashboard building.
+P04,J11,0,No regression or time-series modelling experience is shown.
+P04,J26,0,Design experience does not show sales operations or customer follow-up.
+P05,J01,0,Security and networking projects do not show web API development or SQL testing.
+P05,J06,0,"No evidence of SQL joins, dashboards, or presenting data trends."
+P05,J11,0,Security work does not show regression or time-series modelling.
+P05,J16,0,No evidence of producing public short-form video or using a video editing app.
+P05,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P05,J26,0,Helpdesk work does not provide the required sales follow-up experience.
+P06,J01,2,Built a Node API with PostgreSQL and wrote automated Jest tests.
+P06,J11,0,Software development projects do not show statistical regression or time-series modelling.
+P06,J16,0,No evidence of public short-form video or video editing experience.
+P06,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P07,J06,2,"Used SQL joins and aggregation, built a Tableau dashboard, and explained data issues."
+P07,J11,0,Data engineering work does not show regression or time-series modelling.
+P07,J16,0,No evidence of producing public short-form video or using video editing software.
+P07,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P08,J11,0,Embedded systems projects do not show regression or time-series modelling.
+P08,J16,0,No evidence of public short-form video or video editing experience.
+P08,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.
+P08,J26,0,Embedded systems work does not show sales operations or customer follow-up.
+P09,J01,0,"Business projects do not show web API or backend development, SQL, or automated tests."
+P09,J11,0,Financial modelling in Excel does not show the required Python or R regression work.
+P09,J16,0,The campaign shows writing but not public short-form video or video editing.
+P09,J21,0,Canva graphics do not provide the required Illustrator or Photoshop artwork and portfolio.
+P09,J26,1,"Has spreadsheet and customer-service follow-up experience, but no sales pipeline work."
+P10,J01,2,"Built Flask and Spring Boot APIs, used SQL, and wrote automated tests."
+P10,J11,0,Software projects do not show regression or time-series modelling.
+P10,J16,0,No evidence of producing public short-form video or using a video editing app.
+P10,J21,0,No evidence of Illustrator or Photoshop artwork or a design portfolio.

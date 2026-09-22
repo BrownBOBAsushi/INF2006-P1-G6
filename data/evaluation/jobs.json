@@ -1,0 +1,1506 @@
+{
+  "schema_version": 1,
+  "jobs": [
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J01",
+      "title": "Backend Software Engineer Intern",
+      "company_name": "Lumen Harbour Pte Ltd",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "Join the platform team that runs our appointment booking service. You will design and build HTTP APIs, write database queries and add automated tests to the services you own. Our stack is Python and PostgreSQL. Applicants must have built a web API or backend service in Python or a similar language. You should be comfortable writing SQL queries against a relational database and writing automated tests for your own code. You will learn Docker and deployment practices during the internship, so prior Docker experience is not needed.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J01",
+      "source_url": "https://example.com/synthetic-jobs/J01/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has built a web API or backend service",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Built a web API or backend service in Python",
+            "Built a web API or backend service in a similar language such as Java or Go"
+          ],
+          "source_quote": "built a web API or backend service in Python or a similar language",
+          "evidence_skills": [
+            "Python",
+            "Java",
+            "Go"
+          ]
+        },
+        {
+          "requirement_text": "Can write SQL queries against a relational database",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "writing SQL queries against a relational database",
+          "evidence_skills": [
+            "SQL",
+            "PostgreSQL",
+            "MySQL",
+            "SQLite"
+          ]
+        },
+        {
+          "requirement_text": "Writes automated tests for their own code",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "writing automated tests for your own code",
+          "evidence_skills": [
+            "pytest",
+            "unit testing"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J02",
+      "title": "Java Services Intern",
+      "company_name": "Kestrel Ledger Systems",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "Our payments engineering team is looking for an intern to help build Java microservices. You will implement REST endpoints with Spring Boot, work with message queues and review code with senior engineers. Applicants must have written object-oriented programs in Java or Kotlin. Experience with a dependency-injection framework such as Spring is expected, and you should understand how to expose and consume REST endpoints. Knowledge of Kubernetes is a plus but is not required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J02",
+      "source_url": "https://example.com/synthetic-jobs/J02/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has written object-oriented programs in Java or Kotlin",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Written object-oriented programs in Java",
+            "Written object-oriented programs in Kotlin"
+          ],
+          "source_quote": "written object-oriented programs in Java or Kotlin",
+          "evidence_skills": [
+            "Java",
+            "Kotlin"
+          ]
+        },
+        {
+          "requirement_text": "Has used a dependency-injection framework such as Spring",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Experience with a dependency-injection framework such as Spring is expected",
+          "evidence_skills": [
+            "Spring",
+            "Spring Boot"
+          ]
+        },
+        {
+          "requirement_text": "Can expose and consume REST endpoints",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "expose and consume REST endpoints",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Knowledge of Kubernetes",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Knowledge of Kubernetes is a plus",
+          "evidence_skills": [
+            "Kubernetes"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J03",
+      "title": "Full-Stack Web Developer Intern",
+      "company_name": "Brightwave Digital",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will work with a small product team to ship features across our customer dashboard. Work spans a React front end written in TypeScript and a Node.js API. Applicants must have built an interactive user interface with a component-based JavaScript framework. You should also have connected a front end to a server-side API. Familiarity with Git pull-request workflows is expected. Experience with accessibility testing is a bonus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J03",
+      "source_url": "https://example.com/synthetic-jobs/J03/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has built an interactive user interface with a component-based JavaScript framework",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "built an interactive user interface with a component-based JavaScript framework",
+          "evidence_skills": [
+            "React",
+            "Vue",
+            "Angular",
+            "JavaScript",
+            "TypeScript"
+          ]
+        },
+        {
+          "requirement_text": "Has connected a front end to a server-side API",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "connected a front end to a server-side API",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Familiar with Git pull-request workflows",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Familiarity with Git pull-request workflows is expected",
+          "evidence_skills": [
+            "Git"
+          ]
+        },
+        {
+          "requirement_text": "Experience with accessibility testing",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience with accessibility testing is a bonus",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J04",
+      "title": "Cloud and DevOps Intern",
+      "company_name": "Cumulus Freight Tech",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The infrastructure team maintains the build and deployment pipelines for forty services. As an intern you will automate deployments, improve monitoring and help move workloads onto AWS. Applicants must be comfortable working on the Linux command line and must have deployed an application using containers. Experience configuring a continuous integration pipeline is required. You will learn Terraform on the job, so no infrastructure-as-code background is needed.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J04",
+      "source_url": "https://example.com/synthetic-jobs/J04/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Comfortable working on the Linux command line",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "comfortable working on the Linux command line",
+          "evidence_skills": [
+            "Linux",
+            "Bash"
+          ]
+        },
+        {
+          "requirement_text": "Has deployed an application using containers",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "deployed an application using containers",
+          "evidence_skills": [
+            "Docker"
+          ]
+        },
+        {
+          "requirement_text": "Has configured a continuous integration pipeline",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Experience configuring a continuous integration pipeline is required",
+          "evidence_skills": [
+            "GitHub Actions",
+            "Jenkins",
+            "GitLab CI"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J05",
+      "title": "Android App Developer Intern",
+      "company_name": "Tidepool Mobile",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "We build a commuter app used on Android phones. Interns implement screens, connect them to our backend and fix bugs reported by users. Applicants must have built an Android app in Kotlin or Java. You should understand the activity lifecycle and how to store data on the device. Experience publishing to an app store is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J05",
+      "source_url": "https://example.com/synthetic-jobs/J05/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has built an Android app in Kotlin or Java",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Built an Android app in Kotlin",
+            "Built an Android app in Java"
+          ],
+          "source_quote": "built an Android app in Kotlin or Java",
+          "evidence_skills": [
+            "Kotlin",
+            "Java",
+            "Android"
+          ]
+        },
+        {
+          "requirement_text": "Understands the Android activity lifecycle",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand the activity lifecycle",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Knows how to store data on the device",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "how to store data on the device",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Experience publishing to an app store",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience publishing to an app store is a plus",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J06",
+      "title": "Data Analyst Intern",
+      "company_name": "Marigold Retail Group",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The insights team turns sales and customer data into decisions for store managers. You will query our data warehouse, clean messy spreadsheets and present findings to non-technical audiences. Applicants must be able to write SQL to join and aggregate tables. You should have built charts or dashboards in Tableau, Power BI or Excel. You must be able to explain what an average or a trend means in plain language. No machine learning experience is needed.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J06",
+      "source_url": "https://example.com/synthetic-jobs/J06/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Can write SQL to join and aggregate tables",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "write SQL to join and aggregate tables",
+          "evidence_skills": [
+            "SQL"
+          ]
+        },
+        {
+          "requirement_text": "Has built charts or dashboards",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Built charts or dashboards in Tableau",
+            "Built charts or dashboards in Power BI",
+            "Built charts or dashboards in Excel"
+          ],
+          "source_quote": "built charts or dashboards in Tableau, Power BI or Excel",
+          "evidence_skills": [
+            "Tableau",
+            "Power BI",
+            "Excel"
+          ]
+        },
+        {
+          "requirement_text": "Can explain averages and trends in plain language",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "explain what an average or a trend means in plain language",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J07",
+      "title": "Data Engineering Intern",
+      "company_name": "Cobalt Freight Analytics",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will help maintain the pipelines that load shipment records into our warehouse every night. Tasks include writing extraction scripts, validating data quality and scheduling jobs. Applicants must have written scripts in Python that move or transform data. You should be able to load data into a relational database using SQL. Experience with scheduled or automated jobs is required. You will be introduced to Apache Airflow during the internship.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J07",
+      "source_url": "https://example.com/synthetic-jobs/J07/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has written Python scripts that move or transform data",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "written scripts in Python that move or transform data",
+          "evidence_skills": [
+            "Python",
+            "pandas"
+          ]
+        },
+        {
+          "requirement_text": "Can load data into a relational database using SQL",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "load data into a relational database using SQL",
+          "evidence_skills": [
+            "SQL",
+            "PostgreSQL",
+            "MySQL"
+          ]
+        },
+        {
+          "requirement_text": "Has experience with scheduled or automated jobs",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Experience with scheduled or automated jobs is required",
+          "evidence_skills": [
+            "cron",
+            "Airflow"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J08",
+      "title": "Machine Learning Intern (Natural Language)",
+      "company_name": "Orchid Language Labs",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The language team develops models that classify and summarise customer messages. You will prepare text datasets, train models and measure how well they work. Applicants must have trained a neural network with PyTorch or TensorFlow. You must understand how to split data into training and test sets and report metrics such as accuracy or F1. Prior work with text data is expected. Hosted large language model APIs are not used in this role.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J08",
+      "source_url": "https://example.com/synthetic-jobs/J08/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has trained a neural network with PyTorch or TensorFlow",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Trained a neural network with PyTorch",
+            "Trained a neural network with TensorFlow"
+          ],
+          "source_quote": "trained a neural network with PyTorch or TensorFlow",
+          "evidence_skills": [
+            "PyTorch",
+            "TensorFlow",
+            "Keras"
+          ]
+        },
+        {
+          "requirement_text": "Can split data into training and test sets and report metrics",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "split data into training and test sets and report metrics such as accuracy or F1",
+          "evidence_skills": [
+            "scikit-learn"
+          ]
+        },
+        {
+          "requirement_text": "Has worked with text data",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Prior work with text data is expected",
+          "evidence_skills": [
+            "NLP"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J09",
+      "title": "Computer Vision Research Intern",
+      "company_name": "Sable Optics Research",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "Our vision group builds models that detect defects in manufacturing images. Interns run experiments, label images and compare model variants. Applicants must have trained a deep learning model on image data. You should be able to use OpenCV or a similar library to process images. A strong grounding in linear algebra is expected. Publications are not required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J09",
+      "source_url": "https://example.com/synthetic-jobs/J09/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has trained a deep learning model on image data",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "trained a deep learning model on image data",
+          "evidence_skills": [
+            "PyTorch",
+            "TensorFlow",
+            "CNN"
+          ]
+        },
+        {
+          "requirement_text": "Can process images programmatically with OpenCV or a similar library",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Process images with OpenCV",
+            "Process images with a similar image library"
+          ],
+          "source_quote": "use OpenCV or a similar library to process images",
+          "evidence_skills": [
+            "OpenCV",
+            "PIL"
+          ]
+        },
+        {
+          "requirement_text": "Has a strong grounding in linear algebra",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "A strong grounding in linear algebra is expected",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J10",
+      "title": "Business Intelligence Intern",
+      "company_name": "Harbourline Insurance",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The reporting team builds the dashboards used by our claims managers each morning. You will refresh data models, maintain dashboards and answer questions from business users. Applicants must have created an interactive dashboard in Power BI or Tableau. You should be comfortable writing SQL queries to prepare data for reports. Good communication with non-technical users is essential. Knowledge of DAX is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J10",
+      "source_url": "https://example.com/synthetic-jobs/J10/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has created an interactive dashboard in Power BI or Tableau",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Created an interactive dashboard in Power BI",
+            "Created an interactive dashboard in Tableau"
+          ],
+          "source_quote": "created an interactive dashboard in Power BI or Tableau",
+          "evidence_skills": [
+            "Power BI",
+            "Tableau"
+          ]
+        },
+        {
+          "requirement_text": "Can write SQL queries to prepare data for reports",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "writing SQL queries to prepare data for reports",
+          "evidence_skills": [
+            "SQL"
+          ]
+        },
+        {
+          "requirement_text": "Communicates well with non-technical users",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Good communication with non-technical users is essential",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Knowledge of DAX",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Knowledge of DAX is a plus",
+          "evidence_skills": [
+            "DAX"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J11",
+      "title": "Data Science Intern (Demand Forecasting)",
+      "company_name": "Aster Grocers",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The forecasting team predicts weekly product demand for our supermarkets. You will build statistical models, test their assumptions and explain their uncertainty. Applicants must have fitted a regression or time-series model to real or simulated data. You should be able to use Python or R for data analysis. You should understand basic statistics and probability. You will learn how to deploy a model to production during the internship.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J11",
+      "source_url": "https://example.com/synthetic-jobs/J11/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has fitted a regression or time-series model to real or simulated data",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Fitted a regression model to data",
+            "Fitted a time-series model to data"
+          ],
+          "source_quote": "fitted a regression or time-series model to real or simulated data",
+          "evidence_skills": [
+            "regression",
+            "time series"
+          ]
+        },
+        {
+          "requirement_text": "Can use Python or R for data analysis",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Uses Python for data analysis",
+            "Uses R for data analysis"
+          ],
+          "source_quote": "use Python or R for data analysis",
+          "evidence_skills": [
+            "Python",
+            "R",
+            "pandas"
+          ]
+        },
+        {
+          "requirement_text": "Understands basic statistics and probability",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand basic statistics and probability",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J12",
+      "title": "Cybersecurity Analyst Intern",
+      "company_name": "Ironbridge Secure",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "Our security operations centre monitors alerts from customer networks. Interns triage alerts, review log files and write up incident summaries. Applicants must understand core networking concepts such as TCP/IP, DNS and firewalls. You should have analysed log files or network captures to find suspicious activity. Practical exposure to the Linux command line is expected. Certifications are not required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J12",
+      "source_url": "https://example.com/synthetic-jobs/J12/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Understands core networking concepts such as TCP/IP, DNS and firewalls",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand core networking concepts such as TCP/IP, DNS and firewalls",
+          "evidence_skills": [
+            "TCP/IP",
+            "DNS"
+          ]
+        },
+        {
+          "requirement_text": "Has analysed log files or network captures to find suspicious activity",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "analysed log files or network captures to find suspicious activity",
+          "evidence_skills": [
+            "Wireshark"
+          ]
+        },
+        {
+          "requirement_text": "Has practical exposure to the Linux command line",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Practical exposure to the Linux command line is expected",
+          "evidence_skills": [
+            "Linux"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J13",
+      "title": "Embedded Software Intern",
+      "company_name": "Quartz Motion Devices",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will write firmware for small battery-powered sensors. Work includes reading datasheets, writing drivers and debugging on real hardware with an oscilloscope. Applicants must have programmed a microcontroller in C or C++. You should understand interrupts and how peripherals such as I2C or SPI communicate. Experience with a real-time operating system is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J13",
+      "source_url": "https://example.com/synthetic-jobs/J13/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has programmed a microcontroller in C or C++",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Programmed a microcontroller in C",
+            "Programmed a microcontroller in C++"
+          ],
+          "source_quote": "programmed a microcontroller in C or C++",
+          "evidence_skills": [
+            "C",
+            "C++",
+            "Arduino",
+            "STM32"
+          ]
+        },
+        {
+          "requirement_text": "Understands interrupts and serial peripherals such as I2C or SPI",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand interrupts and how peripherals such as I2C or SPI communicate",
+          "evidence_skills": [
+            "I2C",
+            "SPI"
+          ]
+        },
+        {
+          "requirement_text": "Has debugged on real hardware",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "debugging on real hardware with an oscilloscope",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Experience with a real-time operating system",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience with a real-time operating system is a plus",
+          "evidence_skills": [
+            "RTOS",
+            "FreeRTOS"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J14",
+      "title": "QA Automation Intern",
+      "company_name": "Pinewood Health Apps",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The quality team makes sure every release of our patient app works. You will write automated browser tests, log defects and help design test plans. Applicants must have written automated test scripts in Selenium, Playwright, pytest or a similar tool. You should be able to write clear defect reports that a developer can reproduce. Experience running tests in a continuous integration pipeline is preferred.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J14",
+      "source_url": "https://example.com/synthetic-jobs/J14/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has written automated test scripts with a testing tool",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "written automated test scripts in Selenium, Playwright, pytest or a similar tool",
+          "evidence_skills": [
+            "Selenium",
+            "Playwright",
+            "pytest"
+          ]
+        },
+        {
+          "requirement_text": "Can write clear defect reports that a developer can reproduce",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "write clear defect reports that a developer can reproduce",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Experience running tests in a continuous integration pipeline",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience running tests in a continuous integration pipeline is preferred",
+          "evidence_skills": [
+            "GitHub Actions",
+            "Jenkins"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J15",
+      "title": "Digital Marketing Intern",
+      "company_name": "Kite and Compass Media",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The growth team plans and measures online campaigns for consumer brands. You will write web copy, help maintain the content calendar and report on campaign performance. Applicants must have managed or contributed to an online campaign, whether for a club, a business or a personal project. You should understand search engine optimisation basics such as keywords and meta descriptions. You must be able to read a campaign analytics report and summarise what worked. Data analysis tools are used, but coding is not required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J15",
+      "source_url": "https://example.com/synthetic-jobs/J15/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has managed or contributed to an online campaign",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "managed or contributed to an online campaign",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Understands search engine optimisation basics",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand search engine optimisation basics such as keywords and meta descriptions",
+          "evidence_skills": [
+            "SEO"
+          ]
+        },
+        {
+          "requirement_text": "Can read a campaign analytics report and summarise what worked",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "read a campaign analytics report and summarise what worked",
+          "evidence_skills": [
+            "Google Analytics"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J16",
+      "title": "Social Media and Content Intern",
+      "company_name": "Wildfig Studios",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "We create short videos and posts for lifestyle brands. Interns write captions, edit clips and schedule posts across platforms. Applicants must have produced original short-form video or photo content for a public account. You should write clearly and adapt tone for different audiences. Familiarity with a video editing app is expected. A portfolio link is welcome.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J16",
+      "source_url": "https://example.com/synthetic-jobs/J16/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has produced original short-form video or photo content for a public account",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "produced original short-form video or photo content for a public account",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Writes clearly and adapts tone for different audiences",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "write clearly and adapt tone for different audiences",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Familiar with a video editing app",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Familiarity with a video editing app is expected",
+          "evidence_skills": [
+            "CapCut",
+            "Premiere Pro"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J17",
+      "title": "Financial Analyst Intern",
+      "company_name": "Meridian Capital Partners",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The corporate finance team supports investment decisions with financial models. You will update spreadsheets, analyse company financial statements and prepare summaries for senior staff. Applicants must be able to build a financial model in Excel using formulas and multiple worksheets. You should understand income statements, balance sheets and cash-flow statements. Coursework in accounting or finance is required. Some SQL is helpful but optional.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J17",
+      "source_url": "https://example.com/synthetic-jobs/J17/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [
+        {
+          "text": "Coursework in accounting or finance is required",
+          "source_quote": "Coursework in accounting or finance is required"
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_text": "Can build a financial model in Excel using formulas and multiple worksheets",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "build a financial model in Excel using formulas and multiple worksheets",
+          "evidence_skills": [
+            "Excel"
+          ]
+        },
+        {
+          "requirement_text": "Understands income statements, balance sheets and cash-flow statements",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand income statements, balance sheets and cash-flow statements",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Some SQL",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Some SQL is helpful but optional",
+          "evidence_skills": [
+            "SQL"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J18",
+      "title": "Audit and Assurance Intern",
+      "company_name": "Fenwick Stanton Advisory",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will join an audit engagement team reviewing client accounts. Tasks include testing samples of transactions, preparing working papers and checking documents against accounting standards. Applicants must be pursuing an accountancy or business degree. You should understand basic accounting principles such as debits and credits. You should be meticulous when checking numbers and record what you tested clearly. Familiarity with Excel is expected.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J18",
+      "source_url": "https://example.com/synthetic-jobs/J18/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [
+        {
+          "text": "Must be pursuing an accountancy or business degree",
+          "source_quote": "pursuing an accountancy or business degree"
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_text": "Understands basic accounting principles such as debits and credits",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand basic accounting principles such as debits and credits",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Meticulous when checking numbers and records what was tested clearly",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "meticulous when checking numbers and record what you tested clearly",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Familiar with Excel",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Familiarity with Excel is expected",
+          "evidence_skills": [
+            "Excel"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J19",
+      "title": "HR and Talent Acquisition Intern",
+      "company_name": "Greenroot People Services",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The people team supports recruiting for graduate roles. You will coordinate interviews, maintain candidate records and draft job advertisements. Applicants must have strong written and spoken communication. You should have organised events or schedules for a group. Comfort handling confidential information is essential. Basic spreadsheet skills are needed for tracking applicants.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J19",
+      "source_url": "https://example.com/synthetic-jobs/J19/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has strong written and spoken communication",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "strong written and spoken communication",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Has organised events or schedules for a group",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "organised events or schedules for a group",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Comfortable handling confidential information",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "Comfort handling confidential information is essential",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J20",
+      "title": "UI/UX Design Intern",
+      "company_name": "Papertrail Interactive",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "Our design team crafts interfaces for finance and travel apps. You will run short user interviews, sketch flows and build clickable prototypes. Applicants must have designed screens or prototypes in Figma or a similar tool. You should have conducted at least one usability test or user interview. A basic understanding of accessibility guidelines is expected. Front-end coding is a bonus but not required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J20",
+      "source_url": "https://example.com/synthetic-jobs/J20/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has designed screens or prototypes in Figma or a similar tool",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "designed screens or prototypes in Figma or a similar tool",
+          "evidence_skills": [
+            "Figma",
+            "Sketch",
+            "Adobe XD"
+          ]
+        },
+        {
+          "requirement_text": "Has conducted at least one usability test or user interview",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "conducted at least one usability test or user interview",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Basic understanding of accessibility guidelines",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "A basic understanding of accessibility guidelines is expected",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Front-end coding",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Front-end coding is a bonus but not required",
+          "evidence_skills": [
+            "HTML",
+            "CSS"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J21",
+      "title": "Graphic Design Intern",
+      "company_name": "Saffron Print and Brand",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will prepare artwork for packaging, posters and brand guides. Tasks include creating logos, laying out print files and retouching photographs. Applicants must have produced original artwork in Adobe Illustrator or Photoshop. You should understand typography, colour and layout principles. A portfolio of design work is required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J21",
+      "source_url": "https://example.com/synthetic-jobs/J21/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has produced original artwork in Adobe Illustrator or Photoshop",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "produced original artwork in Adobe Illustrator or Photoshop",
+          "evidence_skills": [
+            "Adobe Illustrator",
+            "Photoshop"
+          ]
+        },
+        {
+          "requirement_text": "Understands typography, colour and layout principles",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand typography, colour and layout principles",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Has a portfolio of design work",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "A portfolio of design work is required",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J22",
+      "title": "Mechanical Design Intern",
+      "company_name": "Ridgeback Industrial",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The product design team develops pumps and housings for factory equipment. Interns model parts, prepare technical drawings and help test prototypes. Applicants must have created 3D models of mechanical parts in SolidWorks or similar CAD software. You should be able to read engineering drawings and understand tolerances. Coursework in mechanics or materials is required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J22",
+      "source_url": "https://example.com/synthetic-jobs/J22/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [
+        {
+          "text": "Coursework in mechanics or materials is required",
+          "source_quote": "Coursework in mechanics or materials is required"
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_text": "Has created 3D models of mechanical parts in SolidWorks or similar CAD software",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "created 3D models of mechanical parts in SolidWorks or similar CAD software",
+          "evidence_skills": [
+            "SolidWorks",
+            "AutoCAD",
+            "Fusion 360"
+          ]
+        },
+        {
+          "requirement_text": "Can read engineering drawings and understand tolerances",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "read engineering drawings and understand tolerances",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J23",
+      "title": "Civil Engineering Intern",
+      "company_name": "Baywater Construction",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will support site engineers on a residential building project. Tasks include checking work against drawings, recording progress photos and preparing simple structural reports. Applicants must be studying civil or structural engineering. You should be able to read construction drawings and use AutoCAD or a similar drafting tool. You must be comfortable working outdoors and following safety rules.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J23",
+      "source_url": "https://example.com/synthetic-jobs/J23/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [
+        {
+          "text": "Must be studying civil or structural engineering",
+          "source_quote": "studying civil or structural engineering"
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_text": "Can read construction drawings and use AutoCAD or a similar drafting tool",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "read construction drawings and use AutoCAD or a similar drafting tool",
+          "evidence_skills": [
+            "AutoCAD",
+            "Revit"
+          ]
+        },
+        {
+          "requirement_text": "Comfortable working outdoors and following safety rules",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "comfortable working outdoors and following safety rules",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J24",
+      "title": "Laboratory Research Intern",
+      "company_name": "Helix Bioworks",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The molecular biology lab studies gene expression in human cell lines. Interns prepare samples, run PCR and keep a careful lab notebook. Applicants must have performed PCR or cell culture in a teaching or research laboratory. You should be able to follow written protocols exactly and record results accurately. Coursework in biology or biochemistry is required.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J24",
+      "source_url": "https://example.com/synthetic-jobs/J24/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [
+        {
+          "text": "Coursework in biology or biochemistry is required",
+          "source_quote": "Coursework in biology or biochemistry is required"
+        }
+      ],
+      "requirements": [
+        {
+          "requirement_text": "Has performed PCR or cell culture in a teaching or research laboratory",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Performed PCR in a laboratory",
+            "Performed cell culture in a laboratory"
+          ],
+          "source_quote": "performed PCR or cell culture in a teaching or research laboratory",
+          "evidence_skills": [
+            "PCR",
+            "cell culture"
+          ]
+        },
+        {
+          "requirement_text": "Can follow written protocols exactly and record results accurately",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "follow written protocols exactly and record results accurately",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J25",
+      "title": "Supply Chain and Operations Intern",
+      "company_name": "Anchorage Logistics",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The operations team keeps warehouses stocked and shipments on time. You will track inventory levels, update shipping records and help resolve delivery delays. Applicants must be able to organise data in Excel, including sorting, filtering and pivot tables. You should have coordinated several tasks or people to meet a deadline. An interest in logistics is expected. Experience with an ERP system is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J25",
+      "source_url": "https://example.com/synthetic-jobs/J25/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Can organise data in Excel, including sorting, filtering and pivot tables",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "organise data in Excel, including sorting, filtering and pivot tables",
+          "evidence_skills": [
+            "Excel"
+          ]
+        },
+        {
+          "requirement_text": "Has coordinated several tasks or people to meet a deadline",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "coordinated several tasks or people to meet a deadline",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Has an interest in logistics",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "An interest in logistics is expected",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Experience with an ERP system",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience with an ERP system is a plus",
+          "evidence_skills": [
+            "ERP"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J26",
+      "title": "Sales Operations Intern",
+      "company_name": "Cedarfield Software Sales",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "You will support a team selling cloud software subscriptions. Tasks include updating customer records in the CRM database, building weekly pipeline reports and qualifying inbound leads by phone and email. No programming is required. Applicants must have good spreadsheet skills and clear communication. You should be comfortable following up with customers professionally. Interest in technology products is helpful.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J26",
+      "source_url": "https://example.com/synthetic-jobs/J26/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has good spreadsheet skills",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "good spreadsheet skills",
+          "evidence_skills": [
+            "Excel"
+          ]
+        },
+        {
+          "requirement_text": "Has clear communication",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "clear communication",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Comfortable following up with customers professionally",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "comfortable following up with customers professionally",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J27",
+      "title": "Product Management Intern",
+      "company_name": "Nimbus Apps",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The product team decides what our mobile and web apps do next. You will write user stories, analyse usage data and help prioritise the roadmap with engineers and designers. Applicants must have written requirements or user stories for a project. You should be comfortable reading product analytics and summarising insights. You must have worked in a team on a technical or design project. Technical curiosity is expected but you will not write production code.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "HYBRID",
+      "apply_url": "https://example.com/synthetic-jobs/J27",
+      "source_url": "https://example.com/synthetic-jobs/J27/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has written requirements or user stories for a project",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "written requirements or user stories for a project",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Comfortable reading product analytics and summarising insights",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "reading product analytics and summarising insights",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Has worked in a team on a technical or design project",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "worked in a team on a technical or design project",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J28",
+      "title": "IT Support Intern",
+      "company_name": "Stonebridge Facilities Group",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "The IT service desk supports about 400 staff. You will answer helpdesk tickets, set up laptops and troubleshoot problems with accounts, printers and Wi-Fi. Applicants must have diagnosed and fixed hardware or software problems on Windows or Linux. You should understand basic networking such as IP addresses and DHCP. Patience and clear communication with non-technical colleagues is essential. Security awareness, such as password hygiene, is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J28",
+      "source_url": "https://example.com/synthetic-jobs/J28/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has diagnosed and fixed hardware or software problems on Windows or Linux",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Diagnosed and fixed problems on Windows",
+            "Diagnosed and fixed problems on Linux"
+          ],
+          "source_quote": "diagnosed and fixed hardware or software problems on Windows or Linux",
+          "evidence_skills": [
+            "Windows",
+            "Linux"
+          ]
+        },
+        {
+          "requirement_text": "Understands basic networking such as IP addresses and DHCP",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "understand basic networking such as IP addresses and DHCP",
+          "evidence_skills": [
+            "DHCP",
+            "TCP/IP"
+          ]
+        },
+        {
+          "requirement_text": "Communicates clearly with non-technical colleagues",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "clear communication with non-technical colleagues is essential",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Security awareness",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Security awareness, such as password hygiene, is a plus",
+          "evidence_skills": []
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J29",
+      "title": "Technical Writer Intern",
+      "company_name": "Fernhill Developer Tools",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "We publish documentation for developers who integrate with our API. You will write guides, edit reference pages in Markdown and test the code samples we publish. This role does not involve writing production code or building the product. Applicants must have written clear technical explanations for other people. You should be able to read short Python or JavaScript examples and describe what they do. Experience using Git to track document changes is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "REMOTE",
+      "apply_url": "https://example.com/synthetic-jobs/J29",
+      "source_url": "https://example.com/synthetic-jobs/J29/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has written clear technical explanations for other people",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "written clear technical explanations for other people",
+          "evidence_skills": []
+        },
+        {
+          "requirement_text": "Can read short Python or JavaScript examples and describe what they do",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Reads short Python examples and describes them",
+            "Reads short JavaScript examples and describes them"
+          ],
+          "source_quote": "read short Python or JavaScript examples and describe what they do",
+          "evidence_skills": [
+            "Python",
+            "JavaScript"
+          ]
+        },
+        {
+          "requirement_text": "Experience using Git to track document changes",
+          "importance": "PREFERRED",
+          "alternatives": [],
+          "source_quote": "Experience using Git to track document changes is a plus",
+          "evidence_skills": [
+            "Git"
+          ]
+        }
+      ]
+    },
+    {
+      "source": "SYNTHETIC",
+      "source_job_id": "J30",
+      "title": "Game Development Intern",
+      "company_name": "Fable Forge Games",
+      "country_code": "SG",
+      "location": "Singapore",
+      "description": "We are a small studio making a puzzle game for mobile and PC. Interns implement gameplay features, fix bugs and tune game feel. Applicants must have programmed a game or interactive prototype in Unity, Unreal or a similar engine. You should be comfortable writing C# or C++. Understanding of basic game maths such as vectors and collisions is expected. Sharing a playable build is a plus.",
+      "job_type": "INTERNSHIP",
+      "employment_time": "FULL_TIME",
+      "work_arrangement": "ON_SITE",
+      "apply_url": "https://example.com/synthetic-jobs/J30",
+      "source_url": "https://example.com/synthetic-jobs/J30/listing",
+      "posted_at": null,
+      "last_verified_at": null,
+      "is_active": true,
+      "eligibility_notes": [],
+      "requirements": [
+        {
+          "requirement_text": "Has programmed a game or interactive prototype",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "programmed a game or interactive prototype in Unity, Unreal or a similar engine",
+          "evidence_skills": [
+            "Unity",
+            "Unreal",
+            "Godot"
+          ]
+        },
+        {
+          "requirement_text": "Comfortable writing C# or C++",
+          "importance": "REQUIRED",
+          "alternatives": [
+            "Writes C#",
+            "Writes C++"
+          ],
+          "source_quote": "comfortable writing C# or C++",
+          "evidence_skills": [
+            "C#",
+            "C++"
+          ]
+        },
+        {
+          "requirement_text": "Understands basic game maths such as vectors and collisions",
+          "importance": "REQUIRED",
+          "alternatives": [],
+          "source_quote": "basic game maths such as vectors and collisions is expected",
+          "evidence_skills": []
+        }
+      ]
+    }
+  ]
+}

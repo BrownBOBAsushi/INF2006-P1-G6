@@ -1,0 +1,13 @@
+profile,job,label (0/1/2),reason
+P03,J11,2,"The profile has a regression on simulated demand data and uses Python for several analysis projects, although the statistics and probability requirement is not stated directly."
+P04,J21,1,"The profile shows original Illustrator work and some design experience, but it does not clearly show a full design portfolio or enough evidence of typography, colour and layout principles."
+P04,J16,0,"The profile has posters and social graphics, but there is no evidence of creating short-form video or photo content or using a video editing app."
+P06,J06,0,"The profile shows SQL work but does not show joins and aggregation, dashboards, or explaining averages and trends in plain language."
+P06,J26,1,"The profile shows clear communication through client change requests, but there is no clear spreadsheet experience or evidence of regular customer follow-up."
+P07,J01,0,"The profile has SQL and backend-style data pipeline work, but it does not show that the person built a web API or wrote automated tests for their own code."
+P07,J26,1,"The profile includes spreadsheet work and communication with the startup founders, but there is no clear experience following up with customers professionally."
+P08,J01,2,"The profile includes a Python Flask endpoint and SQL work with SQLite, which covers the API and database requirements, although automated testing is not shown."
+P08,J06,0,"The profile uses SQL for storing sensor readings, but there is no evidence of SQL joins and aggregation, dashboards, or explaining trends in plain language."
+P09,J06,0,"The profile has strong Excel and financial analysis experience, but it does not show SQL joins and aggregation or the required charts or plain-language trend analysis."
+P10,J06,0,"The profile includes SQL queries, but there is no clear evidence of joins and aggregation, dashboards, or explaining averages and trends in plain language."
+P10,J26,0,"The profile shows communication through mentoring and teamwork, but it does not show spreadsheet work, customer follow-up, or sales operations experience."

@@ -36,8 +36,8 @@ evidence:
 data_ai:
   dataset: "data/README.md"
   method: "Planned MiniLM requirement-level cosine matching with PostgreSQL/pgvector"
-  evaluation: "Not run"
-  reproducible_command: ""
+  evaluation: "Run 2026-09-20 on synthetic fixtures (data/evaluation); provisional because labels are AI-drafted and pending human review; see evidence/test-data-ai.md"
+  reproducible_command: "python analytics/evaluate.py --fixtures data/evaluation"
 security:
   threat_control_map: "evidence/threat-control-map.md"
   secrets_handling: "Planned local environment variables; examples contain placeholders only; implementation unverified"

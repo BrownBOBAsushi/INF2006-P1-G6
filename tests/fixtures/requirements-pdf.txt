@@ -1,0 +1,12 @@
+# Extra pins for tests/fixtures (PDF generation and verification). Install ON TOP of analytics/requirements.txt:
+#   python -m pip install -r analytics/requirements.txt -r tests/fixtures/requirements-pdf.txt
+# Taken from pip freeze of the environment in which the 19 PDF-fixture tests passed.
+cffi==2.1.1
+charset-normalizer==3.5.1
+cryptography==50.0.1
+pdfminer.six==20260107
+pdfplumber==0.11.10
+pillow==12.3.0
+pycparser==3.0
+pypdfium2==5.13.0
+reportlab==5.0.1

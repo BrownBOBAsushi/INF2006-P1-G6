@@ -1,0 +1,39 @@
+Rohan Krishnan
+Email: synthetic.student06@example.com
+Phone: 9000 0006
+Address: Blk 106 Synthetic Road #07-006, Singapore 000000
+NRIC: S0000006Z
+Profile: https://example.com/in/synthetic-student-06
+
+Skills
+JavaScript, TypeScript, React, Node.js, PostgreSQL, Docker, AWS, Git, Linux
+
+Projects
+Recipe sharing web app
+Built a React and TypeScript interface for browsing and rating recipes, backed by a Node.js API and
+a PostgreSQL database. Wrote the API routes and the SQL queries, connected the front end to them
+and reviewed teammates' pull requests. Wrote Jest unit tests for the API routes and Playwright
+browser tests for the sign-up flow.
+Technologies: React, TypeScript, Node.js, PostgreSQL, Jest, Playwright, Git
+
+Containerised deployment
+Packaged the recipe app in Docker containers and deployed it to an AWS virtual machine. Set up a
+GitHub Actions workflow that runs the tests and rebuilds the containers on every merge.
+Technologies: Docker, AWS, GitHub Actions
+
+Server hardening exercise
+Configured a Linux server from the command line, set up SSH keys and a firewall, and wrote Bash
+scripts to automate backups.
+Technologies: Linux, Bash
+
+
+Experience
+Freelance website builder
+Built and launched a five-page website for a local bakery using HTML, CSS and JavaScript and
+handled the customer's change requests.
+Technologies: HTML, CSS, JavaScript
+
+
+Education
+BSc Computer Science - Currently in year 3
+

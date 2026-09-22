@@ -1,0 +1,39 @@
+Aisha Binte Rahman
+Email: synthetic.student03@example.com
+Phone: +65 9000 0003
+Address: Blk 103 Synthetic Road #04-003, Singapore 000000
+NRIC: S0000003Z
+Profile: https://example.com/in/synthetic-student-03
+
+Skills
+Python, PyTorch, scikit-learn, NumPy, OpenCV, Git, LaTeX
+
+Projects
+Sentiment classifier for product reviews
+Trained a recurrent neural network in PyTorch to label product reviews as positive or negative. Split
+the data into training, validation and test sets and reported accuracy and F1 on the held-out portion.
+Technologies: Python, PyTorch
+
+News headline clustering
+Turned headlines into TF-IDF vectors and grouped them with k-means in scikit-learn, then inspected
+the clusters by hand to name topics.
+Technologies: Python, scikit-learn
+
+Handwritten digit recogniser
+Built a small convolutional network on the MNIST image set and compared it against a plain
+feed-forward network. Used OpenCV to resize and normalise the digit images and wrote the
+backpropagation step by hand with NumPy matrix operations.
+Technologies: PyTorch, CNN, OpenCV, NumPy
+
+
+Experience
+Undergraduate research assistant
+Cleaned a corpus of 20,000 tweets, wrote scripts to tokenise the text and helped run experiments on
+a text-classification model. Also fitted a linear regression to simulated demand data to check a
+forecasting idea.
+Technologies: Python
+
+
+Education
+BSc Computer Science (AI specialisation) - Probability and statistics modules completed
+

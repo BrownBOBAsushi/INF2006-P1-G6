@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+alembic
+psycopg[binary]
+pydantic-settings
+alembic
+pgvector
+pytest
+httpx
+google-auth
+itsdangerous
+requests
