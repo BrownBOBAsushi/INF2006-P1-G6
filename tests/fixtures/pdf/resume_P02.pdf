@@ -1,37 +1,74 @@
-Daniel Ong Wei Jie
-Email: synthetic.student02@example.com
-Phone: 9000 0002
-Address: Blk 102 Synthetic Road #03-002, Singapore 000000
-NRIC: S0000002Z
-Profile: https://example.com/in/synthetic-student-02
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 8 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 7 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
 
-Skills
-SQL, Excel, Tableau, Python, pandas, Statistics
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/PageMode /UseNone /Pages 7 0 R /Type /Catalog
+>>
+endobj
+6 0 obj
+<<
+/Author (Synthetic fixture generator) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (\(unspecified\)) /Title (Synthetic resume) /Trapped /False
+>>
+endobj
+7 0 obj
+<<
+/Count 1 /Kids [ 4 0 R ] /Type /Pages
+>>
+endobj
+8 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 1314
+>>
+stream
+GatU2?#SIU'Re<2\A2F^_3Xb*q;\GKQ=:ej/WC2RkSl*Z>Dt"/,H3[%pV!@CV^pb`EFU+,9T&#gHO^RS5YRfgs">=AlQqKR-BP%->XOZE3@mD2mIKQ"X5l7H8>BX[c4ZMke$LM9HB3ej5HHeFZpJe:Pa6#s_%b>M/XWDQ\TbeEa\fi<EW][1_d=C5L#iCfIre/Ql15fs541k_%VS8fUEu<u]58B$F"hrTCUCa5N9r*Z2GW/i'5Ld&;5oua#$HGhY;<\hQ,G],igAlIE>j@mbV$j1:fSEnRDZGbdRX_'kITVYYmPr:ZQW0_^k0`=CR%@ZM>dQI`PmP,rkAF(Ae'_$;#7RAWgI@ap0+LS(Y%j+g=FJ<U[L#\EB-)5@!K&p0LUtrk]bqZg$=Y)nX4\eM_,a^"<cdSredK@9?lnXD:&I.k>)2iI4A)&@*)FN=Z:lC]d;\JTOkE<L(q,@E^Q[Ycq37*$RPlqYd>PjEIc-X$d*rl^.1in)@R9mJEj1:MWq,_F^-3jW6*^fhl(/+-!"DhN<jlAg43@ZZ#2'4fN>&%J^2UX"-Nj0'UK"p#%3p[`XV1*,Ul&TPd'G_YVc,Kr>h4?2(L8.`+Lf3$D_m5"]MImJOYcg`?$j"U?iFlmVtTe7rUsA5j%c&&_:2f`.aR-?mhI6Q!7l2MW.P8%?kU\g-bt$bU5X6fHlik<'kF];HS5E*bu3Mc=TpScs]8^Y>7^0V[79cefX1M>cW-AP#>!?q`3cE8M=U03STRTgcD\W#Vm4F:.H,\UnuPAm8ef?]KQt/Qt=(pEJ&UFPr4l^UY>>aY<"#CgkJM6UVNp-T7hEPQn_mqH65J5U5Ile<gJ2YhU7]*C#'Rh[=WD_:^PK5K4&`KO\9@n?Il>-X"*MlpdbO8dmEDb:U>#"HL165d_0`UJB&prVW2B6ekC?$T-h5,9T)Y1iZ:^4[dTr%AfF"Xh)0L4s2Rhm%ZSD?W!P'i9M7->,-A7f8Du+[LFm@`o$6b:"EU5-l5i_5NMNI2>M#&4Qpi*)-P%*\HEA^c*Qb,1d=MI&iS*I&f/-/C`iMX4);&q56d$R:4m$718!7S2l[(bRlO&3%UMQHm[mN&J:D;T.1>Y2ldlGQ+i4>E*Kqf1?]]njO[R84WQX2<*BsVk.Qjj$:-fMkES;s.)FH3R>9Nu>8:Sf)kQHlMJ#t^jVf=H@(/44&3b+2QXX%\Ld"0@VrPFpcYOYsGo\M;CU>9f/('AdD^W[n%ETV"YF\_.4.^@:GW$.nSZTk&ZaP)6la&&RhJbFt9)eS<'(>]@<Q@';U=)Vq(N,#.Y-5SC66!PV'rrr~>endstream
+endobj
+xref
+0 9
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000524 00000 n 
+0000000592 00000 n 
+0000000889 00000 n 
+0000000948 00000 n 
+trailer
+<<
+/ID 
+[<383efade2985c5d5f9775d0806f0d866><383efade2985c5d5f9775d0806f0d866>]
+% ReportLab generated PDF document -- digest (opensource)
 
-Projects
-Retail sales dashboard
-Combined three years of store sales tables using SQL joins and aggregations, then built an
-interactive Tableau dashboard that shows monthly revenue by region. Presented the findings to a
-mock panel of store managers.
-Technologies: SQL, Tableau
-
-Housing price study
-Fitted a linear regression to public housing data in Python and checked the residuals to see whether
-the assumptions held. Wrote a short report explaining in plain language which factors moved prices.
-Technologies: Python, pandas, regression
-
-Survey cleaning task
-Cleaned messy responses from a 300-person student survey in Excel, removing duplicates and
-standardising answers, before summarising trends with pivot tables.
-Technologies: Excel
-
-
-Experience
-Part-time stock assistant
-Counted stock and kept the weekly sales log up to date in a spreadsheet.
-Technologies: Excel
-
-
-Education
-BSc Business Analytics - Statistics and probability modules completed
-
+/Info 6 0 R
+/Root 5 0 R
+/Size 9
+>>
+startxref
+2353
+%%EOF

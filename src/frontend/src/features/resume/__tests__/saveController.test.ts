@@ -215,7 +215,7 @@ describe('privacy re-check', () => {
       jsonResponse(
         422,
         errorEnvelope('REVIEW_REQUIRED', 'privacy check changed your content', {
-          details: { draft: syntheticCleanedContent },
+          details: { cleaned_draft: syntheticCleanedContent },
         }),
       ),
     );
@@ -233,7 +233,7 @@ describe('privacy re-check', () => {
       jsonResponse(
         422,
         errorEnvelope('REVIEW_REQUIRED', 'changed', {
-          details: { draft: syntheticCleanedContent },
+          details: { cleaned_draft: syntheticCleanedContent },
         }),
       ),
       savedOk(5, true),

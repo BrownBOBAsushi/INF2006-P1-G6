@@ -1,82 +1,93 @@
-Ethan Lee Jun Hao
-Email: synthetic.student10@example.com
-Phone: 9000 0010
-Address: Blk 110 Synthetic Road #02-010, Singapore 000000
-NRIC: S0000010Z
-Profile: https://example.com/in/synthetic-student-10
+%PDF-1.4
+%“Œ‹ž ReportLab Generated PDF document (opensource)
+1 0 obj
+<<
+/F1 2 0 R /F2 3 0 R
+>>
+endobj
+2 0 obj
+<<
+/BaseFont /Helvetica /Encoding /WinAnsiEncoding /Name /F1 /Subtype /Type1 /Type /Font
+>>
+endobj
+3 0 obj
+<<
+/BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding /Name /F2 /Subtype /Type1 /Type /Font
+>>
+endobj
+4 0 obj
+<<
+/Contents 9 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 8 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
 
-Skills
-Java, Kotlin, Python, C++, C#, SQL, Git, Android, Spring Boot, React, Docker, Linux, Unity
+>> 
+  /Type /Page
+>>
+endobj
+5 0 obj
+<<
+/Contents 10 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 8 0 R /Resources <<
+/Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ]
+>> /Rotate 0 /Trans <<
 
-Projects
-Commuter Android app
-Built an Android app in Kotlin that shows live bus arrivals. Used activities and fragments and handled
-the activity lifecycle correctly when the screen rotated. Stored favourite stops on the device with a
-local Room database so they were available offline. Connected the app to a public transport web
-service and parsed its JSON responses. Published a beta build to the Play Store for classmates and
-fixed the crashes they reported.
-Technologies: Kotlin, Android, Room
+>> 
+  /Type /Page
+>>
+endobj
+6 0 obj
+<<
+/PageMode /UseNone /Pages 8 0 R /Type /Catalog
+>>
+endobj
+7 0 obj
+<<
+/Author (Synthetic fixture generator) /CreationDate (D:20000101000000+00'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20000101000000+00'00') /Producer (ReportLab PDF Library - \(opensource\)) 
+  /Subject (\(unspecified\)) /Title (Synthetic resume) /Trapped /False
+>>
+endobj
+8 0 obj
+<<
+/Count 2 /Kids [ 4 0 R 5 0 R ] /Type /Pages
+>>
+endobj
+9 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 2297
+>>
+stream
+Gat=,9lo&I&A@7.lqB$G/'FYT.CN#HgpBeE[Vhm9B6o2$843jf/-*iD^[GBgU?kPn;N>C+7Ki5Sj6bTT&t7`+M8-B[kj=8QInhD[dV;-@3_jD^Ol!3Hr:_CL="^B1`T?_IU"=P#==b*O_s9mAmC"Ze6IHm3@nI_#V<NXDS5/mi=78I!%"4A'51G=9(%s^mIAYQh%.k?b^'9nKHbj;'(p&d+afGLnL!j&`pEgS0W,1ffSP'WZacH"!Pa.Qpba&>^R.\)gFUN'oCZH49:*s(%8L=PDP07KI]ub=C]t^;NqN_c,=s!U=:KHQKE\]e1#pWV'ZPAaJ&gm.`!Cfd!cSXpJ:[bKjBGkfQahRdNMp'dpA*rVPBgfQ=U%2:Jk7;T\Y0;/]K<pjJB1)6p=S/q<I\8`+!dcPo4j.'+[3'p\?M&S,Sf`CCB<KU;nj2W\LjlZr.l3ohI/r:sFT')fq"591rp/U#ISjNADbTT#b4/?j5QH+G/O'+Y7>=#kg$DbN&UdWU^)tb[7YUd@bGUP:`Wj!M/@.#U3g0Sl(`uTr8*ATlAK@R.GYb'6qD%0>Ia%WLP::c].iemNpAgGBBp1q]^d,W<GFl1q8Qs`;KQClUZldcS?=H8;e4p/nn]'XsEFN.(Yg*1jTXgBa_2VM=ojP`Z-Z3J'ca9Ll3en:44l$j9;'l%^8N]$Q7$.53Q2r1[j2K<p:'E0S[dmsue[aJ79[]I="c3^`gIu8dMCg7n6*,d\2Tm$>,bZ[FUXET\$g_I-J*!'#XYDL5:si<3,?PRXeS>V6$;MEK3==ERmVog\&Y;.gK]B!Z"Q72gcT_[j='=Q0_KEb/pk!!FCDlUL_9_q)L:YcAhfq^3lR:6!q\$W`5^#sCFl/XR3J"Maj,K7=']Ls"0LJ8*8\V9:<Z%n)(AY]09"D!(NqEqsP4<@>/di?,\fe\6h(:V"OT'>^Wi0qr6]5CKB_0\k=ILSM\ENEX"m8$A30PF5qXe[9,&-Vj.P:qT'!!,)d@^`M(.j_5$;75;p/oCFUVLYWJY3Wj#F7/+O*iHoKo1uMRQ)uYZan"dO=@L_330H/IWTPBWCCKV=.kpi3rXcc!qFm$GK-7D]5rlr`,nh<L=jek=H4oWb\GX6M8tA?cK7"FED1'2b^:D:KjF$HfF-T+W\esA<m&k%I92CK?!fnIlS`eMbqX1/X"R"@E\5)9)AN>b4]_0s&qYc,jumrCJThSPJol;?_0V!3l"Z8@'p:esL]ktEIPH2\$mo\ti:JdLUUS<Z-q]O?Z04NJ3X-#VR'ZFZ(]>;lYdA_3CjL47W>>eDQnHb?10+N=J##oBN6L^#$mE\j'qe^D2kkuf@L#(H9=u3@+[u'+&UfJI5``"^_h$F<&ZE(A/>-jD#c_\tg/fJ./oeGYF!n74_JE)"Cq=6<EZ6E(>n8u_QS8s+`8at>;hnP;9TL%S%B,kS@&.c*Aj2)->cha;)7A^KR6W]J7!gKnZ/a]LZM(^/!c6fQKKDi76.9tJ9mdM+=Q*Lf",K.1SNrkiU;oQZF#<r@\ercUl-n.R-.?bJl-s$*%k-Jk"DrD9S2?ciH3(dsk&sL7B$d=&Zm$MOHXI6DKLYp7mbq(Q'H2?Od>c'[q,a-q0_-LU.jVLF]eVTd[a'@_Lp3nj%F[4q,QGjXP/lJl"WlK[%hh[dH#rR@Re6j@;/:Xt#+mj;hH>'W(lH/!et?t_[,%IV[>&)e=%<i-,?mB0//uf@4Hf+)f?E824#"T]D/jsB\'*oA/Lm@J#-`<?T"pL1p9qF8k3k'HWXA:!0u*u7Yih5B8LdM]TP>:5:?<GE[l"__2%0Yb[LX;TdmbXA=YJnrf\B#n+:OY6&Mg8p\X,1Lp_iK![_2k6BSoi"I661N5FXr';Su'H=YFl`qQA#NP)T8YJPA7T7"PWJ`ONQDcqV:UdAUt>8O35@4$pmIi#/;^iFWYQF[-J=+]iG#DLRb6[elA]dD9L-F*EQEMCAd+[]qt**q;SmYb4,DX0.I:29$]RhbbL-!AZfk_F]%T4*i<&\1u%*[.iZP\)ALm@)>VSo-`4]n7:$$31\=/#di71&;^a15gh>4%f%$"&_"]TaaDQ\`d"\%(k"g8[)[(j)EqNCUqD`ZJtVbqXFQ>Y[^Gore&X=M`f?q2.P[DH]1+1^=eZcAT!4[gY5!ssQ8fM->8jt5f)P1'f1u9+aEa$D<Gc.1kIR`Kc_t[m*\gf.RDeUOoT7c0V:u#8NqK=SM,)QlNU[!0>k"Q+QW.'-DmR^-14%/KTtcBd>^SA=W(^4.$mP6>Fao.#OuR'+^[V%#Q<sJ"E:Fb$~>endstream
+endobj
+10 0 obj
+<<
+/Filter [ /ASCII85Decode /FlateDecode ] /Length 1249
+>>
+stream
+Gat%bd?E9B&B<W'/+tRH%T!SBJ\F!Ud^533Rt5:FKtMqVZK4V4*<1FNal)KlU%ZaUgj&<lheMn`DjAZXInBPk9;:$BqWV9Padfed9%%EGgCNq"48M!1Y*&O-R]ko?KU0f/]#a&UHoLooh10Ut"ah?8ibNlX5pGPm1YS-kS5Z_LMQ<EEnFihnX14>j")Yg"p;`93V`QAdUfV+^IFag?kHMFoZnZoW(7'fXK;ocgeU^]]fiJ("q.e_=S_UT9IqsNlp5o`]OW_uE,dSkrT#cR,rX^GCNpTD0-@Z`$C25(Va,X]j]IDOne!%Up2l1``#tnF(NV.PK2$Z(SD;aAhNFuuUje:_IUV3p7PGpB-UTrbG,`eZ\i'U?VjGeG\>$)kE.tl=eEZQk\:$lD?1^-84V"bA_?]'Gn:.nF&B0$@$$K2`.@\F>:YK:7!06Fg&;^2RJ+W&<_4r6[H-!*9Z4WVn&AN%4$s67@cjfpSp*#-#WA'r?hS+6Ylo6e-l<f=T^kLmKUGWD,ZKmXU6M#)g/(cri`XO+"l(WOR5ROjc*21@SRSTTomm$2^Bi`4)4#:3A%.c:CGrRoPcq2s(Dj"4>&"bXJ7:1`[n9?]Wm3Ri0rXf<Vb?W_X+F`nN8ET4CA!A*HQecfreWOt*WG/>]]ic6kgcpOte+BdKc$HL\Y([f[>OQ'-#VU8fSQ#aoi_O_9*S+QceZ?8@DK0<bQ`>JWM&d.c-nBWZ!O'&ha]7?4mp1MVb3R_*#a]NAeCBfoe/a!#;pMI+A.`Z50d,[fm2(@],peYX'70\TC]#;`HZsJBE?qd$7<dBbM&UQ%.WhaNii7rp[(%0^3)]Wj#q[5aU`j_Ol?l#'\>*r1o7hpg;TV%uN55QQ4Gm$B.nKZ5[2H:?jb"rC@I=TkZ=.N6)LG<-U=>pAdA2V#H"7[:??.j$'Y%R!)Y0qID"h^A+^Q!+b5V\i;oN7lX2AT8R2A.%NW'LeErHY:9Z8[bRH+-*^Df'7Pb>n8$UJmMP2%Gfk7^dB\o9_o_AH>(B??nlGE!igI"-L[@5-h6.`ACko+5fLJc(tf#]/2U'Gupa[!NN98-31Zr%,L@Q>e'qrJYRDb[E7D*"[tP?NqJ6a!0h)RiGIi\kl(58LG?KqCgL^NBo:l=k1P0Id%FUY$h&U7,NBf;5E!K1mhPX?:gS&c]eLfA!\A.u]Q_eWIMEn_0Q.op)k?qJn0O!O?o.3PDT[,N\aS>sY8=5L&_KFPfg"AXY+)-42chFMec~>endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000061 00000 n 
+0000000102 00000 n 
+0000000209 00000 n 
+0000000321 00000 n 
+0000000524 00000 n 
+0000000728 00000 n 
+0000000796 00000 n 
+0000001093 00000 n 
+0000001158 00000 n 
+0000003546 00000 n 
+trailer
+<<
+/ID 
+[<383efade2985c5d5f9775d0806f0d866><383efade2985c5d5f9775d0806f0d866>]
+% ReportLab generated PDF document -- digest (opensource)
 
-Order processing service
-Implemented REST endpoints in Java using Spring Boot and dependency injection for a mock online
-shop. Separated the code into controllers, services and repositories. Wrote object-oriented domain
-classes for orders, customers and products. Added integration tests with an in-memory database.
-Documented the endpoints so a teammate could consume them from the front end.
-Technologies: Java, Spring Boot, REST
-
-Algorithms practice repository
-Solved sixty algorithm problems in C++ and Java covering graphs, dynamic programming, heaps and
-string matching. Wrote short notes on the time and space complexity of each solution. Compared
-several sorting implementations on random and nearly sorted inputs to see how they behaved. Took
-part in two university programming contests.
-Technologies: C++, Java
-
-Team chat web app
-Built a React front end for a team chat application with channels, message history and typing
-indicators. Connected the interface to a WebSocket server and a REST API for message history.
-Managed the work with Git branches and pull requests in a team of four. Styled the interface to work
-on both phones and laptops.
-Technologies: React, JavaScript, Git
-
-Personal blog engine
-Wrote a small blog engine in Python with Flask that stores posts and comments in a relational
-database. Wrote SQL queries for tag pages and pagination. Added unit tests for the post-creation
-and comment rules. Deployed the blog in a Docker container on a rented Linux server and set up
-automatic restarts.
-Technologies: Python, Flask, SQL, Docker, Linux
-
-Game jam platformer
-Programmed a small platformer in Unity with C# during a 48-hour game jam. Wrote the player
-movement, enemy patrol behaviour and simple collision responses using vectors. Tuned jump height
-and acceleration until the controls felt responsive. Shared a playable build with the other jam
-participants.
-Technologies: Unity, C#
-Experience
-Software engineering intern
-Worked in a team of six on a Java service that processes customer invoices. Fixed reported bugs,
-wrote unit tests for the modules I changed and took part in daily stand-ups and code reviews. Added
-a new validation rule for invoice totals and updated the related documentation.
-Technologies: Java, Git
-
-Hackathon mentor
-Helped first-time participants at two weekend hackathons debug their Python and JavaScript projects.
-Explained version control basics and how to split a project into tasks the team could finish in a
-weekend.
-Technologies: Python, JavaScript
-
-Open source contributor
-Fixed several small issues in an open-source command line tool written in Python, including a crash
-on empty input and unclear error messages. Wrote tests for each fix and responded to maintainers'
-review comments.
-Technologies: Python, Git
-
-Volunteer developer for a local charity
-Maintained the charity's volunteer roster website, added an event calendar page and fixed layout
-problems on mobile phones. Trained two staff members to update the content themselves.
-Technologies: HTML, CSS, JavaScript
-
-
-Education
-BSc Computer Science - Data structures, operating systems and software engineering modules
-completed
-
+/Info 7 0 R
+/Root 6 0 R
+/Size 11
+>>
+startxref
+4887
+%%EOF

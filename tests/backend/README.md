@@ -9,9 +9,11 @@ save_operations) — including pgvector extension, embedding dimension,
 indexes, check constraints, and foreign keys.
 
 Run with:
-    docker compose exec api pytest tests/backend/ -v
+    docker compose -f docker-compose.dev.yml --profile test run --rm backend-tests
+    docker compose -f docker-compose.dev.yml --profile test down
 
-Last verified: 15/15 passing, against synthetic/empty local dev DB.
+The test runner mounts this directory read-only and uses a temporary pgvector
+database. It does not run against the persistent application database.
 
 Note: test_downgrade_and_upgrade_roundtrip is destructive to schema state —
 only run against a disposable dev database.

@@ -1,13 +1,15 @@
-from fastapi import APIRouter, Depends, Request, Response, HTTPException, Header
+from fastapi import APIRouter, Depends, Request, Response, Header
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session as DBSession
 from sqlalchemy import select
-from fastapi import Response as FastAPIResponse
 import hashlib
 from app.db.session import get_db
 from app.db.models import User, Session as SessionModel
 from app.core.config import settings
 from app.auth import security
 from app.auth.google_verify import verify_google_credential, InvalidGoogleCredential
+from app.core.errors import api_error
+from app.auth.dependencies import validate_unsafe_request
 
 router = APIRouter(prefix="/api/auth")
 
@@ -17,7 +19,7 @@ BOOTSTRAP_COOKIE_NAME = "pre_login"
 def _validate_origin(request: Request):
     origin = request.headers.get("origin")
     if origin != settings.app_origin:
-        raise HTTPException(status_code=403, detail={"code": "CSRF_INVALID"})
+        raise api_error(403, "CSRF_INVALID", "Origin not allowed.")
 
 
 @router.get("/bootstrap")
@@ -47,20 +49,20 @@ def google_exchange(
 
     signed_cookie = request.cookies.get(BOOTSTRAP_COOKIE_NAME)
     if not signed_cookie:
-        raise HTTPException(status_code=401, detail={"code": "AUTH_REQUIRED"})
+        raise api_error(401, "AUTH_REQUIRED", "Sign in to continue.")
 
     nonce = security.verify_bootstrap_cookie(signed_cookie)
     if not nonce or not security.constant_time_eq(nonce, x_csrf_token):
-        raise HTTPException(status_code=403, detail={"code": "CSRF_INVALID"})
+        raise api_error(403, "CSRF_INVALID", "CSRF token missing or mismatched.")
 
     credential = body.get("credential")
     if not credential:
-        raise HTTPException(status_code=400, detail={"code": "BAD_REQUEST"})
+        raise api_error(400, "BAD_REQUEST", "A Google credential is required.")
 
     try:
         sub = verify_google_credential(credential)
     except InvalidGoogleCredential:
-        raise HTTPException(status_code=401, detail={"code": "AUTH_REQUIRED"})
+        raise api_error(401, "AUTH_REQUIRED", "Google sign-in could not be verified.")
     finally:
         credential = None  # erase reference; nothing persists it
 
@@ -71,7 +73,14 @@ def google_exchange(
         db.add(user)
         db.flush()  # get user_id without committing yet
 
-    # Rotate session: issue a new one
+    # Rotate session: revoke the incoming application session before issuing a new one.
+    incoming = request.cookies.get(security.session_cookie_name())
+    if incoming:
+        old_hash = hashlib.sha256(incoming.encode()).hexdigest()
+        old_session = db.get(SessionModel, old_hash)
+        if old_session is not None:
+            db.delete(old_session)
+
     raw_token, token_hash = security.new_session_token()
     csrf_token = security.new_csrf_token()
     session_row = SessionModel(
@@ -113,8 +122,13 @@ def logout(
         token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
         session_row = db.get(SessionModel, token_hash)
         if session_row is not None:
+            now = datetime.now(timezone.utc)
+            idle_cutoff = session_row.last_active_at + security.SESSION_IDLE_LIFETIME
+            if session_row.expires_at > now and idle_cutoff >= now:
+                validate_unsafe_request(request, session_row)
             db.delete(session_row)
             db.commit()
 
     response.delete_cookie(cookie_name, path="/")
-    return FastAPIResponse(status_code=204)
+    response.status_code = 204
+    return response

@@ -3,7 +3,7 @@
 ## Internship Matcher — implementation handoff
 
 The team is building a local-first internship browsing app with resume-based semantic recommendations.
-The frontend local milestone is implemented below; backend integration and cloud deployment remain pending.
+The local frontend/backend integration is implemented for localhost; cloud deployment remains pending.
 
 Read in order:
 
@@ -19,7 +19,7 @@ The optional [JSearch research script](docs/JSEARCH_RESEARCH.md) is not the MVP.
 
 Jiaxin and Chuying: backend. Xue E and Nasya: frontend. Zhihao: moderation, design and review. Proposed detailed ownership and environment preparation: [team setup](docs/handoff/TEAM_SETUP.md).
 
-Planned stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM, Docker Compose. Frontend dependency locks and local commands are available below; backend bootstrap remains pending. Each teammate will run their own local DB from shared migrations.
+Implemented local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM and Docker Compose. Use [the local integration runbook](docs/LOCAL_INTEGRATION.md) for startup, synthetic import and honest acceptance gates.
 
 ![Planned architecture — not deployed](evidence/architecture.svg)
 
@@ -42,10 +42,10 @@ Before final packaging, replace all pending results, export the 8–12 page repo
 
 Copy-paste coding-agent prompts: [teammate prompts](docs/handoff/TEAM_PROMPTS.md).
 
-## Frontend local milestone
+## Frontend and local runtime
 
-The React/TypeScript shell now runs against isolated synthetic catalogue fixtures.
-Use Node 24.21.0 and npm 11.19.0:
+The React/TypeScript shell has an explicit synthetic preview for frontend checks;
+normal runtime uses the real API. Use Node 24.21.0 and npm 11.19.0:
 
 ```sh
 cd src/frontend
@@ -56,14 +56,15 @@ npm run build
 npm run dev:mock
 ```
 
-Open http://localhost:8080, enter the synthetic preview, confirm a synthetic display
-name and skip the optional resume step. Existing Nasya resume components are mounted;
-preparation/saving and recommendations still need backend integration.
+The production-style Compose entry point is http://localhost:8080. It serves the
+built React application and proxies same-origin `/api` requests to FastAPI. Real
+Google login and the explicit synthetic catalogue import are documented in the
+[local integration runbook](docs/LOCAL_INTEGRATION.md).
 
 `npm run dev` uses the real API proxy at 127.0.0.1:8000. Configure only the public
 Google client ID in src/frontend/.env.local. Production builds exclude fixtures.
-Backend/Compose/OpenAPI and real Google sign-in are still pending; the complete
-local MVP gate has not passed.
+The complete local MVP gate remains pending until Docker, isolated database/model,
+and real Google checks run on an enabled host.
 
 See [frontend integration and ownership](src/frontend/README.md),
 [actual commands/results](src/frontend/MILESTONE_VALIDATION.md) and

@@ -40,6 +40,27 @@ export interface JobPage {
   offset: number;
   catalogue_revision: number;
 }
+export interface MatchRequirement {
+  requirement_id: string;
+  requirement_text: string;
+  importance: 'REQUIRED' | 'PREFERRED';
+  closest_passage: { text: string; section: string; entry_index: number };
+  explicit_skill_evidence: string[];
+  named_skills_not_evidenced: string[];
+}
+export interface MatchItem {
+  job: JobSummary;
+  requirements: MatchRequirement[];
+  eligibility_notes: { text: string; source_quote: string }[];
+}
+export interface MatchPage {
+  items: MatchItem[];
+  total: number;
+  limit: number;
+  offset: number;
+  catalogue_revision: number;
+  profile_revision: number;
+}
 export interface Me {
   user: { user_id: string; display_name: string | null };
   resume_revision: number;

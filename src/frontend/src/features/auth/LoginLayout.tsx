@@ -63,7 +63,7 @@ export function LoginLayout({ children, open, onOpen, onClose }: {
           <div className="login-hero-footer"><p>Search active internship listings with the role, requirements, and source details in view. Take the next step when the work makes sense for you.</p><button type="button" className="login-cta" onClick={onOpen}>Explore opportunities <span aria-hidden="true">→</span></button></div>
         </div>
         <aside className="login-preview" aria-label="How Internship Matcher helps">
-          <div className="login-preview-top"><span>Internship Matcher</span><span className="login-preview-index">01 / 03</span></div>
+          <div className="login-preview-top"><span>Internship Matcher</span></div>
           <p className="login-preview-title">Read the brief<br />before you commit.</p>
           <p className="login-preview-copy">Compare the source, requirements, and working arrangement before opening an application.</p>
           <div className="login-preview-meta"><span>Source linked</span><span>Context first</span></div>

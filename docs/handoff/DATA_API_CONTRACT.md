@@ -106,6 +106,10 @@ Filters: job_type[], employment_time[], work_arrangement[]; omitted is unrestric
 
 Every page returns catalogue_revision and matches also profile_revision. Subsequent pages send these; changed revisions return409 RESULTS_CHANGED to restart pagination. No saved result cache needed. Calculate a page and its revision in one consistent DB snapshot. Mid-list consistency is detected, not promised indefinitely.
 
+`REVIEW_REQUIRED` errors from `PUT /api/resume` carry the privacy-cleaned replacement only as
+`error.details.cleaned_draft`. `REVISION_CONFLICT` carries the current account revision as
+`error.details.current_revision`; no rejected request body or parser detail is returned.
+
 ### Public response shapes
 
 JobSummary: job_id,title,company_name,country_code,location,job_type,employment_time,work_arrangement,posted_at,last_imported_at,is_active.
@@ -114,7 +118,7 @@ JobDetail extends summary with description,apply_url,source,source_url,last_veri
 
 JobPage: {items:[JobSummary],total,limit,offset,catalogue_revision}.
 
-MatchPage: {items:[{job:JobSummary,requirements:[{requirement_id,importance,closest_passage:{text,section,entry_index},explicit_skill_evidence:[string],named_skills_not_evidenced:[string]}],eligibility_notes}],total,limit,offset,catalogue_revision,profile_revision}.
+MatchPage: {items:[{job:JobSummary,requirements:[{requirement_id,requirement_text,importance,closest_passage:{text,section,entry_index},explicit_skill_evidence:[string],named_skills_not_evidenced:[string]}],eligibility_notes}],total,limit,offset,catalogue_revision,profile_revision}.
 
 For an OR evidence group, if any acceptable confirmed skill matches, return it in explicit_skill_evidence and an empty not-evidenced list; otherwise list its named alternatives as one group, never separate missing mandatory requirements. Normalize case/whitespace and a small versioned alias map; use whole skills from the approved skills array, not substring scan of prose (avoids “go” confusion). Exact skill evidence is self-reported, not competence verification. Requirements without evidence_skills only show closest passage. Do not return numeric cosine or invent strength labels.
 

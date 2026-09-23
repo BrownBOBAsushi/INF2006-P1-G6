@@ -9,9 +9,10 @@ import { JobDetails } from './features/catalogue/JobDetails';
 import { Onboarding } from './features/auth/Onboarding';
 import { GoogleSignIn } from './features/auth/GoogleSignIn';
 import { SessionRecovery } from './features/auth/SessionRecovery';
-import { AuthPreview } from './features/auth/AuthPreview';
+import { GoogleOnlySignIn } from './features/auth/GoogleOnlySignIn';
 import { useSession } from './features/auth/useSession';
 import { ResumeWorkspace, createResumeApi } from './features/resume';
+import { Matches } from './features/matches/Matches';
 
 export interface SignInProps { onCredential(credential: string): Promise<void> }
 export const THEME_STORAGE_KEY = 'internshipMatcher.theme';
@@ -58,12 +59,11 @@ export function App({ client, mock = false, SignInControl = GoogleSignIn }: {
     <button className="button-secondary" disabled={busy} onClick={() => { void session.refresh().catch(() => {}); }}>Retry connection</button>
     {me && recovery && <button disabled={activity === 'signing-in'} onClick={() => void session.logout()}>Sign out instead</button>}
   </section>;
-  const login = recovery && me ? recoveryLogin : <AuthPreview
+  const login = recovery && me ? recoveryLogin : <GoogleOnlySignIn
     googleControl={<SignInControl onCredential={session.signIn} />}
     busy={busy}
     activity={activity}
     error={error}
-    open={loginOpen}
     onRetry={() => { void session.refresh().catch(() => {}); }}
   />;
   return <div className={`app-shell theme-${theme}`}>
@@ -83,7 +83,7 @@ export function App({ client, mock = false, SignInControl = GoogleSignIn }: {
               <Route path="/jobs" element={me.user.display_name ? <Catalogue client={client} accessRevision={accessRevision} /> : <Navigate to="/onboarding" replace />} />
               <Route path="/jobs/:id" element={me.user.display_name ? <JobDetails client={client} accessRevision={accessRevision} /> : <Navigate to="/onboarding" replace />} />
               <Route path="/resume" element={me.user.display_name ? <div className="resume-shell"><div className="workspace-intro"><p className="eyebrow">Your experience, in your words</p><p>Resume details are optional. Review what you share before saving.</p></div><div className="panel resume-slot"><ResumeWorkspace api={resumeApi} onAuthenticationRequired={session.requireAuthentication} /></div></div> : <Navigate to="/onboarding" replace />} />
-              <Route path="/matches" element={me.user.display_name ? <section className="matches-shell" aria-labelledby="matches-heading"><div className="matches-hero"><p className="eyebrow">Personalised discovery</p><h1 id="matches-heading">Recommendations</h1><p>A place to explore how your experience connects with internship opportunities.</p></div><div className="panel matches-state"><span className="availability-label">Not available yet</span><h2>Keep exploring the catalogue</h2><p>This view is not available yet. You can browse all active jobs.</p><div className="actions"><Link className="button" to="/jobs">Browse jobs <span aria-hidden="true">→</span></Link><Link className="button button-secondary" to="/resume">Review your resume</Link></div></div></section> : <Navigate to="/onboarding" replace />} />
+              <Route path="/matches" element={me.user.display_name ? <Matches client={client} accessRevision={accessRevision} /> : <Navigate to="/onboarding" replace />} />
               <Route path="/" element={<Navigate to={me.user.display_name ? '/jobs' : '/onboarding'} replace />} />
               <Route path="*" element={<section><h1>Page not found</h1><Link to="/jobs">Browse jobs</Link></section>} />
             </Routes>

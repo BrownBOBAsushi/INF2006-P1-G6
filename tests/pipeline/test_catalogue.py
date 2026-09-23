@@ -137,6 +137,70 @@ def test_valid_import_stores_jobs_requirements_and_vectors(db, jobs_raw, fake_em
     assert job.last_verified_at is None and job.is_active and len(job.content_hash) == 64      # never auto-filled
 
 
+def test_import_embedding_runs_outside_database_transaction(db, jobs_raw, fake_embedder):
+    class ProbeEmbedder:
+        version = fake_embedder.version
+
+        def validate_text(self, value):
+            return fake_embedder.validate_text(value)
+
+        def embed(self, texts):
+            assert not db.in_transaction()
+            return fake_embedder.embed(texts)
+
+    result = import_catalogue(db, subset(jobs_raw, {"J01"}), ProbeEmbedder())
+    assert result.ok and result.created == 1
+
+
+def test_import_aborts_when_catalogue_revision_changes_during_embedding(db, jobs_raw, fake_embedder):
+    from sqlalchemy.orm import Session
+
+    class ConcurrentEmbedder:
+        version = fake_embedder.version
+
+        def validate_text(self, value):
+            return fake_embedder.validate_text(value)
+
+        def embed(self, texts):
+            assert not db.in_transaction()
+            other = Session(db.get_bind())
+            try:
+                state = other.get(AppState, 1)
+                state.catalogue_revision += 1
+                other.commit()
+            finally:
+                other.close()
+            return fake_embedder.embed(texts)
+
+    with pytest.raises(RuntimeError, match="catalogue_changed_during_import"):
+        import_catalogue(db, subset(jobs_raw, {"J01"}), ConcurrentEmbedder())
+    assert db.execute(select(func.count()).select_from(Job)).scalar_one() == 0
+
+
+def test_import_detects_revision_change_between_snapshot_and_existing_rows(
+    db, jobs_raw, fake_embedder, monkeypatch,
+):
+    from sqlalchemy.orm import Session
+    from app.catalogue import importer as importer_module
+
+    original = importer_module._load_existing
+
+    def load_existing_after_concurrent_commit(session, keys):
+        other = Session(db.get_bind())
+        try:
+            state = other.get(AppState, 1)
+            state.catalogue_revision += 1
+            other.commit()
+        finally:
+            other.close()
+        return original(session, keys)
+
+    monkeypatch.setattr(importer_module, "_load_existing", load_existing_after_concurrent_commit)
+    with pytest.raises(RuntimeError, match="catalogue_changed_during_import"):
+        import_catalogue(db, subset(jobs_raw, {"J01"}), fake_embedder)
+    assert db.execute(select(func.count()).select_from(Job)).scalar_one() == 0
+
+
 def test_repeating_the_same_import_changes_nothing(db, jobs_raw, fake_embedder):
     import_catalogue(db, jobs_raw, fake_embedder)
     ids = dict(db.execute(select(Job.source_job_id, Job.job_id)).all())

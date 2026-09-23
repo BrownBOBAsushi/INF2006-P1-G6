@@ -70,8 +70,15 @@ def dedupe_requirements(job: JobIn) -> tuple[JobIn, int]:
         if key not in index:
             index[key] = len(kept)
             kept.append(r)
-        elif r.importance == "REQUIRED" and kept[index[key]].importance == "PREFERRED":
-            kept[index[key]] = kept[index[key]].model_copy(update={"importance": "REQUIRED"})
+            continue
+
+        current = kept[index[key]]
+        # A duplicate's evidence metadata is part of its provenance. Keep the
+        # first REQUIRED row intact; when a preferred row is promoted, use the
+        # later REQUIRED row as the authoritative source rather than unioning
+        # alternatives that were never asserted together.
+        if current.importance == "PREFERRED" and r.importance == "REQUIRED":
+            kept[index[key]] = r
     return job.model_copy(update={"requirements": kept}), len(job.requirements) - len(kept)
 
 
@@ -101,6 +108,10 @@ def import_catalogue(session: Session | None, raw: bytes | str | dict, embedder:
     """Validate and import a catalogue file. `session=None` (dry-run only) skips the database comparison."""
     if not dry_run and (session is None or embedder is None):
         raise ValueError("a database session and an embedder are required for a real import")
+    if session is not None and (
+        session.in_transaction() or session.new or session.dirty or session.deleted
+    ):
+        raise ValueError("catalogue import requires a clean database session")
     jobs, issues = validate_import(raw, allowed_sources)
     if issues:
         return ImportSummary(ok=False, dry_run=dry_run, issues=issues)
@@ -111,7 +122,17 @@ def import_catalogue(session: Session | None, raw: bytes | str | dict, embedder:
         deduped.append(dj)
         removed += n
     keys = [(j.source, j.source_job_id) for j in deduped]
+    planning_revision = None
+    if session is not None:
+        planning_revision = session.execute(
+            select(AppState.catalogue_revision).where(AppState.id == 1)
+        ).scalar_one_or_none()
+        planning_revision = int(planning_revision or 0)
     existing = _load_existing(session, keys) if session is not None else {}
+    if session is not None:
+        # Existing rows and the revision are now materialized in memory. Do
+        # not hold a read transaction while the model computes embeddings.
+        session.rollback()
 
     plan: list[tuple[JobIn, str, _Existing | None, str]] = []   # (job, hash, existing, status)
     version = embedder.version if embedder is not None else None
@@ -171,6 +192,9 @@ def import_catalogue(session: Session | None, raw: bytes | str | dict, embedder:
             state = AppState(id=1, catalogue_revision=0)
             session.add(state)
             session.flush()
+        if int(state.catalogue_revision) != planning_revision:
+            session.rollback()
+            raise RuntimeError("catalogue_changed_during_import")
         now = datetime.now(timezone.utc)
         for j, h, ex, status in plan:
             if status == "unchanged":

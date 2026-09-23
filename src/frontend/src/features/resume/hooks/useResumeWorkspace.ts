@@ -71,6 +71,7 @@ export interface ResumeWorkspaceState {
     assignParagraph: (index: number, section: EntrySection) => void;
     dismissParagraph: (index: number) => void;
     confirmSave: () => Promise<void>;
+    checkSaveStatus: () => Promise<void>;
     deleteProfile: () => Promise<void>;
   };
 }
@@ -370,6 +371,42 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     }
   }, [saving, draft, expectedRevision, controller, applyProfile, profile, conflict, recordConflict, api]);
 
+  const checkSaveStatus = useCallback(async () => {
+    if (saving || conflict !== null) return;
+    const operationId = controller.pendingKey;
+    if (operationId === null) return;
+
+    setSaving(true);
+    try {
+      const outcome = await controller.resolveOperation(operationId);
+      if (outcome.status.kind === 'SAVED') {
+        applyProfile(outcome.profile);
+        if (outcome.profile === null) {
+          setExpectedRevision(null);
+          try {
+            setExpectedRevision(await api.getAccountRevision());
+          } catch {
+            setLoadError('Your resume was deleted, but its current revision could not be loaded. Retry loading before saving again.');
+          }
+        } else {
+          setExpectedRevision(outcome.profile?.revision ?? outcome.status.revision);
+        }
+        setParagraphs([]);
+        setSelectedFile(null);
+        setPhase(outcome.profile === null ? 'NO_RESUME' : 'PROFILE');
+      } else if (outcome.profile !== undefined) {
+        // An expired operation may include the current profile. Reconcile that
+        // saved view while leaving the in-memory draft available for retry.
+        applyProfile(outcome.profile);
+        setExpectedRevision(outcome.profile?.revision ?? null);
+      }
+      if (outcome.status.kind === 'AUTH_REQUIRED') authCallbackRef.current?.();
+    } finally {
+      setSaving(false);
+      setKeyTick((t) => t + 1);
+    }
+  }, [saving, conflict, controller, applyProfile, api]);
+
   const deleteProfile = useCallback(async () => {
     if (profile === null || saving || preparing) return;
     setSaving(true);
@@ -381,10 +418,9 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       setParagraphs([]);
       setSelectedFile(null);
       setSaveStatus({
-        kind: 'FAILED',
-        code: 'DELETED',
+        kind: 'DELETED',
+        revision: response.resume_revision,
         message: `Your resume details were deleted. Your account and browsing are unaffected. (revision ${response.resume_revision})`,
-        retryable: false,
       });
       setPhase('NO_RESUME');
     } catch (error) {
@@ -445,6 +481,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       assignParagraph,
       dismissParagraph,
       confirmSave,
+      checkSaveStatus,
       deleteProfile,
     },
   };

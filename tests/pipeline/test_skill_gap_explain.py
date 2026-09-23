@@ -1,5 +1,6 @@
 """Deterministic skill gaps and evidence-based explanations."""
 import json
+import uuid
 
 import pytest
 
@@ -47,6 +48,12 @@ def test_requirements_without_named_skills_are_unassessed_never_missing():
 def test_preferred_requirements_are_reported_with_their_importance():
     report = analyse_skill_gap([rq("1", "Kubernetes", ["Kubernetes"], importance="PREFERRED")], [])
     assert report.missing[0].importance == "PREFERRED"
+
+
+def test_uuid_requirement_ids_survive_skill_gap_analysis():
+    requirement_id = uuid.uuid4()
+    report = analyse_skill_gap([rq(requirement_id, "Python", ["Python"])], ["Python"])
+    assert report.matched[0].requirement_id == requirement_id
 
 
 def _meta(n):

@@ -17,8 +17,8 @@ test('landing theme preference persists and auth CTA opens a focus-trapped dialo
   expect(screen.getByRole('button', { name: 'Switch to dark theme' })).toBeInTheDocument();
   const explore = screen.getByRole('button', { name: 'Explore opportunities' });
   await user.click(explore);
-  expect(screen.getByRole('dialog', { name: 'Welcome back' })).toBeInTheDocument();
-  expect(screen.getByLabelText('Email address')).toHaveFocus();
+  expect(screen.getByRole('dialog', { name: 'Find an internship that fits' })).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: 'Enter synthetic preview' })).toHaveFocus();
   rerender(app);
   await user.keyboard('{Escape}');
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

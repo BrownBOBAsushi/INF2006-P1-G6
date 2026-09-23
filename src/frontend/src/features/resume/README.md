@@ -2,9 +2,10 @@
 
 Owner: Nasya. Scope: `src/frontend/src/features/resume/**` only.
 
-Implements the first milestone from `docs/handoff/TEAM_PROMPTS.md`: PDF upload and the
-editable review flow, against contract-shaped fixtures. Recommendation screens are a
-later milestone and are not started.
+Implements the PDF upload and editable review flow from
+`docs/handoff/TEAM_PROMPTS.md`, using the shared same-origin API client. Tests use
+explicit contract-shaped fixtures; the normal application has no fixture fallback.
+Recommendations are integrated separately under `features/matches`.
 
 ## What exists
 
@@ -22,10 +23,10 @@ later milestone and are not started.
 
 Entry point for the router is `ResumeWorkspace`, exported from `index.ts`.
 
-## Integration seam for Xue E
+## Shared integration seam
 
 This feature owns no routing, session handling, CSRF or cookie policy. It depends only
-on `HttpTransport`:
+on `HttpTransport`, which the application supplies through the shared API client:
 
 ```ts
 import { ResumeWorkspace, createResumeApi } from './features/resume';
@@ -84,32 +85,21 @@ reach a production bundle.
 
 ## Blockers and coordination needed
 
-1. **`REVIEW_REQUIRED` envelope field is unnamed (blocks Jiaxin/Chuying).**
-   `DATA_API_CONTRACT.md` says `details` may carry the "cleaned draft" for a 422
-   `REVIEW_REQUIRED`, but never names the field. `extractCleanedContent` currently
-   accepts `draft`, `cleaned_draft`, `content` or `cleaned_content` as a stopgap. One
-   name must be fixed in the generated OpenAPI, and the contract updated.
-2. **Revision field on conflict envelopes is also unnamed.** Same pattern:
-   `current_revision`, `resume_revision` and `revision` are accepted.
-3. **No backend, no OpenAPI.** Every response shape here is hand-transcribed from the
+1. **No generated OpenAPI yet.** Response shapes here remain hand-transcribed from the
    written contract. When Jiaxin generates OpenAPI, `contractTypes.ts` should be
    replaced by generated types and this file reduced to view models. Until then a
    contract drift will surface as a runtime shape mismatch, not a type error.
-4. **`src/frontend/package.json` is provisional and overlaps Xue E's ownership.** Nothing
-   could be built or tested without a workspace. It pins React, TypeScript, Vite and
-   Vitest only — no router, no styling, no state library. Reconcile at bootstrap.
-5. **No styling.** Markup is semantic HTML with `data-testid` hooks. The design system
-   is not decided; this should inherit whatever Xue E's shell establishes.
-6. **Dependency installation needs re-verification.** The original contribution
-   reported an npm/Vitest installation issue. This review could not verify the
-   declared pins because registry DNS failed. See the frontend README for the
-   actual local dependency versions used for testing.
+2. **The shared package manifest is now integrated.** Keep its declared pins in sync
+   with the checked-in lockfile when dependencies change.
+3. **Shared shell styling.** Resume markup uses the application shell's styles and
+   keeps its own feature components; visual changes should be reviewed with the
+   application shell rather than introducing a second design system.
 
-## Not in this milestone
+## Boundary
 
-Recommendation screens, closest-passage and skill-evidence display, the closed-job
-state, and connecting real endpoints. Delete is implemented minimally because it shares
-the revision-locking path, but its failure modes are not yet fully tested.
+Routing, authentication, catalogue pages and recommendation presentation belong to
+the application shell and their feature modules. This feature owns resume upload,
+review, save, delete and operation recovery through the shared transport.
 
 ## Commands
 

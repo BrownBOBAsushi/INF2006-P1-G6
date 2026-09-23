@@ -44,7 +44,10 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
     <main>
       <h1>Your resume</h1>
       {state.loadError !== null && <div role="alert"><p>{state.loadError}</p><button type="button" onClick={() => void actions.reload()}>Retry loading resume</button></div>}
-      <SaveStatusBanner status={state.saveStatus} />
+      <SaveStatusBanner
+        status={state.saveStatus}
+        onCheck={state.pendingIdempotencyKey === null ? undefined : () => void actions.checkSaveStatus()}
+      />
 
       {phase === 'NO_RESUME' && (
         <>

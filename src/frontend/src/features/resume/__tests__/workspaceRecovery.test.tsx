@@ -127,6 +127,82 @@ describe('replay UI uses current server state', () => {
   });
 });
 
+describe('manual save outcome recovery', () => {
+  it('checks a pending save, preserves the draft on terminal failure, and clears the key', async () => {
+    const { transport, mount } = workspace();
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      jsonResponse(200, { operation_id: 'op-1', state: 'FAILED', result_revision: null, failure_code: 'INTERNAL_ERROR' }),
+    );
+    const { result } = mount();
+    await waitFor(() => expect(result.current.phase).toBe('PROFILE'));
+    act(() => result.current.actions.editSavedProfile());
+    act(() => result.current.dispatchDraft({ type: 'ADD_SKILL', value: 'Pending skill' }));
+
+    await act(() => result.current.actions.confirmSave());
+    expect(result.current.saveStatus.kind).toBe('OUTCOME_UNKNOWN');
+    expect(result.current.pendingIdempotencyKey).not.toBeNull();
+
+    await act(() => result.current.actions.checkSaveStatus());
+    expect(result.current.saveStatus).toMatchObject({ kind: 'FAILED', code: 'INTERNAL_ERROR' });
+    expect(result.current.pendingIdempotencyKey).toBeNull();
+    expect(result.current.phase).toBe('REVIEW');
+    expect(result.current.draft.skills.map((skill) => skill.value)).toContain('Pending skill');
+    expect(transport.requests.at(-1)?.path).toMatch(/^\/api\/resume\/operations\/[^/]+$/);
+  });
+
+  it('applies the saved profile when checking a completed pending save', async () => {
+    const { transport, mount } = workspace();
+    const saved = { ...syntheticSavedProfile, revision: 8 };
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      jsonResponse(200, { operation_id: 'op-1', state: 'SUCCEEDED', result_revision: 8, failure_code: null }),
+      jsonResponse(200, saved),
+    );
+    const { result } = mount();
+    await waitFor(() => expect(result.current.phase).toBe('PROFILE'));
+    act(() => result.current.actions.editSavedProfile());
+    act(() => result.current.dispatchDraft({ type: 'ADD_SKILL', value: 'Pending skill' }));
+
+    await act(() => result.current.actions.confirmSave());
+    await act(() => result.current.actions.checkSaveStatus());
+    expect(result.current.saveStatus).toMatchObject({ kind: 'SAVED', revision: 8 });
+    expect(result.current.profile).toEqual(saved);
+    expect(result.current.phase).toBe('PROFILE');
+    expect(result.current.pendingIdempotencyKey).toBeNull();
+  });
+
+  it('keeps the unknown state when operation status cannot be read', async () => {
+    const { transport, mount } = workspace();
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+      networkFailure(),
+    );
+    const { result } = mount();
+    await waitFor(() => expect(result.current.phase).toBe('PROFILE'));
+    act(() => result.current.actions.editSavedProfile());
+    act(() => result.current.dispatchDraft({ type: 'ADD_SKILL', value: 'Pending skill' }));
+
+    await act(() => result.current.actions.confirmSave());
+    await act(() => result.current.actions.checkSaveStatus());
+    expect(result.current.saveStatus.kind).toBe('OUTCOME_UNKNOWN');
+    expect(result.current.pendingIdempotencyKey).not.toBeNull();
+    expect(result.current.draft.skills.map((skill) => skill.value)).toContain('Pending skill');
+  });
+});
+
 describe('concurrent recreation between absent-profile and account reads', () => {
   it('blocks saving until the newly created profile has been loaded', async () => {
     const { transport, mount } = workspace();

@@ -4,6 +4,7 @@ from unittest.mock import patch
 from sqlalchemy import text
 
 from app.db.models import ResumeProfile, SaveOperation
+from app.processing.config import EMBEDDING_VERSION
 
 
 def _login(client):
@@ -30,7 +31,7 @@ def test_get_resume_404_when_none_exists(client, db_engine):
     cookies, _uid, _csrf = _login(client)
     resp = client.get("/api/resume", cookies=cookies)
     assert resp.status_code == 404
-    assert resp.json()["detail"]["error"]["code"] == "RESUME_NOT_FOUND"
+    assert resp.json()["error"]["code"] == "RESUME_NOT_FOUND"
     _cleanup(db_engine, "fake-sub-resume-test")
 
 
@@ -60,7 +61,7 @@ def test_delete_resume_rejects_revision_conflict(client, db_engine):
         cookies=cookies,
     )
     assert resp.status_code == 409
-    assert resp.json()["detail"]["error"]["code"] == "REVISION_CONFLICT"
+    assert resp.json()["error"]["code"] == "REVISION_CONFLICT"
     _cleanup(db_engine, "fake-sub-resume-test")
 
 
@@ -109,7 +110,7 @@ def test_operation_status_not_found(client, db_engine):
     fake_op_id = str(uuid.uuid4())
     resp = client.get(f"/api/resume/operations/{fake_op_id}", cookies=cookies)
     assert resp.status_code == 404
-    assert resp.json()["detail"]["error"]["code"] == "OPERATION_EXPIRED"
+    assert resp.json()["error"]["code"] == "OPERATION_EXPIRED"
     _cleanup(db_engine, "fake-sub-resume-test")
 
 
@@ -128,4 +129,33 @@ def test_operation_status_returns_existing_operation(client, db_engine):
     resp = client.get(f"/api/resume/operations/{op_id}", cookies=cookies)
     assert resp.status_code == 200
     assert resp.json()["state"] == "SUCCEEDED"
+    _cleanup(db_engine, "fake-sub-resume-test")
+
+
+def test_save_is_idempotent_and_rejects_reuse_with_changed_payload(client, db_engine, monkeypatch):
+    class Lease:
+        def run(self, _op, _payload):
+            return {"review_required": False, "version": EMBEDDING_VERSION, "chunks": [], "vectors": []}
+
+        def release(self):
+            return None
+
+    class Service:
+        def try_acquire(self):
+            return Lease()
+
+    monkeypatch.setattr("app.main.processing_service", Service())
+    cookies, _user_id, csrf = _login(client)
+    content = {"skills": ["Python"], "projects": [], "experience": [], "education": []}
+    key = str(uuid.uuid4())
+    headers = {"Origin": "http://localhost:8080", "X-CSRF-Token": csrf, "Idempotency-Key": key}
+    first = client.put("/api/resume", json={"expected_revision": 0, "content": content}, headers=headers, cookies=cookies)
+    assert first.status_code == 200
+    assert first.json()["changed"] is True
+    replay = client.put("/api/resume", json={"expected_revision": 0, "content": content}, headers=headers, cookies=cookies)
+    assert replay.status_code == 200
+    assert replay.json()["operation_id"] == key
+    conflict = client.put("/api/resume", json={"expected_revision": 0, "content": {**content, "skills": ["SQL"]}}, headers=headers, cookies=cookies)
+    assert conflict.status_code == 409
+    assert conflict.json()["error"]["code"] == "IDEMPOTENCY_CONFLICT"
     _cleanup(db_engine, "fake-sub-resume-test")

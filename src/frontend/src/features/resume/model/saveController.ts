@@ -42,6 +42,7 @@ export type SaveStatus =
       reason: 'BUSY' | 'IN_PROGRESS' | 'NO_RESPONSE';
     }
   | { kind: 'SAVED'; revision: number; changed: boolean; refreshedFromServer: boolean; currentRevision?: number; profileDeleted?: boolean }
+  | { kind: 'DELETED'; revision: number; message: string }
   | { kind: 'SAVED_REFRESH_REQUIRED'; message: string }
   | { kind: 'REVIEW_REQUIRED'; cleanedContent: ResumeContent; message: string }
   | { kind: 'REVISION_CONFLICT'; currentRevision: number | null; message: string }
@@ -72,33 +73,18 @@ function defaultSleep(seconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
-/**
- * Pull the cleaned replacement draft out of a 422 REVIEW_REQUIRED envelope.
- *
- * CONTRACT GAP: DATA_API_CONTRACT.md says details may carry "cleaned draft for
- * REVIEW_REQUIRED" but does not name the field. Several plausible names are accepted
- * until Jiaxin fixes one in the generated OpenAPI. See the blockers section of
- * src/frontend/src/features/resume/README.md.
- */
+/** Pull the standardized cleaned replacement draft from a REVIEW_REQUIRED envelope. */
 export function extractCleanedContent(details: Record<string, unknown>): ResumeContent | null {
-  for (const field of ['draft', 'cleaned_draft', 'content', 'cleaned_content']) {
-    const candidate = details[field];
-    if (
-      typeof candidate === 'object' &&
-      candidate !== null &&
-      Array.isArray((candidate as Record<string, unknown>)['skills'])
-    ) {
-      return candidate as ResumeContent;
-    }
+  const candidate = details.cleaned_draft;
+  if (typeof candidate === 'object' && candidate !== null && Array.isArray((candidate as Record<string, unknown>).skills)) {
+    return candidate as ResumeContent;
   }
   return null;
 }
 
 function currentRevisionFromDetails(details: Record<string, unknown>): number | null {
-  for (const field of ['current_revision', 'resume_revision', 'revision']) {
-    const value = details[field];
-    if (typeof value === 'number' && Number.isInteger(value)) return value;
-  }
+  const value = details.current_revision;
+  if (typeof value === 'number' && Number.isSafeInteger(value) && value >= 0) return value;
   return null;
 }
 

@@ -19,7 +19,7 @@ def _login(client):
 def test_me_requires_auth(client):
     resp = client.get("/api/me")
     assert resp.status_code == 401
-    assert resp.json()["detail"]["code"] == "AUTH_REQUIRED"
+    assert resp.json()["error"]["code"] == "AUTH_REQUIRED"
 
 
 def test_me_returns_correct_shape_for_new_user(client, db_engine):

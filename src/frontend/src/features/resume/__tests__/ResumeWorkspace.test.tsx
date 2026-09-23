@@ -6,6 +6,7 @@ import { ResumeWorkspace } from '../components/ResumeWorkspace';
 import {
   createFakeTransport,
   jsonResponse,
+  networkFailure,
   type FakeTransport,
 } from '../fixtures/fakeTransport';
 import {
@@ -237,7 +238,7 @@ describe('saving from the review screen', () => {
       jsonResponse(
         422,
         errorEnvelope('REVIEW_REQUIRED', 'privacy check changed your content', {
-          details: { draft: syntheticCleanedContent },
+          details: { cleaned_draft: syntheticCleanedContent },
         }),
       ),
     );
@@ -333,5 +334,142 @@ describe('review safety during requests', () => {
     await user.click(screen.getByRole('button', { name: /discard my draft and use current version/i }));
     expect(screen.getByLabelText('Skill 1')).toHaveValue('Java-only-in-other-tab');
     expect(screen.getByRole('button', { name: /confirm and save/i })).toBeEnabled();
+  });
+});
+
+describe('recovering an unconfirmed save', () => {
+  it('keeps the draft and allocates a fresh key after a confirmed failed operation', async () => {
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(200, {
+        operation_id: 'key-1',
+        state: 'FAILED',
+        result_revision: null,
+        failure_code: 'INTERNAL_ERROR',
+      }),
+      jsonResponse(200, { operation_id: 'key-2', result_revision: 5, changed: true }),
+    );
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.click(screen.getByRole('button', { name: 'Edit details' }));
+    await user.click(screen.getByRole('button', { name: /add skill/i }));
+    await user.type(screen.getByLabelText('Skill 5'), 'GraphQL');
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+
+    expect(await screen.findByText(/save result unconfirmed/i)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /check save status/i }));
+
+    expect(await screen.findByText(/could not save/i)).toBeVisible();
+    expect(screen.getByLabelText('Skill 5')).toHaveValue('GraphQL');
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+
+    expect(await screen.findByTestId('saved-profile')).toHaveTextContent('Revision 5');
+    expect(transport.idempotencyKeys.filter(Boolean)).toEqual([
+      'key-1',
+      'key-1',
+      'key-1',
+      'key-1',
+      'key-2',
+    ]);
+  });
+
+  it('keeps the draft and pending key when status cannot be read', async () => {
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      networkFailure(),
+    );
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.click(screen.getByRole('button', { name: 'Edit details' }));
+    await user.click(screen.getByRole('button', { name: /add skill/i }));
+    await user.type(screen.getByLabelText('Skill 5'), 'GraphQL');
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+
+    expect(await screen.findByText(/save result unconfirmed/i)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /check save status/i }));
+
+    expect(await screen.findByText(/save result unconfirmed/i)).toBeVisible();
+    expect(screen.getByLabelText('Skill 5')).toHaveValue('GraphQL');
+    expect(screen.getByRole('button', { name: /confirm and save/i })).toBeEnabled();
+    expect(transport.idempotencyKeys.filter(Boolean)).toEqual([
+      'key-1',
+      'key-1',
+      'key-1',
+      'key-1',
+    ]);
+  });
+
+  it('applies the authoritative profile when status confirms the save', async () => {
+    const authoritativeProfile = {
+      ...syntheticSavedProfile,
+      revision: 6,
+      content: { ...syntheticSavedProfile.content, skills: ['Authoritative skill'] },
+    };
+    transport.queue(
+      jsonResponse(200, syntheticSavedProfile),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(500, errorEnvelope('INTERNAL_ERROR', 'temporary failure')),
+      jsonResponse(200, {
+        operation_id: 'key-1',
+        state: 'SUCCEEDED',
+        result_revision: 6,
+        failure_code: null,
+      }),
+      jsonResponse(200, authoritativeProfile),
+    );
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+    await user.click(screen.getByRole('button', { name: 'Edit details' }));
+    await user.click(screen.getByRole('button', { name: /add skill/i }));
+    await user.type(screen.getByLabelText('Skill 5'), 'GraphQL');
+    await user.click(screen.getByRole('button', { name: /confirm and save/i }));
+
+    expect(await screen.findByText(/save result unconfirmed/i)).toBeVisible();
+    await user.click(screen.getByRole('button', { name: /check save status/i }));
+
+    expect(await screen.findByTestId('saved-profile')).toHaveTextContent('Revision 6');
+    expect(screen.getByTestId('saved-profile')).toHaveTextContent('Authoritative skill');
+    expect(screen.getByTestId('saved-profile')).not.toHaveTextContent('GraphQL');
+  });
+});
+
+describe('uncertain delete outcomes', () => {
+  it('reports a confirmed delete as a successful revision update', async () => {
+    transport.queue(jsonResponse(200, syntheticSavedProfile), jsonResponse(200, { resume_revision: 5 }));
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+
+    await user.click(screen.getByRole('button', { name: /delete resume details/i }));
+
+    expect(await screen.findByTestId('no-resume-state')).toBeInTheDocument();
+    expect(screen.getByTestId('save-status')).toHaveAttribute('data-tone', 'success');
+    expect(screen.getByTestId('save-status')).toHaveTextContent(/resume details deleted/i);
+    expect(screen.getByTestId('save-status')).toHaveTextContent(/revision 5/i);
+  });
+
+  it('does not offer save-status checking when no save operation is pending', async () => {
+    transport.queue(jsonResponse(200, syntheticSavedProfile), networkFailure());
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('saved-profile');
+
+    await user.click(screen.getByRole('button', { name: /delete resume details/i }));
+
+    expect(await screen.findByText(/could not confirm whether your resume was deleted/i)).toBeVisible();
+    expect(screen.queryByRole('button', { name: /check save status/i })).not.toBeInTheDocument();
   });
 });

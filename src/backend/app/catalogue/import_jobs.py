@@ -48,12 +48,18 @@ def main(argv: list[str] | None = None) -> int:
         if not args.dry_run:
             print(f"error: embedding model unavailable ({type(exc).__name__}); run --download once", file=sys.stderr)
             return 2
-    session = Session(create_engine(db_url)) if db_url else None
+    import_engine = create_engine(db_url) if db_url else None
+    if import_engine is not None:
+        from app.db.session import configure_transaction_timeouts
+        configure_transaction_timeouts(import_engine)
+    session = Session(import_engine) if import_engine is not None else None
     try:
         s = import_catalogue(session, raw, embedder, allowed_sources=allowed, dry_run=args.dry_run)
     finally:
         if session is not None:
             session.close()
+        if import_engine is not None:
+            import_engine.dispose()
     mode = "DRY RUN" if s.dry_run else "IMPORT"
     if not s.ok:
         print(f"{mode} INVALID: {len(s.issues)} issue(s); nothing written")

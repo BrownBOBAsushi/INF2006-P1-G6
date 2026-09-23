@@ -22,6 +22,7 @@ RANK_SQL = text("""
 WITH cand AS (
     SELECT j.job_id FROM jobs j
     WHERE j.is_active
+      AND (CAST(:job_ids AS uuid[]) IS NULL OR j.job_id = ANY(CAST(:job_ids AS uuid[])))
       AND (CAST(:job_types AS text[]) IS NULL OR j.job_type = ANY(CAST(:job_types AS text[])))
       AND (CAST(:employment_times AS text[]) IS NULL OR j.employment_time = ANY(CAST(:employment_times AS text[])))
       AND (CAST(:work_arrangements AS text[]) IS NULL OR j.work_arrangement = ANY(CAST(:work_arrangements AS text[])))
@@ -63,6 +64,7 @@ LIMIT :limit OFFSET :offset
 CONSIDERED_SQL = text("""
 SELECT COUNT(DISTINCT r.job_id) FROM job_requirements r JOIN jobs j ON j.job_id = r.job_id
 WHERE j.is_active AND r.importance = 'REQUIRED'
+  AND (CAST(:job_ids AS uuid[]) IS NULL OR j.job_id = ANY(CAST(:job_ids AS uuid[])))
   AND (CAST(:job_types AS text[]) IS NULL OR j.job_type = ANY(CAST(:job_types AS text[])))
   AND (CAST(:employment_times AS text[]) IS NULL OR j.employment_time = ANY(CAST(:employment_times AS text[])))
   AND (CAST(:work_arrangements AS text[]) IS NULL OR j.work_arrangement = ANY(CAST(:work_arrangements AS text[])))
@@ -96,23 +98,25 @@ class SqlRankPage:
 
 def rank_jobs_sql(session: Session, *, user_id, profile_revision: int, embedding_version: str,
                   limit: int = 5, offset: int = 0, job_types: list[str] | None = None,
-                  employment_times: list[str] | None = None, work_arrangements: list[str] | None = None) -> SqlRankPage:
+                  employment_times: list[str] | None = None, work_arrangements: list[str] | None = None,
+                  job_ids: list[str] | None = None) -> SqlRankPage:
     res = session.execute(RANK_SQL, {
         "user_id": user_id, "profile_revision": profile_revision, "embedding_version": embedding_version,
         "limit": limit, "offset": offset, "job_types": job_types, "employment_times": employment_times,
-        "work_arrangements": work_arrangements}).all()
+        "work_arrangements": work_arrangements, "job_ids": job_ids}).all()
     probe = res
     if not res and offset > 0:      # offset past the end: fetch one row from the start only to learn the totals
         probe = session.execute(RANK_SQL, {
             "user_id": user_id, "profile_revision": profile_revision, "embedding_version": embedding_version,
             "limit": 1, "offset": 0, "job_types": job_types, "employment_times": employment_times,
-            "work_arrangements": work_arrangements}).all()
+            "work_arrangements": work_arrangements, "job_ids": job_ids}).all()
     total = int(probe[0].total) if probe else 0
     if probe:
         considered = int(probe[0].considered)
     else:  # nothing ranks at all (every job incomplete or no candidates): count candidates separately
         considered = int(session.execute(CONSIDERED_SQL, {
-            "job_types": job_types, "employment_times": employment_times, "work_arrangements": work_arrangements}).scalar() or 0)
+            "job_types": job_types, "employment_times": employment_times, "work_arrangements": work_arrangements,
+            "job_ids": job_ids}).scalar() or 0)
     return SqlRankPage([SqlRankRow(str(r.job_id), float(r.score)) for r in res], total, max(considered - total, 0))
 
 

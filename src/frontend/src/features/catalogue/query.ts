@@ -23,6 +23,7 @@ export function resetPage(params: URLSearchParams) {
   const next = new URLSearchParams(params);
   next.delete('offset');
   next.delete('catalogue_revision');
+  next.delete('profile_revision');
   return next;
 }
 

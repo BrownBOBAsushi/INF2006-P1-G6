@@ -86,6 +86,20 @@ test('resume seam mounts existing Nasya workspace and logout clears private UI',
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   expect(window.localStorage.length).toBe(0); expect(window.sessionStorage.length).toBe(0);
 });
+test('same-account sign-in receives a fresh resume adapter after logout', async () => {
+  const { user } = setup();
+  await enter(user);
+  await user.click(screen.getByRole('link', { name: 'Resume' }));
+  await screen.findByTestId('no-resume-state');
+
+  await user.click(screen.getByRole('button', { name: 'Logout' }));
+  await screen.findByRole('button', { name: /Browse roles/ });
+  await enter(user);
+  await user.click(screen.getByRole('link', { name: 'Resume' }));
+
+  expect(await screen.findByTestId('no-resume-state')).toBeInTheDocument();
+  expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
 test('RESULTS_CHANGED restarts paging with a visible notice', async () => {
   const fetcher = createMockFetch();
   await fetcher('/api/auth/google', { method: 'POST', headers: { 'X-CSRF-Token': 'synthetic-bootstrap-csrf' } });

@@ -13,7 +13,7 @@ def _login(client):
             headers={"X-CSRF-Token": nonce, "Origin": "http://localhost:8080"},
             cookies=resp.cookies,
         )
-    return login_resp.cookies
+    return login_resp.cookies, login_resp.json()["csrf_token"]
 
 
 def _cleanup(db_engine, sub):
@@ -23,11 +23,11 @@ def _cleanup(db_engine, sub):
 
 
 def test_patch_me_updates_display_name(client, db_engine):
-    cookies = _login(client)
+    cookies, csrf = _login(client)
     resp = client.patch(
         "/api/me",
         json={"display_name": "  Jia Xin  "},
-        headers={"Origin": "http://localhost:8080"},
+        headers={"Origin": "http://localhost:8080", "X-CSRF-Token": csrf},
         cookies=cookies,
     )
     assert resp.status_code == 200
@@ -36,11 +36,11 @@ def test_patch_me_updates_display_name(client, db_engine):
 
 
 def test_patch_me_rejects_empty_name(client, db_engine):
-    cookies = _login(client)
+    cookies, csrf = _login(client)
     resp = client.patch(
         "/api/me",
         json={"display_name": "   "},
-        headers={"Origin": "http://localhost:8080"},
+        headers={"Origin": "http://localhost:8080", "X-CSRF-Token": csrf},
         cookies=cookies,
     )
     assert resp.status_code == 422
@@ -48,29 +48,56 @@ def test_patch_me_rejects_empty_name(client, db_engine):
 
 
 def test_patch_me_rejects_control_characters(client, db_engine):
-    cookies = _login(client)
+    cookies, csrf = _login(client)
     resp = client.patch(
         "/api/me",
         json={"display_name": "Bad\x00Name"},
-        headers={"Origin": "http://localhost:8080"},
+        headers={"Origin": "http://localhost:8080", "X-CSRF-Token": csrf},
         cookies=cookies,
     )
     assert resp.status_code == 422
     _cleanup(db_engine, "fake-sub-patch-test")
 
 
+def test_patch_me_requires_csrf_and_uses_the_contract_error_envelope(client, db_engine):
+    cookies, _csrf = _login(client)
+    resp = client.patch(
+        "/api/me",
+        json={"display_name": "No token"},
+        headers={"Origin": "http://localhost:8080"},
+        cookies=cookies,
+    )
+    assert resp.status_code == 403
+    assert resp.json()["error"]["code"] == "CSRF_INVALID"
+    assert "detail" not in resp.json()
+    _cleanup(db_engine, "fake-sub-patch-test")
+
+
 def test_logout_clears_session(client, db_engine):
-    cookies = _login(client)
+    cookies, csrf = _login(client)
+    resp = client.post(
+        "/api/auth/logout",
+        headers={"Origin": "http://localhost:8080", "X-CSRF-Token": csrf},
+        cookies=cookies,
+    )
+    assert resp.status_code == 204
+    assert any(value.startswith("session=") and "Max-Age=0" in value for value in resp.headers.get_list("set-cookie"))
+
+    # session should now be rejected
+    me_resp = client.get("/api/me", cookies=cookies)
+    assert me_resp.status_code == 401
+    _cleanup(db_engine, "fake-sub-patch-test")
+
+
+def test_logout_requires_csrf_for_active_session(client, db_engine):
+    cookies, _csrf = _login(client)
     resp = client.post(
         "/api/auth/logout",
         headers={"Origin": "http://localhost:8080"},
         cookies=cookies,
     )
-    assert resp.status_code == 204
-
-    # session should now be rejected
-    me_resp = client.get("/api/me", cookies=cookies)
-    assert me_resp.status_code == 401
+    assert resp.status_code == 403
+    assert resp.json()["error"]["code"] == "CSRF_INVALID"
     _cleanup(db_engine, "fake-sub-patch-test")
 
 

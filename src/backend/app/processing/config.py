@@ -6,7 +6,7 @@ EMBEDDING_MODEL_REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
 EMBEDDING_DIM = 384                      # vector(384) in resume_chunks / requirement_embeddings
 CHUNKER_VERSION = "chunker-v1"           # bump when heading format or splitting rules change (invalidates vectors)
 
-# Stored in resume_profiles.embedding_version / *.embedding_version. The API's ACTIVE_EMBEDDING_VERSION should equal this.
+# Stored in resume_profiles.embedding_version / *.embedding_version and used by the API as its active version.
 EMBEDDING_VERSION = f"{EMBEDDING_MODEL_NAME}@{EMBEDDING_MODEL_REVISION}/{CHUNKER_VERSION}"
 
 # ARCHITECTURE.md / PRD: 240 tokenizer tokens including heading and special tokens.

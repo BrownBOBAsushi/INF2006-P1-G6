@@ -1,9 +1,10 @@
-﻿import { Link } from 'react-router';
+import { Link } from 'react-router';
+import type { ReactNode } from 'react';
 import type { JobSummary } from '../../api/contracts';
 import { displayDate, label } from './jobPresentation';
 
-export function JobCard({ job, selected = false, selectHref, returnTo }: {
-  job: JobSummary; selected?: boolean; selectHref?: string; returnTo?: string;
+export function JobCard({ job, selected = false, selectHref, returnTo, children }: {
+  job: JobSummary; selected?: boolean; selectHref?: string; returnTo?: string; children?: ReactNode;
 }) {
   const titleId = `job-title-${job.job_id}`;
   const factsId = `job-facts-${job.job_id}`;
@@ -17,6 +18,6 @@ export function JobCard({ job, selected = false, selectHref, returnTo }: {
       <span id={factsId} className="sr-only">{job.company_name}, {job.location}. {label(job.job_type)}, {label(job.employment_time)}, {label(job.work_arrangement)}. {job.is_active ? 'Open listing.' : 'Closed listing.'}</span>
     </Link>
     <div className="job-bottom"><p className="job-date">Posted: {displayDate(job.posted_at)} · Last imported: {displayDate(job.last_imported_at)}</p>
-      <Link className="view-link" to={`/jobs/${job.job_id}`} state={returnTo ? { from: returnTo } : undefined} aria-label={`View details: ${job.title}`}>View details <span aria-hidden="true">→</span></Link></div>
+      <Link className="view-link" to={`/jobs/${job.job_id}`} state={returnTo ? { from: returnTo } : undefined} aria-label={`View details: ${job.title}`}>View details <span aria-hidden="true">→</span></Link></div>{children}
   </li>;
 }

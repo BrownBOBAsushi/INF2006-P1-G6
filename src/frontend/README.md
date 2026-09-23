@@ -1,8 +1,8 @@
 # Frontend
 
 Owner: Xue E — application shell, routing, shared API client, auth/onboarding,
-catalogue and job details. Nasya owns `src/features/resume/**` and the future
-recommendation feature. Her existing resume implementation is mounted unchanged.
+catalogue, job details and recommendations. Nasya owns `src/features/resume/**`,
+which is mounted through the shared client with its retry and draft behavior preserved.
 
 Read [PRD](../../docs/handoff/MVP_PRD.md) and
 [API contract](../../docs/handoff/DATA_API_CONTRACT.md). The handoff governs;
@@ -26,10 +26,9 @@ npm run build
 npm run dev:mock
 ```
 
-Open **http://localhost:8080**. Choose **Enter synthetic preview**, confirm a
-synthetic display name, and skip the optional resume step to browse 24 active jobs.
-The 25th synthetic record is closed:
-`/jobs/00000000-0000-4000-8000-000000000025`.
+Open **http://localhost:8080** after the production-style Compose setup in
+`docs/LOCAL_INTEGRATION.md`. Normal authentication is Google-only and the
+catalogue/recommendation screens use the real same-origin API.
 
 The fixture preview lives only in `src/dev/`, is imported dynamically only by
 the explicitly selected development mode, and never patches global fetch.
@@ -37,12 +36,10 @@ Every build sets the mock switch false, including `vite build --mode mock`.
 A build plugin rejects fixture/test modules in emitted JavaScript.
 There is no mock server route or deployable test-auth dependency.
 
-Fixture resume reads return the no-profile state. Preparation, saving and
-matching return a clear unavailable response because those services are absent.
-Nasya's feature tests supply richer synthetic resume responses independently;
-no fabricated extraction or recommendation success is shown.
+The explicit synthetic preview remains available only through `npm run dev:mock`
+for frontend checks. It never acts as a fallback for real API failures.
 
-## Connect the real API
+## Development API
 
 ```sh
 # Copy .env.example to .env.local and configure only the PUBLIC Google client ID.
@@ -51,8 +48,7 @@ npm run dev
 
 Regular dev and production use real same-origin `/api` requests; there is no
 fallback to fixtures when the API fails. Vite proxies to `http://127.0.0.1:8000`
-and preserves Origin. Jiaxin must allow `http://localhost:8080` and provide
-the auth/catalogue endpoints. Google must allow that same JavaScript origin.
+and preserves Origin. Google must allow the same JavaScript origin.
 No frontend DB credentials or direct database access exist.
 
 Production static hosting must route non-API application paths to `index.html`
@@ -62,7 +58,7 @@ provisioned by this milestone.
 ## Shared interfaces and teammate integration
 
 - `src/App.tsx` owns routes: `/login`, `/onboarding`, `/jobs`, `/jobs/:id`,
-  `/resume`, and a temporary `/matches` placeholder.
+  `/resume`, and `/matches`.
 - `src/api/client.ts` implements Nasya's existing `HttpTransport`, exported
   from `src/features/resume/index.ts`. HTTP 4xx/5xx resolve for feature-specific
   handling; network/abort/100-second timeout rejects. No automatic write retries.
@@ -94,9 +90,9 @@ PATCH success shapes; the exact names for cleaned-draft and conflict-revision
 error details flagged in Nasya's README. Exchange is followed by GET /me and
 PATCH by GET /me so neither assumes undocumented full-account success bodies.
 
-**Nasya next step:** keep using `createResumeApi(sharedClient)`; replace the
-`/matches` placeholder through a coordinated router change. Resume save and
-processing behavior remain her and the backend owners' work.
+Resume save and processing behavior remain the resume and backend owners' work;
+the application shell supplies the authenticated transport and mounts the integrated
+recommendations screen.
 
 ## Historical resume verification
 

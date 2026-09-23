@@ -125,7 +125,6 @@ legend { color: var(--muted); font-weight: 800; text-transform: capitalize; }
 .login-cta span { font-size: 1.25rem; }
 .login-preview { border: 1px solid var(--line-strong); border-radius: .8rem; background: color-mix(in srgb, var(--surface-raised) 90%, transparent); padding: 1.2rem; box-shadow: var(--shadow); }
 .login-preview-top, .login-preview-meta { display: flex; justify-content: space-between; gap: 1rem; color: var(--muted); font-size: .6rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-.login-preview-index { color: var(--accent-text); }
 .login-preview-title { margin: 4rem 0 1rem; color: var(--text); font-family: 'Newsreader', Georgia, serif; font-size: 2.1rem; line-height: .95; }
 .login-preview-copy { color: var(--muted); font-size: .75rem; line-height: 1.65; }
 .login-preview-meta { margin-top: 2.2rem; border-top: 1px solid var(--line); padding-top: .8rem; }
@@ -133,32 +132,10 @@ legend { color: var(--muted); font-weight: 800; text-transform: capitalize; }
 .signin { width: 100%; max-width: 440px; margin: auto; }
 .signin h2 { margin-top: .8rem; font-size: clamp(2.25rem, 3.6vw, 3.7rem); }
 .signin > p:not(.eyebrow) { max-width: 36rem; color: var(--muted); font-size: .88rem; line-height: 1.7; }
-.auth-preview { width: 100%; max-width: 440px; margin: auto; text-align: center; }
-.auth-preview h2 { margin-top: .3rem; font-family: 'Manrope', ui-sans-serif, sans-serif; font-size: clamp(1.75rem, 3vw, 1.95rem); letter-spacing: -.04em; }
-.auth-subtitle { max-width: 36rem; margin-right: auto; margin-left: auto; color: var(--muted); font-size: .86rem; line-height: 1.7; }
-.auth-preview-notice { border: 1px solid var(--line); border-radius: .65rem; background: var(--surface-raised); color: var(--muted); padding: .65rem .75rem; font-size: .72rem; line-height: 1.5; }
-.auth-preview form { margin-top: 1.4rem; text-align: left; }
-.auth-preview label { display: block; margin-bottom: .8rem; color: var(--text); font-size: .75rem; font-weight: 800; }
-.auth-preview input:not([type=checkbox]) { margin: .35rem 0 0; }
-.auth-password-field { position: relative; display: block; }
-.auth-password-field input { padding-right: 4.2rem !important; }
-.auth-show-password { position: absolute; top: .35rem; right: .3rem; bottom: .3rem; border: 0; border-radius: .5rem; background: transparent; color: var(--accent-text); padding: .25rem .5rem; font-size: .72rem; }
-.auth-show-password:hover:not(:disabled) { background: var(--surface-raised); color: var(--accent-text); transform: none; }
-.auth-forgot-link { display: block; margin: -.35rem 0 .9rem auto; }
-.auth-form-actions { display: block; margin-top: 1rem; }
-.auth-form-actions > button[type=submit] { width: 100%; }
-.auth-text-link { border: 0; border-radius: .4rem; background: transparent; color: var(--accent-text); padding: .25rem .35rem; font-size: .75rem; font-weight: 800; text-decoration: underline; text-underline-offset: .2em; }
-.auth-text-link:hover:not(:disabled) { background: var(--surface-raised); color: var(--accent-text); transform: none; }
-.auth-preview-result { margin: 1rem 0 0; border-left: 3px solid var(--accent); border-radius: .45rem; background: var(--success-surface); color: var(--success); padding: .65rem .75rem; font-size: .75rem; text-align: left; }
-.auth-reset-complete { margin: 2rem 0; border: 1px solid var(--line); border-radius: .7rem; background: var(--surface-raised); padding: 1.25rem; }
-.auth-reset-complete h3 { margin: 0 0 .4rem; color: var(--text); font-family: 'Newsreader', Georgia, serif; font-size: 1.6rem; }
-.auth-reset-complete p { margin: 0 0 .8rem; color: var(--muted); font-size: .8rem; }
-.auth-divider { display: flex; align-items: center; gap: .7rem; margin: 1.5rem 0 .5rem; color: var(--quiet); font-size: .65rem; letter-spacing: .08em; text-transform: uppercase; }
-.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: var(--line); content: ''; }
-.auth-divider span { white-space: nowrap; }
-.auth-preview .google-control { margin: .7rem 0 .8rem; }
-.auth-retry { width: 100%; }
-.auth-switch { margin: 1.2rem 0 0; color: var(--muted); font-size: .76rem; }
+.google-signin-panel { width: 100%; max-width: 440px; margin: auto; text-align: center; }
+.google-signin-panel h2 { margin-top: .3rem; font-family: 'Manrope', ui-sans-serif, sans-serif; font-size: clamp(1.75rem, 3vw, 1.95rem); letter-spacing: -.04em; }
+.google-signin-panel .google-control { margin: 1.3rem 0 .8rem; }
+.google-only-note { border-top: 1px solid var(--line); margin-top: 1.2rem; padding-top: .8rem; color: var(--quiet); font-size: .68rem; }
 .google-control { min-height: 44px; margin: 1.6rem 0 1rem; }
 .google-control > button { width: 100%; }
 .google-control iframe { max-width: 100%; }
@@ -342,7 +319,17 @@ blockquote { margin: .8rem 0 0; border-left: 3px solid var(--accent); border-rad
 .matches-hero > p:last-child { max-width: 620px; color: var(--muted); }
 .matches-state { margin-top: 1rem; }
 .matches-state > p { color: var(--muted); }
-.availability-label { display: inline-block; border: 1px solid var(--line); border-radius: .4rem; background: var(--surface-raised); color: var(--muted); padding: .3rem .55rem; font-size: .68rem; font-weight: 800; }
+.matches-list { margin-top: .7rem; }
+.match-explanations { border-top: 1px solid var(--line); background: var(--surface-raised); padding: .85rem 1rem 1rem; }
+.match-requirement, .match-eligibility { border-top: 1px solid var(--line); padding-top: .75rem; }
+.match-requirement:first-child, .match-eligibility:first-child { border-top: 0; padding-top: 0; }
+.match-requirement-label { margin: 0 0 .3rem; color: var(--accent-text); font-size: .62rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.match-requirement-text, .match-passage, .match-evidence, .match-missing { margin: .35rem 0 0; font-size: .76rem; line-height: 1.55; }
+.match-passage { border-left: 2px solid var(--accent); color: var(--muted); padding-left: .65rem; }
+.match-evidence { color: var(--success); }
+.match-missing { color: var(--danger-text); }
+.match-eligibility { margin-top: .8rem; }
+.match-eligibility ul { margin: .3rem 0 0; padding-left: 1rem; color: var(--muted); font-size: .75rem; }
 
 @media (max-width: 1000px) {
   .profile-copy { display: none; }

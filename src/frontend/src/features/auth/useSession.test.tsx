@@ -67,6 +67,95 @@ test('failed logout clears private adapters and must resolve before reconnect/si
   expect(result.current.logoutPending).toBe(false);
   expect(result.current.me).toBeNull();
 });
+test('CSRF-invalid logout retry refreshes only the token and keeps private content cleared', async () => {
+  let reads = 0;
+  let logoutCount = 0;
+  const freshAccount = { ...firstAccount, csrf_token: 'synthetic-fresh-csrf' };
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async (path, init) => {
+    if (path === '/api/me') return reply(++reads === 1 ? firstAccount : freshAccount);
+    if (path === '/api/auth/logout') {
+      logoutCount++;
+      if (logoutCount === 1) {
+        expect(new Headers(init?.headers).get('X-CSRF-Token')).toBe(firstAccount.csrf_token);
+        return reply({ error: { code: 'CSRF_INVALID' } }, 403);
+      }
+      expect(new Headers(init?.headers).get('X-CSRF-Token')).toBe(freshAccount.csrf_token);
+      return reply(null, 204);
+    }
+    throw new Error('Unexpected synthetic request');
+  });
+  const client = new ApiClient(fetcher);
+  const { result } = renderHook(() => useSession(client));
+  await waitFor(() => expect(result.current.me?.user.user_id).toBe(firstAccount.user.user_id));
+  const oldScope = client.scopedTransport();
+  await act(() => result.current.logout());
+  expect(result.current.me).toBeNull();
+  expect(result.current.logoutPending).toBe(true);
+  expect(result.current.error).toContain('unconfirmed');
+  await act(() => result.current.logout());
+  expect(result.current.logoutPending).toBe(false);
+  expect(result.current.me).toBeNull();
+  expect(reads).toBe(2);
+  expect(logoutCount).toBe(2);
+  await expect(oldScope.send({ method: 'PUT', path: '/api/resume', json: {} })).rejects.toThrow();
+  await expect(client.scopedTransport().send({ method: 'PUT', path: '/api/resume', json: {} })).rejects.toThrow();
+});
+test('expired logout completes locally after the server has already discarded the session', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async path => {
+    if (path === '/api/me') return reply(firstAccount);
+    if (path === '/api/auth/logout') return reply({ error: { code: 'SESSION_EXPIRED' } }, 401);
+    throw new Error('Unexpected synthetic request');
+  });
+  const client = new ApiClient(fetcher);
+  const { result } = renderHook(() => useSession(client));
+  await waitFor(() => expect(result.current.me).not.toBeNull());
+  await act(() => result.current.logout());
+  expect(result.current.me).toBeNull();
+  expect(result.current.logoutPending).toBe(false);
+  expect(fetcher.mock.calls.filter(([path]) => path === '/api/me')).toHaveLength(1);
+});
+test('successful same-account sign-in gets a fresh scope while the old scope stays revoked', async () => {
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async (path, init) => {
+    if (path === '/api/me') return reply(firstAccount);
+    if (path === '/api/auth/bootstrap') return reply({ csrf_token: 'synthetic-bootstrap-csrf' });
+    if (path === '/api/auth/google') return reply({ user: firstAccount.user, csrf_token: firstAccount.csrf_token });
+    if (path === '/api/auth/logout' && init?.method === 'POST') return reply(null, 204);
+    if (path === '/api/resume') return reply({ revision: 0 });
+    throw new Error('Unexpected synthetic request');
+  });
+  const client = new ApiClient(fetcher);
+  const { result } = renderHook(() => useSession(client));
+  await waitFor(() => expect(result.current.me).not.toBeNull());
+  const oldScope = client.scopedTransport();
+
+  await act(() => result.current.logout());
+  await act(() => result.current.signIn('synthetic-credential'));
+  const freshScope = client.scopedTransport();
+
+  await expect(oldScope.send({ method: 'GET', path: '/api/resume' })).rejects.toThrow();
+  await expect(freshScope.send({ method: 'GET', path: '/api/resume' })).resolves.toMatchObject({ status: 200 });
+});
+test('CSRF logout retry does not submit logout for a replacement account', async () => {
+  let reads = 0;
+  let logoutCount = 0;
+  const fetcher = vi.fn<typeof fetch>().mockImplementation(async path => {
+    if (path === '/api/me') return reply(++reads === 1 ? firstAccount : secondAccount);
+    if (path === '/api/auth/logout') {
+      logoutCount++;
+      return logoutCount === 1 ? reply({ error: { code: 'CSRF_INVALID' } }, 403) : reply(null, 204);
+    }
+    throw new Error('Unexpected synthetic request');
+  });
+  const client = new ApiClient(fetcher);
+  const { result } = renderHook(() => useSession(client));
+  await waitFor(() => expect(result.current.me).not.toBeNull());
+  await act(() => result.current.logout());
+  await act(() => result.current.logout());
+  expect(result.current.me).toBeNull();
+  expect(result.current.logoutPending).toBe(false);
+  expect(reads).toBe(2);
+  expect(logoutCount).toBe(1);
+});
 test('duplicate credential callbacks cause one exchange and /me confirms the account', async () => {
   const delayed = deferred<Response>();
   let reads = 0;

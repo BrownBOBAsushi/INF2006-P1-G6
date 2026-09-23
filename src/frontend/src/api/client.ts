@@ -3,7 +3,8 @@ import type { HttpRequest, HttpResponse, HttpTransport } from '../features/resum
 export type Request = Omit<HttpRequest, 'method'> & { method: HttpRequest['method'] | 'PATCH' };
 export type RecoveryReason = 'SESSION_EXPIRED' | 'CSRF_INVALID';
 export class ApiError extends Error {
-  constructor(public status: number, public code: string, public retryAfter: string | null) {
+  constructor(public status: number, public code: string, public retryAfter: string | null,
+    public details: Record<string, unknown> = {}) {
     super(code);
   }
 }
@@ -86,7 +87,10 @@ export class ApiClient implements HttpTransport {
     const timer = setTimeout(abort, this.timeoutMs);
     try {
       controller.signal.throwIfAborted();
-      const response = await this.fetcher(url.pathname + url.search, {
+      // Native window.fetch requires a Window receiver; injected transports may
+      // enforce the same rule. Detach the function before invoking it.
+      const fetcher = this.fetcher;
+      const response = await fetcher(url.pathname + url.search, {
         method: request.method, headers,
         body: request.formData ?? (request.json !== undefined ? JSON.stringify(request.json) : undefined),
         credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal: controller.signal,
@@ -119,8 +123,9 @@ export class ApiClient implements HttpTransport {
   async json<T>(request: Request): Promise<T> {
     const response = await this.send(request);
     if (response.status < 200 || response.status >= 300) {
-      const envelope = response.body as { error?: { code?: string } } | null;
-      throw new ApiError(response.status, envelope?.error?.code ?? 'SERVICE_UNAVAILABLE', response.header('retry-after'));
+      const envelope = response.body as { error?: { code?: string; details?: Record<string, unknown> } } | null;
+      throw new ApiError(response.status, envelope?.error?.code ?? 'SERVICE_UNAVAILABLE', response.header('retry-after'),
+        envelope?.error?.details && typeof envelope.error.details === 'object' ? envelope.error.details : {});
     }
     if (response.status !== 204 && response.body === null) throw new Error('Invalid API response.');
     return response.body as T;

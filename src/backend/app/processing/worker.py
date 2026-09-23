@@ -8,6 +8,7 @@ Operations (payloads and results are plain dicts, pickled over the pipe):
     "prepare": {"pdf": bytes}     -> {"draft", "unassigned_text", "warnings"}          (PDF -> extraction -> privacy -> sections)
     "save":    {"content": dict}  -> {"review_required": True, "cleaned": dict}        (privacy re-check changed something)
                                   |  {"review_required": False, "version", "chunks", "vectors", "content_hash"}
+                                  |  {"review_required": False, "no_op": True, "version", ...} (privacy-only check)
 Errors: a ProcessingError raised by a handler is sent back as (code, reason); any other exception is sent back as
 INTERNAL_ERROR with only the exception CLASS NAME as reason, never its message (it can contain resume text).
 
@@ -90,6 +91,12 @@ def build_production_handlers() -> dict[str, Handler]:
         changed, cleaned = pipeline.recheck_privacy(content, redactor)
         if changed:
             return {"review_required": True, "cleaned": cleaned}
+        if payload.get("skip_embedding"):
+            version = payload.get("embedding_version")
+            if not isinstance(version, str) or not version:
+                raise ProcessingError("INTERNAL_ERROR", "embedding_version")
+            return {"review_required": False, "no_op": True, "version": version,
+                    "chunks": [], "vectors": [], "content_hash": content_hash(content)}
         emb = pipeline.embed_resume(content, model)
         return {"review_required": False, "version": emb.version, "chunks": emb.chunks, "vectors": emb.vectors,
                 "content_hash": content_hash(content)}

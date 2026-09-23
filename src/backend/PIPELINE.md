@@ -1,8 +1,8 @@
 # Processing, matching and catalogue modules (Chuying)
 
-Pure Python modules with no FastAPI/session dependency, meant to be called by the API layer (Jiaxin) through the
-existing contract. Implemented and tested 2026-09-21; **not yet wired into any route** (`/api/resume/prepare`,
-`PUT /api/resume`, `/api/matches` do not exist in `app/api`).
+Pure Python modules with no FastAPI/session dependency, called by the API layer through the existing contract.
+The API routes now reuse the processing slot and pipeline; runtime model/database verification remains a separate
+environment gate.
 
 | Module | Purpose |
 |---|---|
@@ -57,8 +57,10 @@ python analytics/evaluate.py --fixtures data/evaluation              # unchanged
 
 ## Known gaps (read before relying on this)
 
-- **Not wired to the API.** No routes call these modules yet; `ACTIVE_EMBEDDING_VERSION` in `me.py` is still a stub.
-- **Process isolation is implemented but not used by any route.** `app/processing/slot.py` + `worker.py` provide the one-slot, 60 s-deadline isolated child (see `JIAXIN_INTEGRATION.md` for what the API layer must still do). Its restrictions are best effort (no OS sandbox, no memory limit).
+- **Runtime gate.** The API starts one processing child and exposes readiness only after the pinned model and database
+  schema are ready. A missing local model cache leaves `/health/ready` at 503; it must not be replaced with a fallback.
+- **Process isolation.** `app/processing/slot.py` + `worker.py` provide the one-slot, 60 s-deadline isolated child.
+  Its restrictions are best effort (no OS sandbox, no memory limit).
 - **Privacy is best-effort.** spaCy's small model produces false positives on capitalised words (mitigated with allow-lists, see
   `vocab.py`) and can miss unfamiliar names. It was checked only on synthetic PII in 10 generated PDFs plus unit cases, so no
   recall/precision figure on real resumes exists. The student must review the draft.

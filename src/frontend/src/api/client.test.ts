@@ -24,6 +24,14 @@ test('same-origin cookies, no-store, CSRF rotation, JSON and multipart use Nasya
   expect(new Headers(init.headers).get('X-CSRF-Token')).toBe('rotated');
   expect(result.header('retry-after')).toBe('3');
 });
+test('invokes a receiver-sensitive fetcher without the ApiClient receiver', async () => {
+  const receiverSensitive: typeof fetch = function (this: unknown) {
+    if (this !== undefined) throw new TypeError('Illegal invocation');
+    return Promise.resolve(response({ ok: true }));
+  };
+  const client = new ApiClient(receiverSensitive);
+  await expect(client.send({ method: 'GET', path: '/api/me' })).resolves.toMatchObject({ status: 200 });
+});
 test.each(['https://example.com/api/me', '//example.com/api/me', '/api/../outside', '/api/../../api/../outside'])('rejects API path escape %s before sending', async path => {
   const fetcher = vi.fn<typeof fetch>();
   await expect(new ApiClient(fetcher).send({ method: 'GET', path })).rejects.toThrow();

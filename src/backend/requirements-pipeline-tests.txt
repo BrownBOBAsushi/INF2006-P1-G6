@@ -1,0 +1,4 @@
+# Extra dependency for the local pipeline suite. Do not install this in the
+# production API image: pgserver does not publish a compatible Linux ARM64 wheel.
+-r requirements-processing.txt
+pgserver==0.1.4

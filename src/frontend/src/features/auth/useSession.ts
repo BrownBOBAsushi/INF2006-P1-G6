@@ -14,6 +14,8 @@ export function useSession(client: ApiClient) {
   const activityRef = useRef<Activity>('idle');
   const [logoutPending, setLogoutPending] = useState(false);
   const logoutRef = useRef(false);
+  const logoutNeedsCsrf = useRef(false);
+  const logoutAccountId = useRef<string | null>(null);
   const [accountEpoch, setAccountEpoch] = useState(0);
   const [accessRevision, setAccessRevision] = useState(0);
   const operation = useRef(0);
@@ -103,6 +105,7 @@ export function useSession(client: ApiClient) {
 
   async function logout() {
     if (activityRef.current === 'signing-in' || activityRef.current === 'signing-out') return;
+    if (!logoutRef.current) logoutAccountId.current = account.current?.user.user_id ?? null;
     logoutRef.current = true; setLogoutPending(true);
     const attempt = begin('signing-out');
     account.current = null; setMe(null); setAccountEpoch(value => value + 1);
@@ -110,12 +113,38 @@ export function useSession(client: ApiClient) {
     client.clearPrivateState();
     try {
       try { window.google?.accounts.id.disableAutoSelect(); } catch { /* Google UI failure must not prevent server logout. */ }
+      if (logoutNeedsCsrf.current) {
+        // A CSRF failure clears the client's token and pauses all private work. A
+        // retry may recover only the token through a safe read; it must not
+        // reinstall the account or unpause feature requests during sign-out.
+        const current = await getAccount(client, attempt.signal);
+        if (!attempt.current()) return;
+        if (logoutAccountId.current && current.user.user_id !== logoutAccountId.current) {
+          // Another tab changed the account. Do not send a logout for it.
+          client.clearSession(); setAccountEpoch(value => value + 1);
+          logoutNeedsCsrf.current = false; logoutAccountId.current = null;
+          logoutRef.current = false; setLogoutPending(false); setRecovery(null); return;
+        }
+        client.setCsrf(current.csrf_token);
+        logoutNeedsCsrf.current = false;
+      }
       await client.json({ method: 'POST', path: '/api/auth/logout', signal: attempt.signal });
       if (!attempt.current()) return;
-      client.clearSession(); setRecovery(null);
+      client.clearSession(); setAccountEpoch(value => value + 1);
+      logoutNeedsCsrf.current = false; logoutAccountId.current = null;
+      setRecovery(null);
       logoutRef.current = false; setLogoutPending(false);
-    } catch {
-      if (attempt.current()) setError('Local private content was cleared. Server sign-out is unconfirmed; retry sign-out.');
+    } catch (cause) {
+      if (!attempt.current()) return;
+      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'AUTH_REQUIRED' || cause.code === 'SESSION_EXPIRED')) {
+        // The backend treats an expired session as already signed out. Keep the
+        // local private state cleared while accepting that best-effort outcome.
+        client.clearSession(); setAccountEpoch(value => value + 1);
+        logoutNeedsCsrf.current = false; logoutAccountId.current = null;
+        setRecovery(null); logoutRef.current = false; setLogoutPending(false); return;
+      }
+      if (cause instanceof ApiError && cause.code === 'CSRF_INVALID') logoutNeedsCsrf.current = true;
+      setError('Local private content was cleared. Server sign-out is unconfirmed; retry sign-out.');
     } finally { if (attempt.current()) finish(); }
   }
   return { me, loading, recovery, error, activity, logoutPending, accountEpoch, accessRevision,

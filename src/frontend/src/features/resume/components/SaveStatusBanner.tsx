@@ -9,7 +9,13 @@ import type { SaveStatus } from '../model/saveController';
  *   - a conflict must say nothing was overwritten.
  * The messages come from the controller so the same words are asserted in its tests.
  */
-export function SaveStatusBanner({ status }: { status: SaveStatus }): React.ReactElement | null {
+export function SaveStatusBanner({
+  status,
+  onCheck,
+}: {
+  status: SaveStatus;
+  onCheck?: () => void;
+}): React.ReactElement | null {
   if (status.kind === 'IDLE') return null;
 
   const tone = bannerTone(status);
@@ -17,6 +23,11 @@ export function SaveStatusBanner({ status }: { status: SaveStatus }): React.Reac
     <div role="status" aria-live="polite" data-testid="save-status" data-tone={tone}>
       <strong>{bannerHeading(status)}</strong>
       <p>{bannerBody(status)}</p>
+      {status.kind === 'OUTCOME_UNKNOWN' && onCheck && (
+        <button type="button" onClick={onCheck}>
+          Check save status
+        </button>
+      )}
     </div>
   );
 }
@@ -27,6 +38,7 @@ function bannerTone(status: SaveStatus): 'progress' | 'success' | 'warning' | 'e
     case 'WAITING_TO_RETRY':
       return 'progress';
     case 'SAVED':
+    case 'DELETED':
       return 'success';
     case 'SAVED_REFRESH_REQUIRED':
     case 'REVIEW_REQUIRED':
@@ -47,6 +59,8 @@ function bannerHeading(status: SaveStatus): string {
       return 'Waiting to try again';
     case 'SAVED':
       return status.refreshedFromServer ? 'Earlier save confirmed' : status.changed ? 'Resume saved' : 'No changes to save';
+    case 'DELETED':
+      return 'Resume details deleted';
     case 'SAVED_REFRESH_REQUIRED':
       return 'Save confirmed; current version unavailable';
     case 'REVIEW_REQUIRED':
@@ -76,6 +90,8 @@ function bannerBody(status: SaveStatus): string {
       return status.changed
         ? `Saved as revision ${status.revision}.${status.refreshedFromServer ? ' Reloaded from the server to confirm.' : ''}`
         : `Your saved resume already matched this content. It is still revision ${status.revision}.`;
+    case 'DELETED':
+      return status.message;
     case 'IDLE':
       return '';
     default:

@@ -1,0 +1,65 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    env_file:
+      - ./src/.env
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api:
+    build:
+      context: ./src/backend
+    env_file:
+      - ./src/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./src/backend:/app
+      - ./tests/backend:/app/tests/backend
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"]
+
+  test-db:
+    image: pgvector/pgvector:pg16
+    profiles: ["test"]
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: internship_matcher_test
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d internship_matcher_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 20
+
+  backend-tests:
+    build:
+      context: ./src/backend
+    profiles: ["test"]
+    environment:
+      APP_ENV: development
+      APP_ORIGIN: http://localhost:8080
+      APP_SIGNING_KEY: test_only_disposable_key
+      GOOGLE_CLIENT_ID: test-only-google-client
+      DATABASE_URL: postgresql+psycopg://test_user:test_password@test-db:5432/internship_matcher_test
+      DISPOSABLE_DATABASE_URL: postgresql+psycopg://test_user:test_password@test-db:5432/internship_matcher_test
+    depends_on:
+      test-db:
+        condition: service_healthy
+    volumes:
+      - ./tests/backend:/tmp/tests/backend:ro
+    command: ["sh", "-c", "alembic upgrade head && PYTHONPATH=/app python -m pytest /tmp/tests/backend -q"]
+
+volumes:
+  db_data_dev:

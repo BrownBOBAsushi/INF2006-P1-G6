@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+**/.env
+**/.env.*
+src/frontend/node_modules
+src/frontend/dist
+__pycache__
+*.pyc
+tests
+graphify-out

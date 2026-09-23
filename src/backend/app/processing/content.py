@@ -26,6 +26,10 @@ def _check_str(value, limit: int, reason: str) -> str:
     return value
 
 
+def _has_content(values: list[str]) -> bool:
+    return any(isinstance(value, str) and value.strip() for value in values)
+
+
 def validate_resume_content(content: dict) -> dict:
     """Return the content unchanged if valid; raise ProcessingError('INVALID_CONTENT', reason) otherwise."""
     if not isinstance(content, dict) or set(content) != _TOP_KEYS:
@@ -53,6 +57,8 @@ def validate_resume_content(content: dict) -> dict:
                 raise _bad(f"{key}_technologies")
             for t in tech:
                 _check_str(t, 100, f"{key}_technology")
+            if not _has_content([e["title"], e["description"], *tech]):
+                raise _bad(f"{key}_blank_entry")
     edu = content["education"]
     if not isinstance(edu, list) or len(edu) > 10:
         raise _bad("education_count")
@@ -61,11 +67,29 @@ def validate_resume_content(content: dict) -> dict:
             raise _bad("education_shape")
         _check_str(e["qualification"], 200, "education_qualification")
         _check_str(e["details"], 5000, "education_details")
+        if not _has_content([e["qualification"], e["details"]]):
+            raise _bad("education_blank_entry")
     if len(canonical_text(content)) > 50_000:
         raise _bad("total_length")
     if not canonical_text(content).strip():
         raise _bad("blank")
     return content
+
+
+def validate_review_draft(content: dict) -> dict:
+    """Validate child-produced review output while allowing a fully redacted draft.
+
+    Saving still uses ``validate_resume_content`` and therefore rejects blank
+    content. Privacy review may legitimately produce the same valid shape with
+    all four collections empty, which must remain reviewable on idempotent
+    replay.
+    """
+    try:
+        return validate_resume_content(content)
+    except ProcessingError as exc:
+        if exc.reason == "blank":
+            return content
+        raise
 
 
 def canonical_text(content: dict) -> str:

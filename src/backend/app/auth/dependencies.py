@@ -1,9 +1,8 @@
 import hashlib
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Depends, HTTPException, Request
+from fastapi import Depends, Request
 from sqlalchemy.orm import Session as DBSession
-from fastapi import Request
 from app.db.session import get_db
 from app.db.models import Session as SessionModel, User
 from app.auth import security
@@ -17,24 +16,24 @@ def get_current_session_and_user(
     cookie_name = security.session_cookie_name()
     raw_token = request.cookies.get(cookie_name)
     if not raw_token:
-        raise HTTPException(status_code=401, detail={"code": "AUTH_REQUIRED"})
+        raise api_error(401, "AUTH_REQUIRED", "Sign in to continue.")
 
     token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
     session_row = db.get(SessionModel, token_hash)
     if session_row is None:
-        raise HTTPException(status_code=401, detail={"code": "AUTH_REQUIRED"})
+        raise api_error(401, "AUTH_REQUIRED", "Sign in to continue.")
 
     now = datetime.now(timezone.utc)
     if session_row.expires_at <= now:
-        raise HTTPException(status_code=401, detail={"code": "SESSION_EXPIRED"})
+        raise api_error(401, "SESSION_EXPIRED", "Your session has expired.")
 
     idle_cutoff = session_row.last_active_at + security.SESSION_IDLE_LIFETIME
     if now > idle_cutoff:
-        raise HTTPException(status_code=401, detail={"code": "SESSION_EXPIRED"})
+        raise api_error(401, "SESSION_EXPIRED", "Your session has expired.")
 
     user = db.get(User, session_row.user_id)
     if user is None:
-        raise HTTPException(status_code=401, detail={"code": "AUTH_REQUIRED"})
+        raise api_error(401, "AUTH_REQUIRED", "Sign in to continue.")
 
     return session_row, user
 
@@ -47,6 +46,23 @@ def touch_session_activity(db: DBSession, session_row: SessionModel) -> None:
     if (now - session_row.last_active_at) >= timedelta(minutes=1):
         session_row.last_active_at = now
         db.commit()
+
+
+def touch_session_activity_by_token(db: DBSession, token_hash: str) -> None:
+    """Refresh activity after a long-running operation using a fresh short transaction.
+
+    Callers that spent time outside the database transaction must retain only the
+    immutable token hash across that boundary.  The ORM session row may have been
+    expired by rollback, so reusing it would trigger an implicit transaction.
+    """
+    session_row = db.get(SessionModel, token_hash)
+    if session_row is None:
+        return
+    try:
+        touch_session_activity(db, session_row)
+    finally:
+        if db.in_transaction():
+            db.rollback()
 def validate_unsafe_request(request: Request, session_row) -> None:
     origin = request.headers.get("origin")
     if origin != settings.app_origin:
