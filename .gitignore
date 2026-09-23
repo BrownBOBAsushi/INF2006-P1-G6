@@ -17,3 +17,4 @@ dist/
 private-data/
 backups/
 cookies.txt
+/graphify-out/
