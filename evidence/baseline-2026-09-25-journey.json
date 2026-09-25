@@ -1,0 +1,45 @@
+{
+  "timestamp_local": "2026-09-25T18:10:00+08:00",
+  "target": "the REAL full application at http://localhost:8080 (web/nginx proxy -> api -> PostgreSQL16+pgvector -> single processing child)",
+  "objective": "Measure the complete resume-to-matches journey and concurrent upload bursts to inform a simple, justified AWS architecture. No optimisation or infrastructure changes.",
+  "environment": {
+    "git_head": "0e8067a1365007241734df852617027fcd4d48fa",
+    "git_branch": "dev",
+    "backend_code_vs_running_image": "VERIFIED IDENTICAL: sha256 over all app/**/*.py in container == on-disk src/backend; key routes byte-identical. Running images were built 2026-09-23; the last src/ commit (a9d2c3b, 2026-09-23) is included. HEAD adds only docs since.",
+    "image_ids": {
+      "api": "sha256:6ef66640f46fcf13552b1deaac404700d0f55946f344273488124be48f4e5d0f",
+      "web": "sha256:2adbfcd72afb40805cb81c45b9b2c0a42bde2e612ff0eb8a506fd3d78e612dcb",
+      "db": "pgvector/pgvector:pg16"
+    },
+    "runtime": "api: FastAPI 0.141.1 / uvicorn 0.53.0 / Python 3.11.16, single worker, single processing slot (ProcessingService, one spawned child). APP_ENV=development.",
+    "host": "macOS 26.5.2 (25F84), arm64, 10 logical CPUs, 32 GiB RAM",
+    "docker": "client/server 29.8.0; Docker VM 10 CPUs, ~7.75 GiB",
+    "catalogue": {"active_jobs": 30, "requirements": 95, "requirement_embeddings": 110, "catalogue_revision": 1},
+    "db_size": {"database_before": "8895 kB", "database_under_load": "9607 kB", "resume_chunks_tbl": "536 kB", "requirement_embeddings_tbl": "304 kB", "jobs_tbl": "104 kB"},
+    "load_driver": "evidence/baseline-2026-09-25-journey/journey_load.py — pure Python 3.14.6 stdlib on host; nothing installed; tests/load/* untouched."
+  },
+  "method": {
+    "journey": "prepare (multipart PDF) -> PUT /api/resume (save: privacy re-check + chunk + MiniLM embed + persist, idempotent by Idempotency-Key) -> GET /api/resume (reload) -> GET /api/matches",
+    "correctness": "Not HTTP-200-alone. Per step: response-schema/shape validation; save requires changed=true and result_revision=expected+1; reload requires revision match, has_matchable_resume=true, and canonical content-hash equality vs saved content (round-trip); matches requires total>0 with a non-empty closest_passage. Assertion failures recorded separately from HTTP/transport errors. DB check (separate from HTTP) confirmed persisted 384-dim non-null embeddings.",
+    "retry_runner_policy": "Distinct from the frontend. Retryable transient codes (PROCESSING_BUSY, SERVICE_UNAVAILABLE, PROCESSING_TIMEOUT, SAVE_IN_PROGRESS, MODEL_VERSION_UNAVAILABLE) retried honouring Retry-After if present else full-jitter exponential backoff (base 0.25s, x2, cap 3s), max 8 attempts / 60 s elapsed. Saves retry with the SAME Idempotency-Key (idempotent: busy creates no op row; SAVE_IN_PROGRESS/timeout replay). REVIEW_REQUIRED handled as a confirmation (resubmit returned cleaned draft under a NEW key), not a blind retry. Deterministic validation errors never retried. Initial rejection recorded separately from eventual completion.",
+    "scenarios": ["sequential single-user journeys (15/round x3 rounds = 45)", "synchronised burst of 5 distinct clients, each one journey, browsing concurrently (x3)", "synchronised burst of 10 distinct clients, browsing concurrently (x3)"],
+    "isolation": "Fresh pool of 60 synthetic accounts per scenario (google_sub prefix loadtest-journey-2026-09-25:); deleted on exit incl. failure. Tokens written OUTSIDE the repo and never printed or stored in evidence. The pre-existing untracked evidence/baseline-2026-09-25-fullapp/sessions.json was neither reused nor committed.",
+    "caches": "WARM: containers up ~2 days, embedding child resident, catalogue tiny and page-cached; DB ~9 MB. Warm-up journeys (3 sequential, 2 per burst) discarded before measured rounds.",
+    "excluded_by_http_automation": ["browser rendering / SPA JS", "human editing and privacy-review reading time", "Google OAuth sign-in (synthetic sessions injected directly)"]
+  },
+  "results": "See analysis.json for full metrics; compact summary in baseline-2026-09-25-journey.md. Headlines: sequential whole-journey p50 181 ms / p95 477 ms / max 501 ms, 45/45 completed, ~4.6 journeys/s single-threaded, 0 retries. burst5 15/15 eventual success but only 3/15 first-attempt, 30 busy-503 + 30 retries, whole-journey p50 6.2 s / p95 12.3 s. burst10 24/30 eventual (6 gave up at prepare after exhausting retries; all were app 503 PROCESSING_BUSY, not errors or assertion failures), 132 busy-503 + 126 retries, whole-journey p50 10.8 s / p95 21.4 s. Concurrent browse: 100% success (0/6172 failures across bursts), p50 ~9 ms / p95 ~18 ms. No PROCESSING_TIMEOUTs, no unexpected errors, no assertion failures anywhere.",
+  "data_integrity": "Content-level md5 digests of all non-synthetic tables (incl. resume_chunks.embedding vectors) IDENTICAL before and after the run. Existing data content unchanged, not merely row counts.",
+  "raw_files": {
+    "orchestrator": "evidence/baseline-2026-09-25-journey/run_baseline.sh",
+    "journey_harness": "evidence/baseline-2026-09-25-journey/journey_load.py",
+    "session_helper": "evidence/baseline-2026-09-25-journey/synthetic.py",
+    "integrity_sql": "evidence/baseline-2026-09-25-journey/integrity.sql",
+    "analyzer": "evidence/baseline-2026-09-25-journey/analyze.py",
+    "computed_metrics": "evidence/baseline-2026-09-25-journey/analysis.json",
+    "per_scenario_results": ["results_seq.json", "results_burst5.json", "results_burst10.json"],
+    "phase_timelines": ["timeline_seq.json", "timeline_burst5.json", "timeline_burst10.json"],
+    "resource_samples": "evidence/baseline-2026-09-25-journey/stats_raw.txt",
+    "integrity_before_after": ["integrity_before.txt", "integrity_after.txt"],
+    "db_evidence": ["db_evidence_after.txt", "db_size.txt"]
+  }
+}

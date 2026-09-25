@@ -1,0 +1,2948 @@
+{
+  "base_url": "http://localhost:8080",
+  "scenario": "sequential",
+  "mode": "sequential",
+  "clients": 15,
+  "rounds": 3,
+  "browse_workers": 0,
+  "warmup": 3,
+  "pdfs": [
+    {
+      "name": "resume_P01.pdf",
+      "bytes": 2805
+    },
+    {
+      "name": "resume_P02.pdf",
+      "bytes": 2744
+    },
+    {
+      "name": "resume_P03.pdf",
+      "bytes": 2905
+    },
+    {
+      "name": "resume_P04.pdf",
+      "bytes": 2794
+    },
+    {
+      "name": "resume_P05.pdf",
+      "bytes": 2854
+    },
+    {
+      "name": "resume_P06.pdf",
+      "bytes": 2830
+    },
+    {
+      "name": "resume_P07.pdf",
+      "bytes": 2794
+    },
+    {
+      "name": "resume_P08.pdf",
+      "bytes": 3074
+    },
+    {
+      "name": "resume_P09.pdf",
+      "bytes": 2841
+    },
+    {
+      "name": "resume_P10.pdf",
+      "bytes": 5320
+    }
+  ],
+  "retry_policy": {
+    "retryable": [
+      "MODEL_VERSION_UNAVAILABLE",
+      "PROCESSING_BUSY",
+      "PROCESSING_TIMEOUT",
+      "SAVE_IN_PROGRESS",
+      "SERVICE_UNAVAILABLE"
+    ],
+    "backoff_base_s": 0.25,
+    "factor": 2.0,
+    "cap_s": 3.0,
+    "max_attempts": 8,
+    "max_elapsed_s": 60.0,
+    "honours_retry_after": true,
+    "full_jitter": true
+  },
+  "rows": [
+    {
+      "phase": "sequential:sequential:c15:round1",
+      "round": 1,
+      "clients": 15,
+      "wall_s": 3.211,
+      "journeys": [
+        {
+          "pdf": "resume_P01.pdf",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 64.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  64.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 102.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  102.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 178.3
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 56.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  56.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 84.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  84.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 152.5
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 64.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  64.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 113.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  113.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 188.8
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 64.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  64.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 91.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  91.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 167.1
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 66.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  66.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 104.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  104.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 182.2
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 230.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  230.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 141.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  141.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.6
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 382.8
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 64.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  64.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 111.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  111.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 187.0
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 84.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  84.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 154.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  154.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.8
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 250.3
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 66.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  66.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 89.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  89.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 165.4
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 174.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  174.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 313.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  313.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  8.8
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 501.2
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 61.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 105.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  105.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 177.6
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 56.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  56.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 85.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  85.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 152.8
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 65.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  65.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 118.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  118.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.7
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 195.3
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 57.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  57.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 91.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  91.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 159.9
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 61.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 97.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  97.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 169.2
+        }
+      ]
+    },
+    {
+      "phase": "sequential:sequential:c15:round2",
+      "round": 2,
+      "clients": 15,
+      "wall_s": 3.623,
+      "journeys": [
+        {
+          "pdf": "resume_P06.pdf",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 63.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  63.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 140.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  140.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 215.5
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 61.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 106.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  106.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 178.5
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 75.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  75.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 153.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  153.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 239.6
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 62.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  62.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 89.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  89.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 162.3
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 157.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  157.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 307.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  307.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 9.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  9.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 477.4
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 60.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  60.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 103.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  103.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 13.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  13.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 181.5
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 83.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  83.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 153.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  153.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 5.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  5.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 9.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  9.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 252.1
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 76.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  76.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 118.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  118.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  8.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 206.0
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 59.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  59.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 92.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  92.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 9.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  9.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 165.4
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 138.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  138.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 98.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  98.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  8.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 248.8
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 66.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  66.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 145.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  145.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 223.3
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 61.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 107.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  107.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  8.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 181.1
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 76.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  76.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 153.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  153.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 241.4
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 67.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  67.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 88.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  88.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 167.0
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 160.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  160.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 307.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  307.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 11.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  11.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 483.1
+        }
+      ]
+    },
+    {
+      "phase": "sequential:sequential:c15:round3",
+      "round": 3,
+      "clients": 15,
+      "wall_s": 2.991,
+      "journeys": [
+        {
+          "pdf": "resume_P01.pdf",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 61.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 106.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  106.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.8
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 179.0
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 57.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  57.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 84.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  84.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.8
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 153.6
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 64.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  64.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 113.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  113.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 190.1
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 58.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  58.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 91.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  91.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 161.7
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 61.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  61.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 96.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  96.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 169.6
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 63.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  63.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 139.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  139.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.7
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 213.6
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 58.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  58.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 107.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  107.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 177.4
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 73.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  73.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 152.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  152.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.6
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 237.2
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 59.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  59.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 87.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  87.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.7
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 158.5
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 153.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  153.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 307.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  307.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  8.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 473.1
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 59.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  59.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 102.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  102.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 173.5
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 56.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  56.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 83.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  83.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 151.2
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 63.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  63.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 116.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  116.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 9.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  9.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 9.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  9.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 198.9
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 67.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  67.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 94.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  94.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 5.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  5.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 11.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  11.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 178.8
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 65.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  65.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 97.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  97.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "trail": [
+                [
+                  "OK",
+                  7.6
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "completed": true,
+          "whole_ms": 174.2
+        }
+      ]
+    }
+  ],
+  "browse": [
+    {
+      "phase": "sequential:sequential:c15:round1",
+      "n": 0,
+      "ok": 0,
+      "ms": []
+    },
+    {
+      "phase": "sequential:sequential:c15:round2",
+      "n": 0,
+      "ok": 0,
+      "ms": []
+    },
+    {
+      "phase": "sequential:sequential:c15:round3",
+      "n": 0,
+      "ok": 0,
+      "ms": []
+    }
+  ]
+}

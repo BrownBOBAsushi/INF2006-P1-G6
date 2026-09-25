@@ -1,0 +1,57 @@
+{
+  "timestamp_local": "2026-09-25T20:55:00+08:00",
+  "supersedes_interpretation_of": "evidence/baseline-2026-09-25-journey.{md,json} (v1, preserved unchanged as historical evidence)",
+  "run_id": "20260925T205235-16677-516be94e57f2",
+  "run_dir": "evidence/baseline-2026-09-25-journey-v2/runs/20260925T205235-16677-516be94e57f2",
+  "target": "REAL app at http://localhost:8080 (nginx proxy -> FastAPI api single worker + single processing slot -> PostgreSQL16+pgvector -> spawned embedding child)",
+  "environment": {
+    "git_head": "0e8067a1365007241734df852617027fcd4d48fa", "git_branch": "dev",
+    "backend_code_vs_image": "VERIFIED IDENTICAL (sha256 over all app/**/*.py in container == on-disk src/backend)",
+    "image_ids": {"api": "sha256:6ef66640f46f…", "web": "sha256:2adbfcd72afb…", "db": "pgvector/pgvector:pg16"},
+    "runtime": "FastAPI 0.141.1 / uvicorn 0.53.0 / Python 3.11.16; APP_ENV=development",
+    "host": "macOS 26.5.2 arm64, 10 logical CPUs, 32 GiB", "docker": "29.8.0; VM 10 CPUs / ~7.75 GiB",
+    "catalogue": {"active_jobs": 30, "requirements": 95, "requirement_embeddings": 110, "revision": 1},
+    "db_size": {"before": "~8.9 MB", "under_load": "10 MB (incl. this run's synthetic rows + dead tuples)"}
+  },
+  "fixes_applied": {
+    "1_isolation_cleanup": "Unique RUN_ID; accounts tagged loadtest-journey-v2:<RUN_ID>:<pool>:<i>; a manifest of the exact created user_ids is tracked; DELETE removes ONLY those ids (no prefix wipe, no known-clean pre-delete); trap cleans up on failure too; cleanup verifies remaining==0 and fails visibly (nonzero) otherwise; tokens stored in a 0700 out-of-repo mktemp dir (file 0600), never printed or committed.",
+    "2_match_validation": "matches.profile_revision must equal the reloaded profile revision (stale detection); fixture check requires a known-relevant (adjudicated label>=2) job for the profile to appear in results; response-validation failures kept separate from HTTP/transport failures.",
+    "3_idempotent_saves": "One Idempotency-Key per payload; transient retries reuse the SAME key; valid replay (200 changed=false) accepted; success declared only after reload confirms result_revision and canonical content round-trip; REVIEW_REQUIRED handled as a new-key confirmation of the returned cleaned draft; keys never rotated to hide failures; deterministic validation errors never retried.",
+    "4_deadlines": "Per-step monotonic deadline (30 s); per-request timeout and backoff bounded by remaining budget; Retry-After honoured, and if it exceeds remaining budget the step STOPS (no early retry, no sleeping past the deadline); attempt-budget vs elapsed-deadline exhaustion recorded separately.",
+    "5_integrity": "Run FAILS with nonzero exit on any digest difference; scope excludes only THIS run's users so all pre-existing AND other-run synthetic rows are protected; deterministic, NULL-safe md5 over documented tables/fields (see integrity.sql header); does NOT claim 'all database content' unchanged, only the covered fields; emits only md5+counts (no tokens/PII/resume text).",
+    "6_interpretation": "Removed the six unsupported claims; observations, hypotheses and unmeasured behaviour are distinguished; busy rejections and exhausted journeys are labelled unsuccessful outcomes."
+  },
+  "verification": {
+    "selfcheck": "evidence/baseline-2026-09-25-journey-v2/selfcheck.py — 13/13 PASS via mocked transport + fake clock (no server, no data touched): strict deadlines (attempt-budget, elapsed-deadline, Retry-After-exceeds-budget stop), valid replay changed=false accepted, stale-match-revision detected as schema (not HTTP) failure, content round-trip mismatch detected, fixture relevance separated from schema, integrity diff-guard trips nonzero.",
+    "cleanup_on_failure_observed": "A first run aborted mid-way (a psql -c variable bug in the optional evidence query); the EXIT trap still deleted exactly this run's accounts and all integrity digests matched the before-snapshot — cleanup-on-failure verified in practice.",
+    "scoped_cleanup": "delete reported requested=180 deleted=180 remaining=0; integrity digests identical before/after."
+  },
+  "method": {
+    "scenarios": ["sequential 15 journeys/round x3 (=45)", "burst 5 distinct clients x3 (=15) + 4 concurrent browsers", "burst 10 distinct clients x3 (=30) + 4 concurrent browsers"],
+    "warmup": "3 sequential + 2 per burst, discarded",
+    "fixture_mix": "resume_P01..P10 round-robin (2744–5320 bytes); profile id parsed from filename -> adjudicated relevance labels",
+    "step_deadline_s": 30, "max_attempts": 10, "retry_after_honoured": true,
+    "caches": "WARM (containers up ~2 days, model resident, catalogue page-cached)",
+    "excluded_by_http_automation": ["browser rendering / SPA JS", "human editing + privacy-review reading time", "Google OAuth sign-in (synthetic sessions injected)"]
+  },
+  "results": {
+    "sequential": {"n": 45, "eventual": 45, "first_attempt": 45, "fixture_ok": "45/45", "busy": 0, "retries": 0, "timeouts": 0, "exhaustion": {"attempt_budget": 0, "elapsed_deadline": 0}, "whole_ms_ok": {"p50": 177.2, "p95": 481.7, "max": 485.0}, "completed_per_s": 4.7, "steps_ms_p50_p95": {"prepare": [62.3, 158.5], "save": [104.7, 310.2], "reload": [2.9, 3.3], "matches": [7.3, 8.4]}},
+    "burst5": {"n": 15, "eventual": 15, "first_attempt": 3, "fixture_ok": "15/15", "busy": 30, "retries": 30, "timeouts": 0, "exhaustion": {"attempt_budget": 0, "elapsed_deadline": 0}, "whole_ms_ok": {"p50": 6217.9, "p95": 12268.0, "max": 12286.5}, "completed_per_s": 0.407, "browse": {"n": 2252, "success_rate": 1.0, "p50_ms": 8.1, "p95_ms": 17.3}},
+    "burst10": {"n": 30, "eventual": 30, "first_attempt": 3, "fixture_ok": "30/30", "busy": 135, "retries": 135, "timeouts": 0, "exhaustion": {"attempt_budget": 0, "elapsed_deadline": 0}, "whole_ms_ok": {"p50": 13812.0, "p95": 27343.9, "max": 27403.6}, "completed_per_s": 0.365, "browse": {"n": 5018, "success_rate": 1.0, "p50_ms": 8.0, "p95_ms": 17.0}},
+    "no_failed_journeys": "0 failed journeys in this run (all eventual successes within the 30 s/step budget); FAILED-duration bucket empty."
+  },
+  "resources": {
+    "sampling_interval_s_median": 2, "missing_sample_gaps": 0,
+    "idle": {"api_cpu_pct": "1.1 mean / 5.1 peak", "api_mem_mib": 627, "db_mem_mib": 46, "web_mem_mib": 10, "simultaneous_app_mem_mib_peak": 682.8},
+    "sequential": {"api_cpu_pct": "83–99", "simultaneous_app_mem_mib_peak": 690.1, "note": "only 1–2 CPU samples/round (rounds ~3 s at 2 s cadence) — treat as indicative"},
+    "burst5": {"api_cpu_pct_mean": "35–38", "api_cpu_pct_peak": "up to 70", "simultaneous_app_mem_mib_peak": 686.6},
+    "burst10": {"api_cpu_pct_mean": "31–36", "api_cpu_pct_peak": "up to 75", "simultaneous_app_mem_mib_peak": 689.8},
+    "note": "CPU% is per-container (100%=1 core). Simultaneous app-mem is the peak of the per-timestamp sum of api+db+web (NOT a sum of independent peaks)."
+  },
+  "data_integrity": "Content-level md5 digests of the documented fields across users, sessions, resume_profiles, resume_chunks, save_operations, jobs, job_requirements, requirement_embeddings, app_state were IDENTICAL before and after. Covers those fields only — not a claim about all DB content.",
+  "raw_files": {
+    "orchestrator": "run_baseline.sh", "harness": "journey_load.py", "session_helper": "synthetic.py",
+    "integrity_sql": "integrity.sql", "selfcheck": "selfcheck.py", "analyzer": "analyze.py",
+    "per_run": "runs/<RUN_ID>/{results_*.json, timeline_*.json, stats_raw.txt, integrity_before.txt, integrity_after.txt, db_evidence.txt, db_size.txt, manifest.json, analysis.json}"
+  }
+}

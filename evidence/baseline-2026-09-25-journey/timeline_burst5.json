@@ -1,0 +1,30 @@
+[
+  {
+    "phase": "warmup",
+    "start_epoch": 1790330886.148,
+    "end_epoch": 1790330886.573,
+    "clients": 1,
+    "browse_workers": 0
+  },
+  {
+    "phase": "burst5:burst:c5:round1",
+    "start_epoch": 1790330886.573,
+    "end_epoch": 1790330898.827,
+    "clients": 5,
+    "browse_workers": 4
+  },
+  {
+    "phase": "burst5:burst:c5:round2",
+    "start_epoch": 1790330898.889,
+    "end_epoch": 1790330911.459,
+    "clients": 5,
+    "browse_workers": 4
+  },
+  {
+    "phase": "burst5:burst:c5:round3",
+    "start_epoch": 1790330911.483,
+    "end_epoch": 1790330923.717,
+    "clients": 5,
+    "browse_workers": 4
+  }
+]

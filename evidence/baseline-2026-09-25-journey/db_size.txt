@@ -1,0 +1,4 @@
+database|9607 kB
+resume_chunks|536 kB
+requirement_embeddings|304 kB
+jobs|104 kB

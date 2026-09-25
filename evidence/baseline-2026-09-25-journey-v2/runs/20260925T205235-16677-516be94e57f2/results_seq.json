@@ -1,0 +1,3808 @@
+{
+  "base_url": "http://localhost:8080",
+  "scenario": "sequential",
+  "mode": "sequential",
+  "clients": 15,
+  "rounds": 3,
+  "browse_workers": 0,
+  "warmup": 3,
+  "pdfs": [
+    {
+      "name": "resume_P01.pdf",
+      "bytes": 2805
+    },
+    {
+      "name": "resume_P02.pdf",
+      "bytes": 2744
+    },
+    {
+      "name": "resume_P03.pdf",
+      "bytes": 2905
+    },
+    {
+      "name": "resume_P04.pdf",
+      "bytes": 2794
+    },
+    {
+      "name": "resume_P05.pdf",
+      "bytes": 2854
+    },
+    {
+      "name": "resume_P06.pdf",
+      "bytes": 2830
+    },
+    {
+      "name": "resume_P07.pdf",
+      "bytes": 2794
+    },
+    {
+      "name": "resume_P08.pdf",
+      "bytes": 3074
+    },
+    {
+      "name": "resume_P09.pdf",
+      "bytes": 2841
+    },
+    {
+      "name": "resume_P10.pdf",
+      "bytes": 5320
+    }
+  ],
+  "retry_policy": {
+    "retryable": [
+      "MODEL_VERSION_UNAVAILABLE",
+      "PROCESSING_BUSY",
+      "PROCESSING_TIMEOUT",
+      "SAVE_IN_PROGRESS",
+      "SERVICE_UNAVAILABLE"
+    ],
+    "backoff_base_s": 0.25,
+    "factor": 2.0,
+    "cap_s": 3.0,
+    "max_attempts": 10,
+    "step_deadline_s": 30.0,
+    "honours_retry_after": true,
+    "stops_if_retry_after_exceeds_budget": true,
+    "same_key_for_transient_retry": true
+  },
+  "fixture": "data/evaluation/labels_adjudicated_v1.csv relevance>=2 per profile (provisional labels)",
+  "rows": [
+    {
+      "phase": "sequential:sequential:c15:round1",
+      "round": 1,
+      "clients": 15,
+      "wall_s": 3.079,
+      "journeys": [
+        {
+          "pdf": "resume_P01.pdf",
+          "profile_id": "P01",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 62.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  62.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 102.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.102,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  102.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Java Services Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 176.2
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "profile_id": "P02",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 59.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  59.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 87.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.087,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  87.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Data Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 157.1
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "profile_id": "P03",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 65.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.066,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  65.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 114.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.115,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  114.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Machine Learning Intern (Natural Language)",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 190.3
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "profile_id": "P04",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 58.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.059,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  58.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 90.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.091,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  90.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Graphic Design Intern",
+            "top1_relevant": false,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 159.5
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "profile_id": "P05",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 61.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.061,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 96.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.097,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  96.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cybersecurity Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 168.8
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "profile_id": "P06",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 139.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.139,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  139.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 145.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.145,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  145.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cloud and DevOps Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 295.7
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "profile_id": "P07",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 62.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.063,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  62.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 107.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.108,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  107.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Business Intelligence Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 181.5
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "profile_id": "P08",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 77.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.078,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  77.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 154.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.155,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  154.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Embedded Software Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 243.5
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "profile_id": "P09",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 61.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.061,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 87.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.087,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  87.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.6
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 6.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  6.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Financial Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 158.7
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "profile_id": "P10",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 159.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.159,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  159.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 309.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.31,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  309.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.004,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.009,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  8.7
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Android App Developer Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 482.3
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "profile_id": "P01",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 63.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.063,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  63.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 105.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.105,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  105.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Java Services Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 179.4
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "profile_id": "P02",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 57.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.058,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  57.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 84.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.085,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  84.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Data Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 153.1
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "profile_id": "P03",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 66.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.067,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  66.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 115.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.115,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  115.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.6
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Machine Learning Intern (Natural Language)",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 193.0
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "profile_id": "P04",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 60.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 95.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.096,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  95.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Graphic Design Intern",
+            "top1_relevant": false,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 166.2
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "profile_id": "P05",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 63.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.064,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  63.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 99.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.099,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  99.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cybersecurity Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 173.3
+        }
+      ]
+    },
+    {
+      "phase": "sequential:sequential:c15:round2",
+      "round": 2,
+      "clients": 15,
+      "wall_s": 3.508,
+      "journeys": [
+        {
+          "pdf": "resume_P06.pdf",
+          "profile_id": "P06",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 66.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.066,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  66.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 140.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.14,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  140.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.8
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cloud and DevOps Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 217.9
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "profile_id": "P07",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 63.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.064,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  63.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 108.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.108,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  108.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Business Intelligence Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 182.4
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "profile_id": "P08",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 75.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.075,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  75.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 153.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.154,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  153.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Embedded Software Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 240.0
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "profile_id": "P09",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 60.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 89.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.09,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  89.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 6.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  6.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Financial Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 159.9
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "profile_id": "P10",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 154.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.155,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  154.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 312.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.312,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  312.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.009,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  8.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Android App Developer Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 479.2
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "profile_id": "P01",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 62.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  62.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 102.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.102,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  102.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Java Services Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 175.1
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "profile_id": "P02",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 59.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  59.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 87.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.087,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  87.0
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 6.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  6.9
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Data Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 156.9
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "profile_id": "P03",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 66.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.066,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  66.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 121.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.121,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  121.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Machine Learning Intern (Natural Language)",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 197.8
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "profile_id": "P04",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 60.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 92.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.093,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  92.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Graphic Design Intern",
+            "top1_relevant": false,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 163.4
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "profile_id": "P05",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 63.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.063,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  63.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 96.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.097,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  96.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cybersecurity Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 170.0
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "profile_id": "P06",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 63.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.063,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  63.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 219.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.219,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  219.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cloud and DevOps Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 293.3
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "profile_id": "P07",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 60.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 109.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.11,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  109.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Business Intelligence Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 180.2
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "profile_id": "P08",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 78.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.078,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  78.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 155.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.156,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  155.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Embedded Software Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 244.7
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "profile_id": "P09",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 61.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 88.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.089,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  88.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  8.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Financial Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 162.1
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "profile_id": "P10",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 162.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.163,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  162.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 310.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.31,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  310.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.009,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  8.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Android App Developer Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 485.0
+        }
+      ]
+    },
+    {
+      "phase": "sequential:sequential:c15:round3",
+      "round": 3,
+      "clients": 15,
+      "wall_s": 2.988,
+      "journeys": [
+        {
+          "pdf": "resume_P01.pdf",
+          "profile_id": "P01",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 61.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 104.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.105,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  104.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Java Services Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 177.2
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "profile_id": "P02",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 58.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.059,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  58.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 86.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.087,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  86.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Data Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 156.2
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "profile_id": "P03",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 65.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.065,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  65.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 115.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.116,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  115.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Machine Learning Intern (Natural Language)",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 191.6
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "profile_id": "P04",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 59.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  59.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 94.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.094,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  94.1
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Graphic Design Intern",
+            "top1_relevant": false,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 164.5
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "profile_id": "P05",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 62.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  62.3
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 98.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.099,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  98.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cybersecurity Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 171.7
+        },
+        {
+          "pdf": "resume_P06.pdf",
+          "profile_id": "P06",
+          "pdf_bytes": 2830,
+          "steps": {
+            "prepare": {
+              "ms": 64.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.064,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  64.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 139.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.14,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  139.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cloud and DevOps Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 214.4
+        },
+        {
+          "pdf": "resume_P07.pdf",
+          "profile_id": "P07",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 60.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.06,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.4
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 106.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.107,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  106.5
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Business Intelligence Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 177.5
+        },
+        {
+          "pdf": "resume_P08.pdf",
+          "profile_id": "P08",
+          "pdf_bytes": 3074,
+          "steps": {
+            "prepare": {
+              "ms": 73.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.074,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  73.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 152.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.153,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  152.9
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.2
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Embedded Software Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 237.4
+        },
+        {
+          "pdf": "resume_P09.pdf",
+          "profile_id": "P09",
+          "pdf_bytes": 2841,
+          "steps": {
+            "prepare": {
+              "ms": 61.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.5
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 89.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.09,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  89.7
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Financial Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 161.8
+        },
+        {
+          "pdf": "resume_P10.pdf",
+          "profile_id": "P10",
+          "pdf_bytes": 5320,
+          "steps": {
+            "prepare": {
+              "ms": 159.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.16,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  159.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 310.6,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.311,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  310.6
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 8.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.009,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  8.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Android App Developer Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 482.4
+        },
+        {
+          "pdf": "resume_P01.pdf",
+          "profile_id": "P01",
+          "pdf_bytes": 2805,
+          "steps": {
+            "prepare": {
+              "ms": 61.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.062,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  61.8
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 103.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.103,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  103.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.0
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Java Services Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 175.3
+        },
+        {
+          "pdf": "resume_P02.pdf",
+          "profile_id": "P02",
+          "pdf_bytes": 2744,
+          "steps": {
+            "prepare": {
+              "ms": 57.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.057,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  57.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 85.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.085,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  85.2
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.2,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.2
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.3
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Data Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 153.3
+        },
+        {
+          "pdf": "resume_P03.pdf",
+          "profile_id": "P03",
+          "pdf_bytes": 2905,
+          "steps": {
+            "prepare": {
+              "ms": 66.0,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.066,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  66.0
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 114.8,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.115,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  114.8
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.5,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.5
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Machine Learning Intern (Natural Language)",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 191.8
+        },
+        {
+          "pdf": "resume_P04.pdf",
+          "profile_id": "P04",
+          "pdf_bytes": 2794,
+          "steps": {
+            "prepare": {
+              "ms": 57.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.058,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  57.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 94.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.094,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  94.4
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 2.9,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  2.9
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.007,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.1
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Graphic Design Intern",
+            "top1_relevant": false,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 162.8
+        },
+        {
+          "pdf": "resume_P05.pdf",
+          "profile_id": "P05",
+          "pdf_bytes": 2854,
+          "steps": {
+            "prepare": {
+              "ms": 60.7,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.061,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  60.7
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "save": {
+              "ms": 97.3,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.097,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  97.3
+                ]
+              ],
+              "final_code": "OK",
+              "confirmations": 0,
+              "changed": true
+            },
+            "reload": {
+              "ms": 3.1,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.003,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  3.1
+                ]
+              ],
+              "final_code": "OK"
+            },
+            "matches": {
+              "ms": 7.4,
+              "first_code": "OK",
+              "attempts": 1,
+              "waited_s": 0.0,
+              "elapsed_s": 0.008,
+              "exhausted": null,
+              "trail": [
+                [
+                  "OK",
+                  7.4
+                ]
+              ],
+              "final_code": "OK"
+            }
+          },
+          "assert_failures": [],
+          "http_errors": [],
+          "fixture_failures": [],
+          "completed": true,
+          "fixture_ok": true,
+          "match_summary": {
+            "returned": 20,
+            "top1_title": "Cybersecurity Analyst Intern",
+            "top1_relevant": true,
+            "relevant2_in_results": true,
+            "any_closest_passage": true
+          },
+          "whole_ms": 169.3
+        }
+      ]
+    }
+  ],
+  "browse": [
+    {
+      "phase": "sequential:sequential:c15:round1",
+      "n": 0,
+      "ok": 0,
+      "ms": [],
+      "non_ok_codes": {}
+    },
+    {
+      "phase": "sequential:sequential:c15:round2",
+      "n": 0,
+      "ok": 0,
+      "ms": [],
+      "non_ok_codes": {}
+    },
+    {
+      "phase": "sequential:sequential:c15:round3",
+      "n": 0,
+      "ok": 0,
+      "ms": [],
+      "non_ok_codes": {}
+    }
+  ]
+}
