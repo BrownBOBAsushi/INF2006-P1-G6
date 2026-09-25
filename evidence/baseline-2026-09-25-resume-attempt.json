@@ -1,0 +1,23 @@
+{
+  "status_correction": {
+    "corrected_utc": "2026-09-25T09:44:00Z",
+    "note": "SUPERSEDED. A later session (this one) gained Docker access with no permission-denied, and localhost:8080 was reachable. The full-application baseline was RUN at commit a46af8e. See baseline-2026-09-25-fullapp.json. full_application_status below is corrected from NOT RUN to RUN.",
+    "superseded_by": "evidence/baseline-2026-09-25-fullapp.json"
+  },
+  "timestamp_utc": "2026-09-25T09:35:05Z",
+  "target": "http://localhost:8080",
+  "docker_context": "desktop-linux",
+  "git_commit": "a46af8ede2d940b3a50ad4ca5d8a7787879942ca",
+  "commands": [
+    {"command": "docker ps", "mode": "default", "exit_code": 1, "stderr": "permission denied while trying to connect to the docker API at unix:///Users/desmondchyezhihao/.docker/run/docker.sock"},
+    {"command": "docker ps", "mode": "built-in scoped permission request", "exit_code": 1, "stderr": "permission denied while trying to connect to the docker API at unix:///Users/desmondchyezhihao/.docker/run/docker.sock"},
+    {"command": "docker context show", "exit_code": 0, "stdout": "desktop-linux"},
+    {"command": "curl -sS -o /dev/null -w '%{http_code} %{time_total}\\n' --max-time 5 http://localhost:8080/", "exit_code": 7, "stdout": "000 0.082414", "stderr": "Failed to connect to localhost port 8080"},
+    {"command": "curl -sS -o /dev/null -w '%{http_code} %{time_total}\\n' --max-time 5 http://localhost:8080/openapi.json", "exit_code": 7, "stdout": "000 0.082228", "stderr": "Failed to connect to localhost port 8080"},
+    {"command": ".venv/bin/python -c 'import numpy,psutil,httpx'", "exit_code": 1, "stderr": "ModuleNotFoundError: No module named 'numpy'"}
+  ],
+  "script_review": "tests/load/harness_app.py is a reference component harness without authentication, CSRF, or database. tests/load/api_load.py requires contract routes and an authenticated session for external targets. Quick mode omits 10 users; regular mode adds 25 users.",
+  "full_application_status": "NOT RUN",
+  "measurements": {"idle_cpu_ram": null, "active_cpu_ram": null, "concurrency_1": null, "concurrency_5": null, "concurrency_10": null},
+  "data_changes": "No synthetic accounts or resumes created; existing user data untouched."
+}

@@ -1,0 +1,75 @@
+{
+  "timestamp_utc": "2026-09-25T09:44:00Z",
+  "target": "the REAL full application at http://localhost:8080 (web/nginx proxy -> api -> PostgreSQL16+pgvector -> processing child)",
+  "result": "RUN — full-application HTTP baseline measured",
+  "git_commit": "a46af8ede2d940b3a50ad4ca5d8a7787879942ca",
+  "git_branch": "dev",
+  "docker_access": "GRANTED in this session: `docker ps` and `docker exec/stats` all succeeded with no permission-denied on /Users/desmondchyezhihao/.docker/run/docker.sock. This differs from the prior Codex session, which was denied.",
+  "environment": {
+    "host_os": "macOS 26.5.2 (build 25F84), arm64",
+    "host_logical_cpus": 10,
+    "host_memory_bytes": 34359738368,
+    "docker_client": "29.8.0",
+    "docker_server": "29.8.0",
+    "docker_vm_ncpu": 10,
+    "docker_vm_mem_bytes": 8319504384,
+    "load_driver": "evidence/baseline-2026-09-25-fullapp/http_load.py (pure Python 3.14.6 stdlib on host; no numpy/httpx; nothing installed)",
+    "containers": {
+      "inf2006-p1-g6-web-1": "inf2006-p1-g6-web (nginx SPA + /api,/health proxy), 127.0.0.1:8080->8080",
+      "inf2006-p1-g6-api-1": "FastAPI 0.141.1 / uvicorn 0.53.0 / Python 3.11.16 (single worker, single processing slot)",
+      "inf2006-p1-g6-db-1": "pgvector/pgvector:pg16 (application DB)",
+      "inf2006-p1-g6-test-db-1": "pgvector/pgvector:pg16 — UNRELATED test DB (docker-compose.dev.yml); NOT part of the app under test"
+    },
+    "app_config": {"APP_ENV": "development", "APP_ORIGIN": "http://localhost:8080", "session_cookie_name": "session"}
+  },
+  "method": {
+    "endpoints": {
+      "browse": "GET /api/jobs?limit=20 — authenticated catalogue read (DB read path; 30 jobs in catalogue)",
+      "prepare": "POST /api/resume/prepare — authenticated resume-prepare (multipart PDF -> single processing slot -> PDF text extract + PII/NER draft; does NOT embed or write persistent user data)"
+    },
+    "load_shape": "closed loop: for each concurrency level, C worker threads send requests continuously for 15 s; worker i uses synthetic session[i % 10] so each concurrent client is a distinct isolated account. One warm-up per endpoint discarded.",
+    "pdf": "tests/fixtures/pdf/resume_P01.pdf (2805 bytes)",
+    "duration_s_per_level": 15,
+    "concurrency_levels": [1, 5, 10],
+    "isolation": "10 synthetic Users+Sessions minted via make_sessions.py (google_sub prefix loadtest-synthetic-baseline-2026-09-25:), deleted after the run (CASCADE). Existing real data verified unchanged: users=1, sessions=3, resume_profiles=1, resume_chunks=11, jobs=30 before and after.",
+    "scope_note": "This is a FULL-APPLICATION result over real HTTP. It is DISTINCT from the component/reference figures in tests/load (harness_app.py, run.py matching/embedding/db scenarios), which measure isolated components with no auth/proxy."
+  },
+  "resource_usage": {
+    "sampler": "docker stats --no-stream every ~1.5-2 s during the run -> evidence/baseline-2026-09-25-fullapp/stats_active_raw.txt",
+    "idle_no_load_3_samples": {
+      "inf2006-p1-g6-api-1": {"cpu_pct": "0.27-0.29", "mem_mib": 566},
+      "inf2006-p1-g6-db-1": {"cpu_pct": "0.00-0.69", "mem_mib": 29},
+      "inf2006-p1-g6-web-1": {"cpu_pct": "0.00", "mem_mib": 10}
+    },
+    "active_browse_window": {
+      "inf2006-p1-g6-api-1": {"cpu_pct_mean": 114.7, "cpu_pct_peak": 153.9, "mem_mib_peak": 613.2},
+      "inf2006-p1-g6-db-1": {"cpu_pct_mean": 16.2, "cpu_pct_peak": 22.0, "mem_mib_peak": 49.0},
+      "inf2006-p1-g6-web-1": {"cpu_pct_mean": 3.0, "cpu_pct_peak": 3.6, "mem_mib_peak": 14.2}
+    },
+    "active_prepare_window": {
+      "inf2006-p1-g6-api-1": {"cpu_pct_mean": 176.8, "cpu_pct_peak": 238.4, "mem_mib_peak": 621.7},
+      "inf2006-p1-g6-db-1": {"cpu_pct_mean": 16.1, "cpu_pct_peak": 36.1, "mem_mib_peak": 42.6},
+      "inf2006-p1-g6-web-1": {"cpu_pct_mean": 21.4, "cpu_pct_peak": 53.3, "mem_mib_peak": 16.6}
+    },
+    "notes": "CPU% is Docker's per-container figure (100% = 1 core; host has 10). Under the closed-loop generator the api container is CPU-bound and effectively saturated (peak ~2.4 cores); these figures reflect the throughput ceiling, not steady per-user cost. RAM is stable and not a constraint (api ~566 MiB idle -> ~622 MiB under load)."
+  },
+  "results_per_concurrency": {
+    "browse_GET_/api/jobs": [
+      {"concurrency": 1,  "admitted_ok_per_s": 277.12, "p50_ms": 3.5,  "p95_ms": 4.0,  "max_ms": null, "busy_503": 0, "errors": 0, "error_rate": 0.0},
+      {"concurrency": 5,  "admitted_ok_per_s": 307.04, "p50_ms": 15.9, "p95_ms": 20.1, "busy_503": 0, "errors": 0, "error_rate": 0.0},
+      {"concurrency": 10, "admitted_ok_per_s": 255.71, "p50_ms": 38.4, "p95_ms": 51.0, "busy_503": 0, "errors": 0, "error_rate": 0.0}
+    ],
+    "prepare_POST_/api/resume/prepare": [
+      {"concurrency": 1,  "admitted_ok_per_s": 15.15, "ok_p50_ms": 62.8, "ok_p95_ms": 71.2,  "busy_503": 0,    "busy_rate": 0.0,    "busy_p50_ms": null, "busy_p95_ms": null, "errors": 0, "timeouts": 0, "error_rate": 0.0},
+      {"concurrency": 5,  "admitted_ok_per_s": 12.46, "ok_p50_ms": 81.3, "ok_p95_ms": 103.4, "busy_503": 8546, "busy_rate": 0.9786, "busy_p50_ms": 6.5,  "busy_p95_ms": 9.5,  "errors": 0, "timeouts": 0, "error_rate": 0.0},
+      {"concurrency": 10, "admitted_ok_per_s": 11.37, "ok_p50_ms": 99.0, "ok_p95_ms": 125.3, "busy_503": 7622, "busy_rate": 0.9781, "busy_p50_ms": 16.1, "busy_p95_ms": 26.2, "errors": 0, "timeouts": 0, "error_rate": 0.0}
+    ]
+  },
+  "raw_files": {
+    "results": "evidence/baseline-2026-09-25-fullapp/results.json",
+    "resource_samples": "evidence/baseline-2026-09-25-fullapp/stats_active_raw.txt",
+    "load_driver": "evidence/baseline-2026-09-25-fullapp/http_load.py",
+    "session_helper": "evidence/baseline-2026-09-25-fullapp/make_sessions.py",
+    "synthetic_sessions_used": "evidence/baseline-2026-09-25-fullapp/sessions.json (accounts deleted after the run; tokens are revoked/inert)"
+  }
+}

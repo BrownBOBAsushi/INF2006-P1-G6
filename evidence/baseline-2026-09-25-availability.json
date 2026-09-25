@@ -1,0 +1,52 @@
+{
+  "status_correction": {
+    "corrected_utc": "2026-09-25T09:44:00Z",
+    "note": "SUPERSEDED. A later session gained Docker access (docker ps/exec/stats succeeded, no permission-denied) and localhost:8080 was up. The full-application baseline was RUN; see baseline-2026-09-25-fullapp.json. The docker permission-denied and connection-refused results below were accurate for the earlier attempt only.",
+    "superseded_by": "evidence/baseline-2026-09-25-fullapp.json"
+  },
+  "timestamp_utc": "2026-09-25T09:25:27.442698+00:00",
+  "target": "real application at http://localhost:8080/",
+  "host": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "python": "3.14.6",
+    "logical_cpus": 10
+  },
+  "checks": {
+    "docker": {
+      "command": "docker info --format {{.ServerVersion}}",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "permission denied while trying to connect to the docker API at unix:///Users/desmondchyezhihao/.docker/run/docker.sock"
+    },
+    "localhost": {
+      "command": "curl -sS -o /dev/null -w %{http_code} %{time_total} http://localhost:8080/",
+      "exit_code": 7,
+      "stdout": "000 0.000813",
+      "stderr": "curl: (7) Failed to connect to localhost port 8080 after 0 ms: Couldn't connect to server"
+    },
+    "dependencies": {
+      "command": ".venv/bin/python -c import numpy,psutil,httpx",
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n    import numpy,psutil,httpx\nModuleNotFoundError: No module named 'numpy'"
+    },
+    "git_commit": {
+      "command": "git rev-parse HEAD",
+      "exit_code": 0,
+      "stdout": "a46af8ede2d940b3a50ad4ca5d8a7787879942ca",
+      "stderr": ""
+    },
+    "git_status_before_evidence": {
+      "stdout": ""
+    }
+  },
+  "measurements": {
+    "idle_cpu_ram": null,
+    "active_cpu_ram": null,
+    "concurrency_1": null,
+    "concurrency_5": null,
+    "concurrency_10": null
+  },
+  "reason": "Docker socket permission denied, localhost:8080 connection refused; local load dependencies also missing. No load generated and no accounts or resumes created."
+}
