@@ -1,0 +1,26 @@
+{
+  "profile": "inf2006-lab",
+  "region": "us-east-1",
+  "artifact_dir": "~/Documents/inf2006-artifacts/inf2006-f18034f19af1d8781d5b05667e2da64041df0c9706c906e186a96522a20bd968",
+  "stack_name": "inf2006-foundation",
+  "hostname": "internshipmatcher.duckdns.org",
+  "google_client_id": "712181478711-b51rrs85d2vmvt52vr6ajo3bkv93vafi.apps.googleusercontent.com",
+  "instance_profile": "LabInstanceProfile",
+  "instance_type": "t3.medium",
+  "database_class": "db.t3.micro",
+  "postgres_engine_version": "16.15",
+  "secret_ids": {
+    "DatabaseMasterPasswordSecretArn": "inf2006/db-master",
+    "DatabaseMigratorSecretArn": "inf2006/db-migrator",
+    "DatabaseRuntimeSecretArn": "inf2006/db-runtime",
+    "AppSigningKeySecretArn": "inf2006/app-signing-key",
+    "DuckDnsTokenSecretArn": "inf2006/duckdns-token"
+  },
+  "timeouts_seconds": {
+    "stack": 3600,
+    "ssm": 2400,
+    "dns": 300,
+    "https": 1200,
+    "health": 300
+  }
+}
