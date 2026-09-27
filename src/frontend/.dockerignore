@@ -1,7 +1,9 @@
+.git
+.venv
 .env
 .env.*
-.git
+**/.env
+**/.env.*
 node_modules
 dist
 coverage
-*.log

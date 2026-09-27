@@ -1,9 +1,10 @@
-.env
-.env.*
 .git
 .venv
-venv
+.env
+.env.*
+**/.env
+**/.env.*
+tests
 __pycache__
 *.pyc
-tests
-evidence
+.pytest_cache

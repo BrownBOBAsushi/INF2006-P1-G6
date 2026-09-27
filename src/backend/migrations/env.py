@@ -15,7 +15,9 @@ config = context.config
 
 db_url = os.environ.get("DATABASE_URL")
 if db_url:
-    config.set_main_option("sqlalchemy.url", db_url)
+    from app.db.alembic_url import set_database_url
+
+    set_database_url(config, db_url)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:

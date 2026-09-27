@@ -1,0 +1,7 @@
+ARG BOOTSTRAP_BASE_IMAGE=public.ecr.aws/amazonlinux/amazonlinux:2023
+FROM ${BOOTSTRAP_BASE_IMAGE}
+
+WORKDIR /opt/inf2006
+COPY src/infra/ /opt/inf2006/src/infra/
+COPY data/synthetic_jobs.json /opt/inf2006/data/synthetic_jobs.json
+CMD ["sleep", "infinity"]

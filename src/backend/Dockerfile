@@ -1,4 +1,5 @@
-FROM python:3.11-slim
+ARG API_BASE_IMAGE=python:3.11-slim
+FROM ${API_BASE_IMAGE}
 
 WORKDIR /app
 
