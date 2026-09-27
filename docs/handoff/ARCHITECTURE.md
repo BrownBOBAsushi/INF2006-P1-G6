@@ -1,5 +1,7 @@
 # Architecture and decision rationale
 
+> **Historical local architecture, superseded for cloud planning.** Its one-VM/no-queue diagram records the earlier local-first design. The current proposed AWS architecture is [here](../CLOUD_ARCHITECTURE.md), with an [editable diagram](../diagrams/cloud-architecture.md). That target remains undeployed and unverified; local design details below still describe the implemented Compose baseline.
+
 Status: target design, 2026-09-11. Nothing in this diagram is claimed deployed. Read [PRD](MVP_PRD.md) and [contract](DATA_API_CONTRACT.md).
 
 ## Logical and deployment diagram

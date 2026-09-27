@@ -1,6 +1,6 @@
 # INF2006 project brief requirements checklist
 
-**Working date:** 2026-09-24
+**Working date:** 2026-09-27
 **Scope:** Project brief Sections 1–10 and Appendix A. Section 11 is non-mandatory suggested planning guidance and is intentionally omitted from this tracker.
 
 **Source:** local `INF2006_Team_Project_Brief_2026.pdf` (Sections 1–10 and Appendix A), in `/Users/desmondchyezhihao/SIT/Y2/T1/INF2006-Cloud Computing/Project/`.
@@ -14,7 +14,7 @@
 - `[Proposed]` is a target design/team action, not a completion claim; `[Open]` is unresolved or still needs evidence.
 - Existing `[x]` marks in Sections 1–4 are a 2026-09-23 recorded snapshot, not a fresh rerun or final acceptance. For new work, leave `[ ]` until the current evidence has been reviewed; only then change it to `[x]`.
 
-Current boundary: the application and ML flow are local; cloud deployment has not been performed. The manifest still says `tests_executed: false`; functional, security, resilience, and monitoring records are `NOT RUN` templates. The 2026-09-23 journey is useful local evidence but does not replace cloud acceptance evidence. Submission data must contain no real user/resume data beyond the expressly required team names and student IDs in team metadata.
+Current boundary (2026-09-27): a temporary synchronous foundation was deployed and scoped checks were reported by the user; the user later reported teardown. See the [cloud run record](../evidence/cloud-foundation-run-2026-09-27.md) and [preparation evidence](../evidence/cloud-foundation-preparation-2026-09-27.md). The proposed split asynchronous target remains undeployed. The manifest says `tests_executed: false` for overall application acceptance; functional, security, resilience, and monitoring records contain scoped partial passes, while full acceptance remains open. Coursework decision owners and the S5.1 architecture gate remain open. The 2026-09-23 journey is useful local evidence but does not replace full cloud acceptance evidence. Submission data must contain no real user/resume data beyond the expressly required team names and student IDs in team metadata.
 
 ## Section 1 — problem and solution fit
 
@@ -26,16 +26,16 @@ Example application domains are illustrative only and are not a compulsory requi
 
 ## Section 2 — outcomes, choices, and responsible delivery
 
-- [x] `[Evidence recorded]` Intended outcomes, architecture, service choices, alternatives, and trade-offs are in [architecture](handoff/ARCHITECTURE.md).
+- [x] `[Evidence recorded]` Intended outcomes and local architecture/trade-offs are in [historical local architecture](handoff/ARCHITECTURE.md); proposed cloud service choices are in [cloud architecture](CLOUD_ARCHITECTURE.md).
 - [x] `[Evidence recorded]` Current local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, Docker Compose, PDF privacy cleanup, and MiniLM. See [README](../README.md).
-- [ ] `[Proposed]` Provisional cloud shape: one AWS EC2 VM running Docker, Nginx, FastAPI, MiniLM processing, and PostgreSQL on private ports; HTTPS is planned. This is not a deployment claim.
+- [ ] `[Proposed]` Working cloud revision (2026-09-27): public EC2 web/API, private worker EC2, private Single-AZ RDS PostgreSQL/pgvector, S3 for candidates and the latest explicitly saved PDF, SQS extraction/embedding queues and DLQs, CloudFormation, and CloudWatch. See [proposed architecture](CLOUD_ARCHITECTURE.md) and [editable diagram](diagrams/cloud-architecture.md). The temporary synchronous foundation run is documented in [the infra runbook](../src/infra/README.md) and dated run record; overall cloud acceptance remains open.
 - [ ] `[Open]` Implement and evidence the cloud service, monitoring, scaling or recovery behaviour, and reliability controls.
 - [x] `[Evidence recorded]` Target design includes persistent storage, private database networking, bounded logs, least-privilege intent, and encrypted off-VM backups: [infra notes](../src/infra/README.md).
 - [ ] `[Open]` Confirm cloud storage/database implementation and schema evidence using synthetic/sample data only; no production credentials or personal data belong in the submission.
 - [x] `[Implemented locally; Evidence recorded]` Meaningful ML is evaluated on synthetic fixtures with metrics, baselines, provenance, examples, and limitations in [data/AI evidence](../evidence/test-data-ai.md).
 - [x] `[Evidence recorded]` Evaluation labels are provisional: 12 pairs were adjudicated after seeing draft labels, 48 have unverified origin, and the remainder are AI-drafted. Human labels are useful strengthening, not an explicit brief mandate.
 - [x] `[Evidence recorded]` Least-privilege, ownership, CSRF, privacy, and restricted-network intentions are in the [threat map](../evidence/threat-control-map.md) and architecture notes.
-- [ ] `[Open]` Run and record named-threat validation; the threat map says planned and the security template is `NOT RUN`.
+- [ ] `[Open]` Complete named-threat validation; the user-reported cloud checks are partial and do not cover the full threat map.
 - [x] `[Evidence recorded]` Reproduction commands are documented in the [analytics README](../analytics/README.md) and [local integration runbook](LOCAL_INTEGRATION.md); pinned model/dependency details, AI-use disclosure, and data provenance guidance are in the [manifest](../project_manifest.yaml), [AI declaration](../AI_USE_DECLARATION.md), and [data README](../data/README.md).
 - [ ] `[Open]` Replace planned team assignments with actual contributions, artefacts, commits, tests, and reflections.
 
@@ -53,11 +53,11 @@ Example application domains are illustrative only and are not a compulsory requi
 
 - [x] `[Implemented locally]` Flow covers sign-in, browse/search/filter, resume prepare/review/save/delete, matching, and external apply links.
 - [x] `[Evidence recorded]` Journey records malformed, scanned, encrypted, and oversized PDF rejection, stale-revision conflict handling, and safe external links: [journey evidence](verification/2026-09-23-user-journey.md).
-- [ ] `[Open]` Add a dated final workflow/input-validation record; the primary functional template is `NOT RUN`.
+- [ ] `[Open]` Complete the dated final workflow/input-validation record; the existing cloud happy-path checks are partial and do not cover all workflows or input validation.
 
 ### 4.2 Cloud compute and IaaS/PaaS/SaaS boundary
 
-- [ ] `[Proposed]` Explain the target boundary: AWS EC2/VM is IaaS; the team manages the guest/container runtime, Nginx, FastAPI, and PostgreSQL; Google identity is an external SaaS dependency. No managed database is selected currently.
+- [ ] `[Proposed]` Explain the target boundary: AWS EC2/VM is IaaS; the team manages the guest/container runtime, Nginx, and FastAPI; RDS PostgreSQL is DBaaS; Google identity is an external SaaS dependency. The temporary synchronous foundation used private Single-AZ RDS PostgreSQL and is recorded separately; the proposed split target is not deployed and full acceptance remains open.
 - [ ] `[Open]` Deploy or demonstrate the chosen cloud compute path, document configuration, and capture boundary evidence.
 
 ### 4.3 Persistent cloud storage or database
@@ -81,13 +81,13 @@ Example application domains are illustrative only and are not a compulsory requi
 ### 4.6 Authentication, authorisation, least privilege, and threats
 
 - [x] `[Implemented locally]` Authentication, CSRF handling, and session-scoped ownership implementation exist; two-user isolation test evidence is still pending.
-- [ ] `[Open]` Validate cloud auth/authz, least privilege, secrets handling, restricted network/data access, and named threats with sanitised evidence; the primary security evidence template remains `NOT RUN`.
+- [ ] `[Open]` Complete cloud auth/authz, least-privilege, secrets-handling, restricted network/data-access, and named-threat validation with sanitised evidence; the existing user-reported security checks are partial.
 - [ ] `[Proposed]` Team hardening actions to assess: restricted database runtime role, non-root containers, and OS-level sandbox for the PDF child. These strengthen the design; they are not extra literal brief mandates.
 
 ### 4.7 Logs, monitoring, and operations
 
 - [ ] `[Proposed]` Target design calls for request IDs, sanitised logs, health signals, bounded retention, and no raw resume content, cookies, or keys in output.
-- [ ] `[Open]` Run an operational query, alert, or health check; save sanitised output and interpret it. [Monitoring](../evidence/monitoring.md) is `NOT RUN` and does not prove monitoring.
+- [ ] `[Open]` Complete operational evidence, including saved sanitised output and interpretation. User-reported alarm observations are recorded in [monitoring](../evidence/monitoring.md), but notification delivery and raw exports remain unverified.
 
 ## Section 5 — required design and evaluation
 
@@ -103,10 +103,10 @@ Example application domains are illustrative only and are not a compulsory requi
 
 For each test below record: objective; setup, versions, fixtures and environment; command or repeatable steps; expected result; actual result; date; artefact path; failed-test diagnosis; and a sensible improvement plan. A failed test can still be reported honestly; it must not be rewritten as a pass.
 
-- [ ] **S5.2-F** Functional workflow test: cover the meaningful web/API workflow and input validation. `evidence/test-functional.md` is currently a `NOT RUN` template; the 2026-09-23 journey is local supplemental evidence, not a final test record.
-- [ ] **S5.2-S** Security control test: select a named threat and test its relevant authentication/authorisation, ownership, CSRF, secrets, network, or data controls; map other controls separately where they are not in this test. `evidence/test-security.md` is currently a `NOT RUN` template; two-user isolation evidence remains open.
+- [ ] **S5.2-F** Functional workflow test: cover the meaningful web/API workflow and input validation. `evidence/test-functional.md` records a user-reported partial cloud run; full workflow/input-validation coverage remains open.
+- [ ] **S5.2-S** Security control test: select a named threat and test its relevant authentication/authorisation, ownership, CSRF, secrets, network, or data controls; map other controls separately where they are not in this test. `evidence/test-security.md` records user-reported partial checks; direct authenticated cross-user API ownership and other controls remain open.
 - [ ] **S5.2-D** Data/AI validation test: report the identified dataset, method, interpretable output, metrics, examples and limits. `evidence/test-data-ai.md` records a 2026-09-20 run, but labels remain provisional and require final review.
-- [ ] **S5.2-R** Scalability, resilience or recovery test: show the implemented mechanism and measured/observed result. `evidence/test-resilience.md` is currently a `NOT RUN` template; local restart persistence does not prove cloud recovery.
+- [ ] **S5.2-R** Scalability, resilience or recovery test: show the implemented mechanism and measured/observed result. `evidence/test-resilience.md` records a user-reported manual API recovery and alarm observation; stop/start, snapshot restore, load and disaster-recovery evidence remain open.
 - [ ] **S5.2-Q** Confirm the test environment and cloud evidence expectation with the professor. The brief requires cloud deployment; it does not require 100-user testing or autoscaling, and it does not prescribe one test environment.
 
 ### 5.3 Data and AI/ML expectations

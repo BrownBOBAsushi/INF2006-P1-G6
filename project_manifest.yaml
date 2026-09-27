@@ -1,4 +1,4 @@
-# Scaffold only: no tests/deployment completed. Empty values must be filled before submission.
+# Submission scaffold: infrastructure checks and scoped user-reported cloud tests exist; full application acceptance remains incomplete. Empty values must be filled before submission.
 project:
   group_id: "Gxxx" # Confirm official group identifier; repository name alone is not evidence.
   title: "Internship Matcher"
@@ -23,16 +23,21 @@ team:
       student_id: ""
       role: "Moderator, system design and reviewer"
 architecture:
-  diagram: "evidence/architecture.svg"
+  diagram: "evidence/architecture.svg" # Existing local baseline only; proposed cloud target: docs/diagrams/cloud-architecture.md
   service_model: "Planned IaaS; not deployed"
-  deployment_model: "Planned public cloud, one VM; local-first development"
-  components: [] # Populate with implemented components, not aspirations.
+  deployment_model: "Implemented local Docker Compose; proposed split AWS target is not deployed"
+  components: # Implemented local components only; excludes proposed AWS resources.
+    - "React/TypeScript frontend and Nginx proxy"
+    - "FastAPI/Python API and PostgreSQL/pgvector"
+    - "Local resume processing and MiniLM matching"
 evidence:
   functional_test: "evidence/test-functional.md"
   security_test: "evidence/test-security.md"
   data_ai_test: "evidence/test-data-ai.md"
   scale_resilience_test: "evidence/test-resilience.md"
   monitoring: "evidence/monitoring.md"
+  infrastructure_preparation: "evidence/cloud-foundation-preparation-2026-09-27.md; scoped temporary foundation run and user-reported teardown: evidence/cloud-foundation-run-2026-09-27.md"
+  infra_static_tests: "46 passed on 2026-09-27: python3 -m unittest discover -s tests/infra -p 'test_*.py'; CloudFormation template validation recorded separately; Docker rehearsal not executed here"
 data_ai:
   dataset: "data/README.md"
   method: "Planned MiniLM requirement-level cosine matching with PostgreSQL/pgvector"
@@ -48,8 +53,8 @@ declarations:
   ai_use: "AI_USE_DECLARATION.md"
   contributions: "TEAM_CONTRIBUTIONS.md"
 status:
-  stage: "documentation_and_submission_scaffold"
+  stage: "submission_scaffold_with_scoped_synchronous_foundation_run"
   application_runnable: false
   cloud_deployed: false
-  tests_executed: false
+  tests_executed: false # Overall application acceptance is incomplete; scoped infra and user-reported cloud checks are recorded.
   final_report: "pending; draft outline is docs/REPORT_DRAFT.md"

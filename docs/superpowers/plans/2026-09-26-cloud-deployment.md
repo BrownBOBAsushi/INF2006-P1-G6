@@ -4,7 +4,7 @@
 
 **Goal:** Implement and verify the team's proposed AWS deployment and durable resume-processing workflow, while keeping every cloud and assessment claim tied to current evidence.
 
-**Architecture:** Keep Docker Compose as the local development environment and use AWS CloudFormation in two stacks/phases. First deploy only the existing synchronous API/web baseline and RDS foundation from a pinned commit/image; only after that works, implement and verify durable asynchronous processing locally, then extend infrastructure with S3, separate extraction and embedding SQS queues with DLQs, and private workers. Durable task and outbox records share PostgreSQL transactions; S3 uploads precede those transactions, while queue publication and cleanup are recoverable asynchronous work.
+**Architecture:** Keep Docker Compose as the local development environment and use CloudFormation in two phases. Prove the synchronous web/API and RDS foundation first, then implement async processing locally in parallel with foundation evidence. Local mode uses PostgreSQL task records and filesystem storage with no AWS credentials; cloud adapters use S3/SQS. Keep synchronous privacy re-check in the API before save commit; only embedding moves to a worker. Durable tasks/outbox share PostgreSQL transactions. The latest explicitly saved PDF is retained for owner-only download; UI and PRD text must change in the same implementation rollout.
 
 **Tech Stack:** Existing FastAPI/Python 3.11, SQLAlchemy/Alembic, PostgreSQL 16/pgvector, React/TypeScript, Docker Compose, AWS CloudFormation, EC2, RDS, S3, SQS, ECR, CloudWatch, and the supplied Learner Lab `LabRole`/`LabInstanceProfile`.
 
@@ -13,16 +13,16 @@
 ## Global Constraints
 
 - The architecture remains proposed until dated cloud evidence proves implementation; this plan and local tests do not authorize provisioning or production changes.
-- Use synthetic PDFs and accounts for testing. Never log raw resumes, cookies, credentials, secret values, or signed URLs.
+- Use synthetic PDFs and accounts for testing. Coursework cloud data and evidence use synthetic data only. Never log raw resumes, cookies, credentials, secret values, or signed URLs.
 - Use the supplied lab roles; do not create custom IAM users, roles, or groups. Verify the actual `LabRole` permissions and record any limitation.
 - RDS is planned Single-AZ. A subnet group across two Availability Zones is placement coverage, not a standby or HA claim.
-- After ML processing moves to the worker, the provisional API budget is 2 vCPU / 1 GiB; worker budget is 2 vCPU / 2 GiB; RDS candidate is `db.t3.micro` / 20 GiB gp2 / Single-AZ; worker concurrency is one extraction plus one embedding process. The foundation stage runs the current synchronous API, which loads ML processing in the API container. Gate its temporary API size on measured image/model memory, use a verified temporary size if needed, and do not run the 50-item workload on that intermediate setup. Exact EC2 classes, PostgreSQL minor, pgvector support, and safe memory headroom are verification gates.
+- API 2 vCPU / 1 GiB is a hypothesis only after torch/Sentence Transformers are absent from save handling; synchronous privacy re-check still loads Presidio/spaCy. Measure memory with the redactor loaded and torch absent before sizing. Current API startup also starts a processing child at import; splitting imports and narrowing readiness are implementation tasks. Worker candidate is 2 vCPU / 2 GiB; RDS candidate is `db.t3.micro` / 20 GiB gp2 / Single-AZ. Measure before accepting these sizes; do not run 50-item tests on the synchronous foundation.
 - Targets: browse p95 at most 1 second while processing; each upload accepted within 2 seconds after transfer ends (per sample, not p95); extraction p95 at most 60 seconds from acceptance; embedding-ready p95 at most 60 seconds from explicit-save acceptance.
-- Exercise 50 synthetic uploads and 50 synthetic saves as separate workloads. Record fixture count and sizes, failures, tail latency, cold/warm host results, and available CPU-credit observations. These targets and workloads are not existing results.
-- Processing permits up to three attempts total, including the initial attempt, for transient failures. Unusable PDFs are terminal. SQS receive count is not an exact worker execution count; choose `maxReceiveCount` with visibility and worker behavior.
-- A database outbox row is committed with each durable task. A publisher may deliver more than once and must mark a row sent only after SQS acknowledges. Publisher placement and transport require a recorded decision before implementation; do not silently add an AWS service.
-- The extraction worker writes only a reviewable draft and extraction status. Explicit save promotes approved content and the uploaded PDF reference together in a DB transaction, with embedding state `PENDING`. Embedding workers write vectors/status only if the task and revision are still current at the atomic commit. Failure preserves saved content and PDF; only current-revision `READY` vectors are matchable.
-- Retained-vs-disposable environment, failed/abandoned PDF retention and cleanup interval, queue poll interval, visibility/lease/reconciliation values, secrets delivery, TLS/hostname/OAuth callback, alarm thresholds, and backup/recovery objective are explicit decision gates. Assign an owner and verify each before its dependent task.
+- Generate new synthetic fixtures through `tests/fixtures/generate_pdf_fixtures.py`: a roughly 200 KiB two-page resume and a near-5-MiB/10-page boundary resume. These do not exist yet; the current checked-in maximum is 20,322 bytes. Measure a single item first on the target instance, then run separate 50-upload and 50-save workloads with declared arrival schedule and fixture distribution. No measurement result is implied.
+- Database task attempt count is authoritative and increments once on each fresh successful claim. Redelivery retains the task identity; delivery during a valid lease is a duplicate and does not increment; a later claim after failure/expired lease increments because it is a new execution. A user retry creates a new task. SQS `maxReceiveCount` is above the DB attempt limit as a safety net. Delete messages after every terminal DB transition, including exhausted attempts; lease reconciliation maps final DLQ/stale work to `FAILED`. Visibility timeout exceeds processing deadline plus S3/DB time or is extended.
+- A PostgreSQL task table claimed with `SELECT … FOR UPDATE SKIP LOCKED` was considered. SQS is selected for managed DLQs and backlog/age metrics, despite its added publisher/service cost. The publisher is a small loop on the public API host through its internet-gateway path; no separate service is implied.
+- Extraction writes only a reviewable draft and status. On explicit save, the API synchronously rechecks privacy before creating a revision, successful SaveOperation, embedding task/outbox row, or PDF promotion. Changed cleanup returns `422 REVIEW_REQUIRED` with the cleaned draft and has no save-side effects. On reconfirmation, the DB transaction records approved content, owner-checked candidate promotion, and embedding `PENDING`. SaveOperation is `SUCCEEDED` at this commit; embedding status is separate. A non-null `upload_id` must identify an owned, unpromoted, current candidate for the expected revision. Null means manual save: promote no candidate, preserve the separately identified latest explicitly saved PDF, and record its source revision so UI labels it as an original upload that may differ from manual content. First manual save has no PDF. Embedding retry uses saved content, not the PDF. Only current-revision `READY` vectors are matchable.
+- Retained-vs-disposable environment, failed/abandoned PDF retention and cleanup interval, queue poll interval, visibility/lease/reconciliation values, secrets delivery, TLS challenge type and hostname/Google JavaScript origin (`APP_ORIGIN`), alarm thresholds, and backup/recovery objective are decision gates. HTTP-01 needs port 80 for challenge/redirect; DNS-01 via DuckDNS TXT is an alternative. Update DuckDNS after public IPv4 changes or price an Elastic IP. Course brief §10 permits decommissioning after evidence capture.
 - A readiness gate is not deployment authorization. Cloud provisioning, public exposure, and teardown require a separate explicit human authorization after the concrete changes and resource list are reviewable.
 
 ## Review Focus
@@ -31,6 +31,7 @@
 - Duplicate publication, worker redelivery, worker crash, and stale revision completion must not duplicate saves, alter newer content, or falsely mark current work ready. Pin in outbox and worker state-transition tests.
 - An embedding error or abandoned review must retain the last explicitly saved content and PDF reference; a late worker must not overwrite a newer retry. Pin in revision and retry tests.
 - User/task/PDF identifiers must remain owner-scoped, signed downloads short-lived, and logs free of resume content or secrets. Pin in two-user access and log-redaction tests.
+- Add implementation tasks for request-ID middleware/log propagation and account deletion; neither is a current feature. Keep account-deletion claims proposed until tested.
 - Cold starts, host CPU credits, concurrency, and failed items can break latency goals even when averages pass. Pin in separately reported cold/warm 50-upload and 50-save cloud runs.
 
 ---
@@ -48,14 +49,14 @@ Each decision produces a short record in `docs/CLOUD_ARCHITECTURE.md` with owner
 | Gate | Owner | Required decision and verification before dependent work |
 |---|---|---|
 | Environment lifecycle | Team deployment lead, named before infrastructure work | Choose retained vs disposable environment; document resource inventory, evidence-capture sequence, safe teardown procedure, and what may remain billable. Verify the proposed lifecycle against Learner Lab restart behavior. |
-| PDF cleanup | Backend/data owner | Set failed and abandoned upload retention plus cleanup interval. Test that abandoned candidates are deleted while the previous saved reference remains usable, and that explicit file/account deletion removes owned objects. |
-| Queue and recovery values | Backend/operations owner | Choose poll interval, visibility timeout, lease duration, reconciliation cadence, and `maxReceiveCount`/DLQ redrive consistent with three total transient attempts. Verify crash/retry tests and show queued-but-unpublished work is not misclassified as stuck. |
-| Outbox publisher placement | Architecture owner and backend owner | Select an allowed placement and network path without implying a new service. Verify DB-to-SQS publish/ack/replay behavior and duplicate delivery before cloud worker rollout. |
-| Secrets and transport | Deployment/security owner | Choose secret delivery from currently permitted lab services; choose TLS termination, exact hostname/certificate, and OAuth callback. Verify real sign-in, HTTPS, no secrets in images/logs, and callback allowlist before public workflow claims. |
+| PDF lifecycle and save identifier | Backend/data owner | Select failed/abandoned candidate retention and lifecycle backstop. Non-null `upload_id` is an owner-checked unpromoted candidate tied to expected revision. Null means manual save: promote no candidate, preserve separately identified latest uploaded PDF with its source revision, label the download accordingly. Verify stale/cross-owner rejection. |
+| Queue and recovery values | Backend/operations owner | Choose poll interval, visibility timeout, lease duration, reconciliation cadence, and `maxReceiveCount` above DB attempt limit. Fresh claims increment authoritative attempts; duplicates under valid lease do not. Verify terminal transition deletes message and expired final lease becomes `FAILED`. |
+| Outbox publisher placement | Architecture owner and backend owner | Selected: small publisher loop on public API host via internet-gateway route to SQS. Verify DB-to-SQS publish/ack/replay and duplicate delivery; no separate AWS service. |
+| Secrets and transport | Deployment/security owner | Choose secret delivery from currently permitted lab services; choose TLS termination, exact hostname/certificate and HTTP-01 (port 80 challenge/redirect) or DNS-01 (DuckDNS TXT). Configure Google Authorized JavaScript origin via `APP_ORIGIN`; this is not an OAuth redirect callback. Verify sign-in and lab stop/start DNS refresh. |
 | Compute/database fit | Chuying (measurements) and deployment lead | Check current lab quotas/classes, exact PostgreSQL 16 minor and pgvector, then migrations and a real vector query. Verify measured headroom for one extraction plus one embedding process on proposed worker budget; adjust only with recorded evidence. |
-| Cost and evidence lifecycle | Zhihao (budget/deployment review) | Record a resource inventory and cost-control checks; capture dated/redacted configuration before any authorized teardown. Do not infer spend from a ten-minute recording or delayed budget dashboard. |
+| Cost and evidence lifecycle | Zhihao (budget/deployment review) | Build a dated cost estimate from verified current prices and actual resource inventory; do not copy unverified fixed prices. Explicit teardown choice lists retained RDS snapshot, S3 versions/bucket, ECR images, NAT gateways, and public IPv4. Verify deletion and post-teardown inventory; brief §10 permits decommissioning after evidence capture. |
 
-The architecture decision record must satisfy checklist S5.1-A02 before foundation provisioning. For **service model**, compare IaaS EC2 (selected: lab-listed, team controls OS/runtime and separate worker sizing) with a managed application/container service (less host administration, but service availability and Learner Lab permissions must be proven); also consider FaaS for short jobs (model cold-start/runtime limits need measurement). For **deployment model**, compare one VM running web/API/processing/database (fewer components, but shared host resources/failure domain and operator-managed backup) with the selected split public API/private worker/private RDS design (separate processing capacity and managed DB backups, with more network/operations cost); compare a managed/serverless deployment if lab permissions and budget support it. Record at least two alternatives for each choice and evidence-based trade-offs; this plan does not claim professor approval.
+The architecture decision record must satisfy checklist S5.1-A02 before foundation provisioning. It compares IaaS EC2 (selected: lab-listed, team controls OS/runtime and separate worker sizing) with managed application/container hosting and FaaS for short jobs. Deployment alternatives include one VM running web/API/processing/database and the selected split public API/private worker/private RDS design; a managed/serverless deployment remains a candidate if lab permissions and budget support it. The brief requires at least two alternatives considered; it does not say two alternatives per model. Record evidence-based trade-offs; this plan does not claim professor approval.
 
 For async delivery, two SQS queues are selected to isolate extraction and embedding concurrency, retry/DLQ behavior, and backlog visibility. A no-queue bounded API wait would keep expensive work in request workers and couple processing delays to API availability. One shared queue would mix tasks with different runtimes and failure policies, allowing one stage's backlog to delay the other. Separate queues add configuration and cost, so verify the lab path and operational burden before rollout.
 
@@ -63,7 +64,7 @@ For async delivery, two SQS queues are selected to isolate extraction and embedd
 
 ### Required execution order and dependencies
 
-Follow this order even though the design work can be reviewed together: **Task 1a contracts only → Task 6a foundation template → Task 7 foundation deployment and RDS checks → Task 7b isolated backup/restore test → Tasks 2, 3, 4, and 5 local async data/storage/worker/outbox implementation → Task 1b API wiring → Task 8 frontend integration → full local journey → Task 6b async CloudFormation extension → Task 9 worker rollout → Task 10 cloud workload/evidence.** Each cloud deployment/workload still requires its separate human authorization gate. Task 6a must pin the existing synchronous API commit/image and exclude worker, S3, SQS, and outbox infrastructure. Do not change the pinned API until foundation evidence is captured. Task 6b adds async resources only after the real local journey passes.
+Foundation template/deployment and evidence are independent of local async implementation: build Task 6a and run Tasks 7/7b; immediately afterward, complete all four assessment records and monitoring on the synchronous foundation. In parallel from day one, backend owners implement local Tasks 2–5 without cloud access, followed by 1b/8 and the real local journey. Only then extend infrastructure (6b/9) and run workload tests (10). Suggested async cloud go/no-go: 2026-10-04, contingent on foundation evidence, with a cut list if incomplete. Owners remain the named roles in this plan; no unnamed person is assigned. Cloud provisioning/workloads still need separate authorization. The foundation image remains pinned and excludes S3, SQS, outbox and workers.
 
 ### Task 1a: Freeze proposed async schemas only
 
@@ -74,7 +75,7 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - Existing local API: `POST /api/resume/prepare` currently returns a completed draft; `PUT /api/resume` currently performs synchronous save/embedding and returns `SaveResumeResponse`; `GET /api/resume/operations/{operation_id}` is owner-scoped. These are current contracts to migrate deliberately, not async behavior already present.
-- Proposed contracts to freeze in schema types before route wiring: `POST /api/resume/prepare` returns `202 {task_id, state:"PENDING"}` only after S3 upload plus DB task/outbox commit; proposed owner-scoped `GET /api/resume/tasks/{task_id}` returns `202 {task_id,state:"PENDING"}`, `200 {task_id,state:"SUCCEEDED",draft,unassigned_text,warnings}`, or `200 {task_id,state:"FAILED",failure_code}`. `PUT /api/resume` returns `202 {operation_id,result_revision,changed,embedding_status:"PENDING"}` after approved content/revision/PDF reference plus embedding task/outbox commit; existing owner-scoped `GET /api/resume/operations/{operation_id}` returns its terminal embedding result. These are proposed contracts, not existing async endpoints.
+- Proposed contracts to freeze in schema types before route wiring: `POST /api/resume/prepare` returns `202 {task_id,state:"PENDING"}` only after S3 upload plus DB task/outbox commit; owner-scoped `GET /api/resume/tasks/{task_id}` returns task state and, on extraction success, the reviewable draft. `PUT /api/resume` returns `202 {operation_id,result_revision,changed,save_state:"SUCCEEDED",embedding_status:"PENDING"}` after approved content/revision/PDF reference plus embedding task/outbox commit. Owner-scoped `GET /api/resume/operations/{operation_id}` reports save acceptance only; a separate owner-scoped embedding task status reports `PENDING/READY/FAILED`. These are proposed contracts, not existing async endpoints.
 
 - [ ] **Step 1: Add failing schema tests** for the proposed pending/success/failure shapes, stable operation/task IDs, and transient `unassigned_text`.
 - [ ] **Step 2: Run focused frontend schema checks** and confirm the proposed type assertions fail.
@@ -93,17 +94,17 @@ Follow this order even though the design work can be reviewed together: **Task 1
 - Test: `tests/backend/test_outbox.py` (proposed)
 
 **Interfaces:**
-- Proposed task identity is stable across SQS duplicate deliveries and distinct for each retry attempt. Task rows include owner, kind, current revision where applicable, state, attempt identity/count, timestamps, and safe failure code; never persist PDF text in task/outbox payloads.
+- Proposed task identity is stable across automatic SQS redelivery. Each fresh successful processing claim increments the DB attempt count; duplicate active delivery does not. Only a user-initiated retry creates a new task identity. Task rows include owner, kind, current revision where applicable, state, attempt identity/count, timestamps, and safe failure code; never persist PDF text in task/outbox payloads.
 - `enqueue_task(db, *, owner_id, kind, task_key, revision, payload_ref) -> ProcessingTask` and `claim_outbox_batch(db, *, limit) -> list[OutboxEvent]` are proposed interfaces. Publisher acknowledgement updates a row only after AWS confirms send; failures leave it retryable.
 
 - [ ] **Step 1: Add failing migration/schema tests** for unique task identity, owner FK, bounded states, outbox uniqueness, due/sent timestamps, and revision/task linkage.
 - [ ] **Step 2: Run** `docker compose -f docker-compose.dev.yml --profile test run --rm backend-tests` against its disposable pgvector DB; confirm the new assertions fail.
-- [ ] **Step 3: Add the Alembic migration and task/outbox models** without changing the existing `SaveOperation` idempotency contract except where Task 1b explicitly migrates it.
+- [ ] **Step 3: Add the Alembic migration and task/outbox models**; keep `SaveOperation` as save-acceptance idempotency, terminal `SUCCEEDED` at the approved-content commit, and track embedding state separately on revision/task.
 - [ ] **Step 4: Implement atomic task-plus-outbox creation and claim/ack/fail transitions**; claiming must use a lease or equivalent concurrency-safe claim so two publishers cannot corrupt row state.
 - [ ] **Step 5: Add DB tests** proving task and outbox commit together, rollback together, duplicate task identity is rejected/replayed safely, and unacknowledged publication remains retryable.
 - [ ] **Step 6: Re-run** the backend disposable migration/schema suite and `tests/backend/test_api_integration_disposable.py`.
 
-**Dependency:** Must follow Task 7 and 7b in the required execution order; its schema shape may be reviewed earlier, but no async DB migration is added to the foundation baseline.
+**Dependency:** Local-only and may proceed in parallel with Tasks 6a/7/7b; no async DB migration is added to the foundation baseline image.
 
 ### Task 3: Add private S3 lifecycle and ownership checks
 
@@ -116,13 +117,13 @@ Follow this order even though the design work can be reviewed together: **Task 1
 - Test: `tests/backend/test_storage_s3.py` (proposed)
 
 **Interfaces:**
-- `put_candidate_pdf(owner_id, upload_id, pdf_bytes) -> ObjectRef`, `issue_download_url(owner_id, object_ref, expires_in) -> str`, and `delete_owned_pdf(owner_id, object_ref) -> None` are proposed interfaces. Object keys are generated by the server and are never accepted as proof of ownership.
-- The DB stores candidate and current saved-object references. S3 upload occurs before the task transaction; reconciliation/cleanup handles an object left behind by a failed DB transaction. Explicit save promotes the reference in the same transaction as approved revision/task/outbox state; previous current PDF deletion happens after commit.
+- Cloud adapter proposals: `put_candidate_pdf(owner_id, upload_id, pdf_bytes) -> ObjectRef`, `issue_download_url(owner_id, object_ref, expires_in) -> str`, and `delete_owned_pdf(owner_id, object_ref) -> None`. Local mode uses filesystem storage. Object keys are generated by the server and are never accepted as proof of ownership.
+- The DB stores candidate and latest explicitly saved PDF references with source revision. S3 upload occurs before the task transaction; reconciliation/cleanup handles an object left behind by a failed DB transaction. Explicit save promotes a candidate in the same transaction as approved revision/task/outbox state; delete previous file only after commit and only under the selected PDF retention rule. Manual save has null `upload_id` and no candidate promotion.
 
 - [ ] **Step 1: Add failing storage/API tests** for generated owner-scoped keys, rejected cross-user download/delete, short-lived signed URL configuration, S3-success/DB-failure orphan cleanup, abandoned review preserving the prior PDF, and embedding failure preserving the newly saved PDF.
 - [ ] **Step 2: Run** focused backend tests and confirm the storage/lifecycle assertions fail.
 - [ ] **Step 3: Implement the object adapter and DB references** using injected clients so tests can use a deterministic fake; do not log object URLs, resume bytes, or signed query parameters.
-- [ ] **Step 4: Implement explicit-save promotion and post-commit cleanup**; account/file deletion schedules or performs owned-object removal and leaves auditable safe state on partial failure.
+- [ ] **Step 4: Implement explicit-save promotion and post-commit cleanup**; manual save uses `upload_id: null`, promotes no new PDF, and preserves the account's separately identified latest saved PDF plus its source revision. Label downloads as original uploads and do not imply they match manually edited content. A non-null ID must be owner-checked, unpromoted, current, and match expected profile revision. Implement file deletion; add account deletion as separately tested before claiming availability.
 - [ ] **Step 5: Run** focused ownership, deletion, and failure-path tests; record that cloud S3 behavior remains unverified until an authorized cloud check.
 
 ### Task 4: Move extraction and embedding behind local workers
@@ -140,13 +141,13 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - A local worker consumes persisted task records through a small queue adapter; cloud SQS is an adapter to the same task handler. Extraction calls existing `pipeline.prepare_resume(pdf_bytes, ...)` and persists only a reviewable draft/status. Embedding calls existing `pipeline.embed_resume(content, model)` for the task's revision.
-- `handle_extraction(task_id) -> None` and `handle_embedding(task_id) -> None` are proposed handlers. The worker's final DB commit checks owner, task attempt identity, task state, and current revision after compute; stale results are discarded. Each retry creates a new attempt row for the saved revision and reuses the PDF reference.
+- `handle_extraction(task_id) -> None` and `handle_embedding(task_id) -> None` are proposed handlers. The worker's final DB commit checks owner, task identity/state, and current revision after compute; stale results are discarded. A fresh processing claim increments the DB attempt count; duplicate active claims do not. User retry creates a new task. Extraction reads its candidate PDF; embedding reads approved content only.
 
-- [ ] **Step 1: Add failing tests** for draft-only extraction, explicit-save-only profile creation, duplicate delivery, attempt A completing after revision B, old attempt completing after retry, worker crash recovery, and embedding failure retaining saved content/PDF while matching stays unavailable.
+- [ ] **Step 1: Add failing tests** for draft-only extraction, explicit-save-only profile creation, duplicate active delivery, claim attempt accounting across crash/redelivery, attempt A completing after revision B, old task completing after user retry, worker crash recovery, and embedding failure retaining saved content/PDF while matching stays unavailable.
 - [ ] **Step 2: Run** `python -m pytest tests/pipeline -q -p no:cacheprovider` with the documented cached models and local PostgreSQL setup; confirm the new assertions fail.
 - [ ] **Step 3: Implement local task handling and a Docker Compose worker** with one extraction process and one embedding process maximum; keep API browse requests independent from processing.
 - [ ] **Step 4: Implement state-checked atomic result commits** and distinguish pending, retryable, terminal, and ready states. Do not reset the old failed task on retry.
-- [ ] **Step 5: Add a reconciliation runner** using the Task 1 decision-gated lease/cadence values; it must distinguish unsent outbox rows and active leased work from stuck tasks.
+- [ ] **Step 5: Add reconciliation** using decision-gated lease/cadence values; distinguish unsent outbox rows and active leased work from stuck tasks. `SaveOperation` is already `SUCCEEDED` once approved save commits; embedding remains task/revision state. Expired final claim transitions task to `FAILED` and reconciles any DLQ message.
 - [ ] **Step 6: Run** the complete pipeline suite and backend resume/recovery tests. Defer the full app journey until Tasks 1b, 5, and 8 are complete.
 
 ### Task 5: Implement and verify the transactional outbox publisher locally
@@ -159,7 +160,7 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - `publish_pending_events(batch_size) -> PublishSummary` uses an injected transport. For local Compose the transport may use a durable local broker or direct test adapter, selected and documented without changing the cloud architecture's pending publisher-placement decision.
-- Publish acknowledgement is persisted after broker confirmation. Repeated publish is expected; task handlers provide idempotency.
+- Publish acknowledgement is persisted after broker confirmation. Repeated publish/delivery is expected; duplicate claims do not increment DB attempt count, and task handlers provide idempotency. Cloud publisher placement is the public API host loop.
 
 - [ ] **Step 1: Add failing crash-window tests** for process death after DB commit/before publish, broker success/before sent-mark commit, repeated publish, and concurrent publisher claims.
 - [ ] **Step 2: Run** the focused backend suite and confirm the crash-window tests fail.
@@ -176,12 +177,12 @@ Follow this order even though the design work can be reviewed together: **Task 1
 - Test: `tests/infra/test_template_contract.py` (proposed)
 
 **Interfaces:**
-- Template parameters make region, the pinned existing synchronous API commit/image, public hostname/certificate, OAuth callback, secret reference, and supplied lab role explicit inputs; secret values never enter parameters or user data.
-- Foundation resources are public API/web EC2, private Single-AZ RDS, VPC/network paths, HTTPS ingress, and CloudWatch health/logging. Exclude S3, SQS, outbox publisher, and worker resources. Deploy using `LabRole`/`LabInstanceProfile`; document explicit permission denials.
+- Template parameters make region, the pinned existing synchronous API commit/image, public hostname/certificate, Google Authorized JavaScript origin (`APP_ORIGIN`), secret reference, and supplied lab role explicit inputs; secret values never enter parameters or user data.
+- Foundation resources are public API/web EC2, private Single-AZ RDS, VPC/network paths, TLS ingress, and CloudWatch health/logging. HTTP-01 requires port 80 for certificate challenge/redirect; DNS-01 via DuckDNS TXT is an alternative. Exclude S3, SQS, outbox publisher, and worker resources. Deploy using `LabRole`/`LabInstanceProfile`; document explicit permission denials.
 - RDS bootstrap uses its administrative credential only to enable `vector` and create separate `app_migrator` and `app_runtime` roles. The migration credential is used only by an explicit migration step; API runtime receives a secret reference for the restricted role, which has no DDL or superuser capability. The API must not run Alembic automatically at container startup. No logs contain resume content or credentials.
 
-- [ ] **Step 1: Add template contract checks** for foundation-only resources, HTTPS-only public ingress, private RDS, pinned image/commit input, supplied role reference, and absence of S3/SQS/worker/outbox resources or custom IAM users/roles/groups.
-- [ ] **Step 2: Review lab limits and close foundation hostname/TLS/OAuth/secrets/temporary API size gates** before setting defaults.
+- [ ] **Step 1: Add template contract checks** for foundation-only resources, selected TLS challenge ingress, private RDS, pinned image/commit input, supplied role reference, and absence of S3/SQS/worker/outbox resources or custom IAM users/roles/groups.
+- [ ] **Step 2: Review lab limits and close hostname/TLS challenge/`APP_ORIGIN`/secrets/temporary API size gates** before setting defaults.
 - [ ] **Step 3: Write the foundation template and API bootstrap** using the pinned existing synchronous image/commit. Override the image's current Alembic startup command so the API runs only with `app_runtime`; run the same pinned image once as an explicit migration command using `app_migrator`. Do not change application routes or add async resources here.
 - [ ] **Step 4: Validate** with template contract tests and `aws cloudformation validate-template --template-body file://src/infra/cloudformation/main.yaml` when AWS CLI is available, without creating a stack.
 
@@ -212,7 +213,7 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - Cloud API/web deployment initially runs the existing synchronous API against private RDS; it does not claim async job support until Tasks 2–5 are implemented and verified locally. This API still loads ML processing in-process, so its temporary instance size is separately measured/verified and no 50-item workload is run on this intermediate setup.
-- Foundation evidence records exact resource configuration, PostgreSQL minor and pgvector version, migration/vector-query result, HTTPS/auth callback, security-group paths, supplied role permissions, health checks, and whether the environment is retained or disposed.
+- Foundation evidence records exact resource configuration, PostgreSQL minor and pgvector version, migration/vector-query result, HTTPS and real Google JavaScript-origin sign-in, security-group paths, supplied role permissions, health checks, and whether the environment is retained or disposed.
 
 - [ ] **Step 1: Require a separate human authorization** after the exact foundation-only CloudFormation change set, pinned API commit/image, resource inventory, expected lab/cost impact, evidence plan, and teardown choice are reviewable. This plan alone grants no deployment authority.
 - [ ] **Step 2: After authorization, provision the foundation network, RDS, and API host** with the pinned synchronous API image, leaving the API process stopped until database bootstrap and migration finish.
@@ -239,6 +240,14 @@ Follow this order even though the design work can be reviewed together: **Task 1
 - [ ] **Step 3: Restore into an isolated target**, run migrations only if the restore requires a forward migration, and verify health plus the foundation's synchronous synthetic `login → browse → upload → review → save → recommendations → reload` journey; do not claim async recovery at this stage.
 - [ ] **Step 4: Measure recovery time and recoverable-point gap**, compare them with the chosen RPO/RTO, retain evidence, and delete only the explicitly identified disposable restore target after evidence is secured.
 
+### Task 7c: Complete compulsory evidence on the synchronous foundation
+
+**Files:** `evidence/test-functional.md`, `evidence/test-security.md`, `evidence/test-resilience.md`, `evidence/monitoring.md`, plus `evidence/test-data-ai.md` where a new run is performed.
+
+- [ ] Complete the four required assessment records and monitoring immediately after Tasks 7/7b, before Task 6b. Functional: synthetic login-to-reload journey. Security: named threats (cross-user access and CSRF), two-user isolation, bad/missing CSRF checks, private DB reachability and runtime-role DDL denial. Resilience: isolated RDS restore and/or processing-child kill/respawn/container restart with observed recovery. Monitoring: CloudWatch query plus `/health/ready` alarm fire/clear and interpretation.
+- [ ] Record date, owner, setup, commands, expected/actual outcomes, artefact paths, failures and limitations. An honest failed result is evidence; never mark an unrun record complete.
+- [ ] Continue working toward the complete submission package after this gate. Four records do not by themselves make the project submission-ready.
+
 ### Task 8: Integrate frontend async states and the real local user journey
 
 **Files:**
@@ -251,11 +260,12 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - The client uses the frozen Task 1a contracts. Pending extraction keeps the draft absent until completion; pending embedding preserves the saved profile and provides truthful status. Polling is bounded by the decision-gated interval/deadline and can resume after reload from the authenticated task/operation status.
-- Failed or unknown outcome never displays “not saved” until status confirms failure; user drafts remain editable, and a retry creates a new task attempt without reuploading the saved PDF.
+- Failed or unknown outcome never displays “not saved” until status confirms failure; user drafts remain editable. A user-initiated extraction retry creates a new task using the existing candidate PDF. An embedding retry creates a new task from saved approved content and does not need a PDF.
 
 - [ ] **Step 1: Add failing UI/API tests** for pending extraction, extraction failure/retry, pending embedding, failed embedding with saved content retained, reload/reconnect recovery, and owner-scoped task rejection.
 - [ ] **Step 2: Run** `cd src/frontend && npm run typecheck && npm test`; confirm the new behavior assertions fail before the hook/component changes.
 - [ ] **Step 3: Implement pending/ready/failed UI states** without changing the explicit human review/save boundary.
+- [ ] **Step 3a: In the same rollout as saved-PDF retention, update `ResumeUploadPanel` copy and acceptance criteria to state that the latest explicitly saved original PDF is retained for owner-only download. Distinguish this proposed cloud behavior from current local behavior in the PRD; do not claim it is implemented until storage/download/deletion tests pass.**
 - [ ] **Step 4: Run** frontend typecheck/tests/build. The full localhost journey waits for Task 1b and Task 5 so it includes API wiring and outbox dispatch; use the real API and local worker, not `tests/load/harness_app.py`.
 - [ ] **Step 5: Update** `tests/frontend/README.md` with reproducible test commands and synthetic fixtures, replacing its stale “not implemented” status.
 - [ ] **Step 6: Run the full local journey** `login → browse → upload → review → save → recommendations → reload` against the real API, local worker, and outbox dispatcher using synthetic data. Do not use `tests/load/harness_app.py` as application evidence.
@@ -270,7 +280,7 @@ Follow this order even though the design work can be reviewed together: **Task 1
 **Interfaces:**
 - Implement only the Task 1a proposed routes and JSON fields, backed by Tasks 2–5. Preserve authentication, CSRF, idempotency, revision conflict, and owner checks. Keep the foundation image pinned until this code and the async local path pass.
 
-- [ ] **Step 1: Add failing route tests** for accepted upload after S3 plus DB transaction, owner-scoped task status, accepted save plus durable outbox, and operation status through terminal embedding state.
+- [ ] **Step 1: Add failing route tests** for accepted upload after storage plus DB transaction, owner-scoped task status, accepted save plus durable outbox, SaveOperation reporting save acceptance, and separate owner-scoped embedding task status through READY/FAILED.
 - [ ] **Step 2: Run** focused backend tests and confirm they fail against the synchronous baseline.
 - [ ] **Step 3: Wire routes to storage, task/outbox creation, and status reads**; return accepted only after required durable writes commit.
 - [ ] **Step 4: Run** backend API tests and frontend API-client tests; verify repeated IDs replay safely and no work-status endpoint leaks another user's task.
@@ -313,17 +323,32 @@ Follow this order even though the design work can be reviewed together: **Task 1
 
 **Interfaces:**
 - Extend the runner to target the actual deployed API and authenticated synthetic sessions. Do not report `harness_app.py` measurements as project API or cloud results.
-- Report two independent runs: 50 uploads and 50 explicit saves, using the existing synthetic PDF fixture set; state repeated-fixture distribution and exact file sizes. Do not invent a PDF size limit or claim 50 concurrent users unless that is the actual configured schedule.
+- Before workload runs, add representative and near-limit profiles to `tests/fixtures/generate_pdf_fixtures.py` and generate `resume-representative-200kb-2page.pdf` plus `resume-near-limit-5mib-10page.pdf`. These target fixtures do not exist yet: current checked-in fixtures top out at 20,322 bytes. Record generated byte/page counts and synthetic provenance; no measurements are claimed.
+- Report two independent runs: 50 uploads and 50 explicit saves using the newly generated fixtures; state repeated-fixture distribution, exact file sizes, and predeclared arrival schedule. Measure single-item service time first. Do not claim 50 concurrent users unless that is the actual configured schedule.
 - Report browse p95 during processing; each upload acceptance latency after transfer; extraction p95 from accepted upload; embedding-ready p95 from accepted save; failures and retry counts; tail values; cold/warm host; CPU/memory/credit observations; and test environment/version/date/artifact paths.
 
 - [ ] **Step 1: Add load-runner assertions** that fail if the API target is missing, responses cannot be correlated to task IDs, or terminal failures are dropped from totals.
 - [ ] **Step 2: Run** current local runner smoke checks with synthetic sessions; verify the runner distinguishes acceptance latency from extraction completion and does not silently retry away failures.
-- [ ] **Step 3: After worker cloud verification and separate human authorization for workload generation, run** the 50-upload and 50-save workloads as separate experiments with safe rate/concurrency recorded in advance.
+- [ ] **Step 3: After worker cloud verification and separate human authorization for workload generation, run** the 50-upload and 50-save workloads as separate experiments with safe rate/concurrency recorded in advance. Include cold model-cache measurement and verify required API imports do not pull torch into the API; report measured memory rather than calling the path fast/light.
 - [ ] **Step 4: Compare each metric with its target**, list failures and tail latencies, and preserve raw redacted summaries; mark targets not met as failures with diagnosis rather than rewriting them as passes.
-- [ ] **Step 5: Run the four required assessment records** (functional, security, data/AI, resilience/recovery) and a monitoring query/health check. Record each required field from `docs/REQUIREMENTS_CHECKLIST.md`.
-- [ ] **Step 6: Align the editable diagram, README, `src/infra/README.md`, checklist, manifest, report, and packaged export** with implemented names and evidence. `evidence/architecture.svg` is an existing candidate path; verify package inclusion and do not include the obsolete `cloud-architecture-draft.png` as canonical.
-- [ ] **Step 7: Complete `AI_USE_DECLARATION.md`** with tools, locations, sources/baselines, verification, licences, and attribution; leave the manifest's deployed/test status false unless corresponding evidence exists.
-- [ ] **Step 8: Complete clean-package path checks** for the manifest and final evidence only after actual results exist; capture the upload receipt as a separate user action.
+- [ ] **Step 5: Refresh any changed assessment records** and monitoring after async rollout; foundational versions are due at Task 7c. Record each required field from `docs/REQUIREMENTS_CHECKLIST.md`.
+- [ ] **Step 6: Align the editable diagram, README, `src/infra/README.md`, checklist, and manifest** with implemented names and evidence. Do not present proposed async components or unrun workloads as implemented.
+- [ ] **Step 7: Refresh `AI_USE_DECLARATION.md` with actual tools, locations, sources/baselines, verification, licences, and attribution** for completed work; do not infer individual human contributions from AI changes.
+
+### Final package task independent of optional async rollout
+
+This task follows Task 7c and runs even if the suggested 2026-10-04 async go/no-go is “no-go”. The team may defer S3/SQS/workers and the 50-item cloud workloads; document them as proposed/unrun. This does not imply those features are implemented or claim the full project is complete before required deliverables pass.
+
+- [ ] Complete the 8–12 page report with the brief's eight exact headings, one verified row per member in `TEAM_CONTRIBUTIONS.md`, and a dated cost estimate using checked prices. State expected costs and teardown choices without copying unchecked fixed prices.
+- [ ] Review `AI_USE_DECLARATION.md` against completed work and include actual tools, sources, verification, licences, and attribution; keep unrun cloud work and AI-drafted labels explicitly provisional.
+- [ ] Set explicit CloudFormation `DeletionPolicy` for RDS, including whether a snapshot is retained; document S3 object/version cleanup and ECR image removal. Any teardown requires separate authorization after evidence capture. Inventory retained snapshots, S3 objects/versions/bucket, ECR images, NAT gateways, and public IPv4; export post-teardown inventory as text.
+- [ ] Verify ZIP paths and manifest from a clean checkout. Have a teammate who did not create the artefact follow the README; record failures and fixes. Capture the upload receipt as a separate user action.
+
+### Parallel work from day one
+
+- [ ] M5: Human-label or adjudicate a declared subset without seeing AI labels first. Record selection, rubric, provenance, disagreement and limitations; do not relabel the remaining dataset as human ground truth.
+- [ ] M6: Implement request-ID middleware, return the server-generated ID in a response header, and include it in sanitized request logs; test that one request can be traced without logging sensitive values.
+- [ ] M7: Implement account deletion with DB cascade, owned S3 prefix deletion, and in-flight task handling; until tested, describe this as planned and make no current capability claim.
 
 ## Verification Commands
 

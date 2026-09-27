@@ -3,7 +3,9 @@
 Corrected rerun addressing the review findings on the v1 journey benchmark. The **v1 run is preserved
 unchanged** (`evidence/baseline-2026-09-25-journey.{md,json}` and `…-journey/`) as historical evidence;
 this v2 work lives in `evidence/baseline-2026-09-25-journey-v2/` with per-run raw data under
-`runs/<RUN_ID>/`. Nothing was committed. Application code/config/infrastructure were not changed.
+`runs/<RUN_ID>/`. As recorded for the 2026-09-25 run at HEAD `0e8067a`, nothing from that benchmark
+was committed and application code/config/infrastructure were not changed. This dated statement does
+not describe later repository commits.
 
 Target: the real app at `http://localhost:8080` (nginx proxy → FastAPI api, **single worker + single
 processing slot** → PostgreSQL 16 + pgvector → spawned embedding child). Git HEAD `0e8067a` (dev);

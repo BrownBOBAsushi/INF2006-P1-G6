@@ -1,6 +1,6 @@
 # Internship Matcher — MVP PRD
 
-Status: implementation handoff, 2026-09-11. Design specification, not a claim of implemented or tested software.
+Status: implementation handoff, 2026-09-11. Product scope for the current local MVP; cloud storage and original-PDF download are proposed changes, not current behavior. The proposed cloud architecture retains the latest explicitly saved PDF for owner-only download. If implemented, revise P05, the `ResumeUploadPanel` copy, privacy notice, and deletion acceptance in the same rollout; cloud coursework data remains synthetic only.
 
 ## Read first
 

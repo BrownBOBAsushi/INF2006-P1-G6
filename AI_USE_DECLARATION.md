@@ -2,12 +2,39 @@
 
 Status: living declaration, not final submission.
 
+## Architecture review and documentation revision — 2026-09-26
+
+Claude (Anthropic) produced `INF2006_architecture_review.md`, an independent
+review of the project brief, repository evidence, and cloud plan. Codex used it
+as untrusted review input, checked the code findings, and revised
+`docs/CLOUD_ARCHITECTURE.md`, `docs/diagrams/cloud-architecture.md`,
+`docs/superpowers/plans/2026-09-26-cloud-deployment.md`, README/manifest and
+historical-status notes, and this declaration. Finding dispositions are in
+`docs/ARCHITECTURE_REVIEW_RESPONSE.md`. The review and this revision changed
+documentation only; neither implemented application code nor created cloud
+resources. These changes await independent review and cloud verification.
+Synthetic data only is used for coursework cloud evidence.
+
 | Tool | Use so far | Verification / limitation |
 |---|---|---|
 | OpenAI Codex | Assisted architecture discussion, source research, PRD/API/schema handoff, backend API integration and hardening review, synthetic PDF fixture restoration/regression-test assistance and repository scaffold; on 2026-09-22 implemented the approved frontend/runtime integration in `src/frontend/**`, Dockerfiles, Compose/proxy configuration and local runbook, then added explicit logout CSRF recovery and disposable test wiring | Frontend typecheck, 198 frontend tests and production build passed with the test/build harness using `envDir:false`; four HTTP loopback tests were excluded because listenEPERM blocked their local listener. Compose config parsing passed. Focused backend checks recorded 30 passed and 3 skipped; 40 PDF fixture/extraction checks passed under an alternate cached runtime, not the pinned production environment. Docker/model download, full disposable PostgreSQL/ML runtime, real Google login, browser end-to-end and load acceptance remain pending. |
 | Claude (Anthropic, Claude Code) | 2026-09-20: wrote `analytics/evaluate.py`, its unit tests, the 30 synthetic jobs, 10 synthetic profiles and the **draft** relevance labels/criteria under `data/evaluation/`, ran the evaluation, generated the synthetic resume PDFs (`tests/fixtures/`), and on 2026-09-21 implemented `src/backend/app/{processing,matching,catalogue}` (PDF extraction, privacy, chunking, embeddings, catalogue import, requirement-level matching, skill gaps, explanations), one migration, `tests/pipeline`, and `tests/load/run.py`; on 2026-09-21 also the isolated processing child and slot (`app/processing/slot.py`, `worker.py`), an HTTP reference harness and the API-level load script (`tests/load/harness_app.py`, `api_load.py`) and the integration guide for Jiaxin, on request of Chuying | Labels are AI-drafted and **not yet human-reviewed** (see `data/evaluation/LABELLING_CRITERIA.md`); results are provisional. Code checked by unit/integration tests (see `tests/pipeline/README.md`, run against the real pinned model, Presidio and a real PostgreSQL) and by running the harness (`evidence/data-ai-eval-2026-09-20.md`); labels were written before any model output existed (git history). |
 
 Implementation agents and other tools must be added as used. Do not claim Claude/ChatGPT extracted a dataset until the team actually does it. Record prompt/task scope, changed files, human checks and actual tests.
+
+## Synchronous cloud-foundation preparation — 2026-09-27
+
+OpenAI Codex prepared the synchronous AWS foundation templates, image/bootstrap
+scripts, cloud-only proxy configuration, contract checks, and deployment/evidence
+runbooks under `src/infra/`, `tests/infra/`, and
+`evidence/cloud-foundation-preparation-2026-09-27.md`. This work adds no
+application routes or schema; it also includes the minimal Alembic URL
+interpolation helper and Dockerfile base-image/provenance support. A later user-operated temporary deployment and scoped checks, followed by user-reported teardown, are recorded in `evidence/cloud-foundation-run-2026-09-27.md`. Docker-based image
+builds and runtime checks could not run because access to the local Docker
+socket was denied. CloudShell read-only checks and CloudFormation template
+validation are listed with their exact limits in the evidence record. The cold
+memory requirement, DNS, HTTPS, Google login, backup/restore, and real
+end-to-end cloud journey remain unverified.
 
 ## Label provenance (added 2026-09-22; written by Chuying, awaiting review by Zhihao)
 

@@ -21,18 +21,20 @@ Jiaxin and Chuying: backend. Xue E and Nasya: frontend. Zhihao: moderation, desi
 
 Implemented local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM and Docker Compose. Use [the local integration runbook](docs/LOCAL_INTEGRATION.md) for startup, synthetic import and honest acceptance gates.
 
-![Planned architecture — not deployed](evidence/architecture.svg)
+![Existing local architecture baseline — not the proposed cloud deployment](evidence/architecture.svg)
+
+The SVG is the existing local Compose design and is retained as the local baseline. The proposed split AWS target, with status and trust boundaries, is in the [editable cloud architecture](docs/diagrams/cloud-architecture.md) and [architecture decisions](docs/CLOUD_ARCHITECTURE.md); that target has not been deployed. A temporary synchronous foundation was deployed and scoped checks were reported by the user, then its teardown was reported by the user; see the [dated run record](evidence/cloud-foundation-run-2026-09-27.md). The [preparation record](evidence/cloud-foundation-preparation-2026-09-27.md) documents infrastructure checks, including a current run of 46 tests and CloudFormation template validation. Overall application acceptance remains incomplete.
 
 ## Submission scaffold
 
 | Path | Current status |
 |---|---|
 | project_manifest.yaml | Required keys present; official group ID/student IDs and actual results pending |
-| src/ | Backend/frontend/infra boundaries and placeholder .env.example |
+| src/ | Implemented local backend/frontend, infrastructure planning, and placeholder .env.example |
 | data/ | Provenance instructions and data dictionary; dataset pending |
-| analytics/ | Evaluation instructions; implementation pending |
-| evidence/ | Planned figure and explicitly NOT RUN test templates |
-| tests/ | Backend/frontend/fixtures/load boundaries; tests pending |
+| analytics/ | Synthetic MiniLM evaluation implementation exists; label provenance and assessment evidence remain provisional |
+| evidence/ | Local baselines, scoped user-reported cloud partial passes, provisional data/AI results, remaining open acceptance work, and foundation validation records |
+| tests/ | Backend/frontend/fixture/load suites exist; run status is recorded per evidence artifact |
 | TEAM_CONTRIBUTIONS.md | Planned roles, no fabricated completed contributions |
 | AI_USE_DECLARATION.md | Documentation assistance declared; update during implementation |
 | report.pdf | Not yet produced; working outline at docs/REPORT_DRAFT.md |
