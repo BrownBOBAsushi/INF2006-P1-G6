@@ -143,7 +143,8 @@ _STOP_RX = re.compile(
     r"|what you can expect|what makes this .*|why .*|about .*|our (?:commitment|culture|mission)|equal opportunity.*"
     r"|security advisory.*|how .* works|data privacy notice|the role|role summary|deine aufgaben|das erwartet dich"
     r"|was wir dir bieten|deine vorteile|unsere benefits|gleiche chancen.*|chancengleichheit.*"
-    r"|(?:potential )?research directions?|project scope|academic supervision|.*\bsupervision\b.*)\s*[:\-–]?\s*$", re.I)
+    r"|(?:potential )?research directions?|project scope|academic supervision|.*\bsupervision\b.*"
+    r"|engagement details|contract details|freelance details|compensation details|how to apply)\s*[:\-–]?\s*$", re.I)
 # Phrases that end a requirements section wherever they appear in a line (closing pitches, perks, legal
 # boilerplate, footers, CTAs) -- searched across the whole line, not just a short heading-like prefix, because
 # these often show up mid-sentence or at the end of an otherwise ordinary-looking line.
@@ -156,7 +157,9 @@ _STOP_LINE_RX = re.compile(
     r"|you want to be part of our|are you a team ?player looking for|follow us on (?:instagram|linkedin|twitter|facebook|x)\b"
     r"|(?:look|glimpse) behind the scenes|requirements are not listed in order"
     r"|apply now|let'?s talk|get in touch|reach out to|\bworkation\b|vacation days?\b|home office days?\b"
-    r"|company pension|childcare allowance|wellpass|corporate benefits|kununu\s*score", re.I)
+    r"|company pension|childcare allowance|wellpass|corporate benefits|kununu\s*score"
+    r"|to apply,? (?:please )?email|please mention the word|please include the word"
+    r"|\brate:\s*\$|\$\d+[\u2013\u2014-]\$?\d+\s*/\s*hour", re.I)
 # Encouragement/reassurance lines that sit *inside* a requirements section, mixed in with
 # real requirements (unlike _STOP_LINE_RX above, these do NOT end the section -- a genuine
 # requirement often follows immediately after one, e.g. "...if this sounds like you, apply!
@@ -374,6 +377,25 @@ _COUNTRY_HINTS = {
 }
 
 
+def build_keyword_regex(keywords: Iterable[str]) -> re.Pattern:
+    """One whole-word, case-insensitive regex matching ANY of several keywords, e.g.
+    ["intern", "apprenticeship", "fellowship"] -> matches "Intern", "Internship", "Apprenticeships",
+    "Fellowship", etc., but not "International". Each term gets an optional trailing "s" (plural);
+    a term that doesn't already end in "-ship" also gets an optional "ship"/"ships" suffix, since
+    that turns "intern" into "internship" and "trainee" into "traineeship" for free -- you don't
+    need to type both forms.
+    """
+    alts = []
+    for kw in keywords:
+        kw = kw.strip()
+        if not kw:
+            continue
+        esc = re.escape(kw)
+        alts.append(esc if kw.lower().endswith("ship") else esc + r"(?:ship)?")
+    pattern = r"(?<![A-Za-z])(?:" + "|".join(alts) + r")s?(?![A-Za-z])"
+    return re.compile(pattern, re.I)
+
+
 def guess_country_code(location: str) -> str:
     low = (location or "").lower()
     found = {code for needle, code in _COUNTRY_HINTS.items()
@@ -400,24 +422,57 @@ def _iso_or_none(v) -> str | None:
     return (d if d.tzinfo else d.replace(tzinfo=timezone.utc)).isoformat()
 
 
-def fetch_arbeitnow(pages: int, keyword: str | None, session: requests.Session) -> list[dict]:
+def get_with_backoff(session: requests.Session, url: str, params: dict | None = None,
+                      timeout: float = 20.0, max_retries: int = 3) -> requests.Response | None:
+    """GET with retry-on-rate-limit, for the multi-page fetchers below. On a 429 (or 5xx), sleep
+    and retry rather than raising -- a paginated fetch (--pages 999) can easily trip a free
+    public API's rate limit partway through, and the old behaviour (an uncaught
+    HTTPError from raise_for_status) crashed the whole run and threw away every page already
+    collected. Returns None if still failing after max_retries, so the caller can stop paginating
+    and keep what it already has instead of losing the whole batch.
+    """
+    delay = 2.0
+    for attempt in range(max_retries + 1):
+        try:
+            resp = session.get(url, params=params, timeout=timeout)
+        except requests.exceptions.RequestException as e:
+            print(f"  request failed ({type(e).__name__}); stopping pagination here.", file=sys.stderr)
+            return None
+        if resp.status_code == 429 or resp.status_code >= 500:
+            if attempt == max_retries:
+                print(f"  still {resp.status_code} after {max_retries} retries; "
+                      f"stopping pagination here, keeping what was already fetched.", file=sys.stderr)
+                return None
+            wait = float(resp.headers.get("Retry-After", delay))
+            print(f"  got {resp.status_code} from {url.split('?')[0]}, "
+                  f"waiting {wait:.0f}s before retry {attempt + 1}/{max_retries}...", file=sys.stderr)
+            time.sleep(wait)
+            delay *= 2
+            continue
+        resp.raise_for_status()   # any other 4xx is a real error, not something to retry past
+        return resp
+    return None
+
+
+def fetch_arbeitnow(pages: int, keyword: list[str] | None, session: requests.Session) -> list[dict]:
     listings: list[dict] = []
     url = ARBEITNOW_BASE
     for page_num in range(1, pages + 1):
         params = {"page": page_num}
-        resp = session.get(url, params=params, timeout=20)
-        resp.raise_for_status()
+        resp = get_with_backoff(session, url, params)
+        if resp is None:
+            break
         payload = resp.json()
         page_items = payload.get("data", [])
         if not page_items:
             break
         listings.extend(page_items)
         # be polite; this is a shared free public API
-        time.sleep(0.5)
+        time.sleep(1.0)
     if keyword:
         # whole-word match, allowing plural/"-ship": "intern" hits "Intern" and
         # "Internship" but NOT "International"
-        rx = re.compile(r"(?<![A-Za-z])" + re.escape(keyword) + r"(?:s|ship|ships)?(?![A-Za-z])", re.I)
+        rx = build_keyword_regex(keyword)
         listings = [
             j for j in listings
             if rx.search(" ".join([j.get("title") or "", " ".join(j.get("tags") or []),
@@ -560,8 +615,9 @@ def fetch_ai_jobs_co(pages: int, keyword: str | None, session: requests.Session)
         params: dict[str, Any] = {"limit": AI_JOBS_CO_PAGE_SIZE, "offset": offset}
         if keyword:
             params["q"] = keyword
-        resp = session.get(AI_JOBS_CO_BASE, params=params, timeout=20)
-        resp.raise_for_status()
+        resp = get_with_backoff(session, AI_JOBS_CO_BASE, params)
+        if resp is None:
+            break
         payload = resp.json()
         batch = payload.get("jobs", [])
         if not batch:
@@ -570,7 +626,7 @@ def fetch_ai_jobs_co(pages: int, keyword: str | None, session: requests.Session)
         offset += len(batch)
         if len(batch) < AI_JOBS_CO_PAGE_SIZE:
             break
-        time.sleep(0.5)
+        time.sleep(1.0)
     return listings
 
 
@@ -679,13 +735,14 @@ def fetch_ai_dev_jobs(pages: int, keyword: str | None, session: requests.Session
             params["q"] = keyword
         if location:
             params["location"] = location
-        resp = session.get(AI_DEV_JOBS_BASE, params=params, timeout=20)
-        resp.raise_for_status()
+        resp = get_with_backoff(session, AI_DEV_JOBS_BASE, params)
+        if resp is None:
+            break
         payload = resp.json()
         listings.extend(payload.get("jobs") or [])
         if not payload.get("has_next"):
             break
-        time.sleep(0.5)
+        time.sleep(1.0)
     return listings
 
 
@@ -755,7 +812,7 @@ def transform_ai_dev_jobs(raw: dict, fetch_time: datetime) -> dict | None:
 REMOTEOK_BASE = "https://remoteok.com/api"
 
 
-def fetch_remoteok(pages: int, keyword: str | None, session: requests.Session) -> list[dict]:
+def fetch_remoteok(pages: int, keyword: list[str] | None, session: requests.Session) -> list[dict]:
     if pages > 1:
         print("remoteok returns one fixed snapshot; ignoring --pages beyond 1.", file=sys.stderr)
     resp = session.get(REMOTEOK_BASE, timeout=20)
@@ -764,10 +821,10 @@ def fetch_remoteok(pages: int, keyword: str | None, session: requests.Session) -
     listings = [j for j in payload if isinstance(j, dict) and "legal" not in j]   # [0] is a legal/metadata row
     print(f"remoteok: API returned {len(listings)} listings before keyword filter.", file=sys.stderr)
     if keyword:
-        rx = re.compile(r"(?<![A-Za-z])" + re.escape(keyword) + r"(?:s|ship|ships)?(?![A-Za-z])", re.I)
-        listings = [j for j in listings
-                    if rx.search(" ".join([j.get("position") or j.get("title") or "",
-                                            " ".join(str(t) for t in j.get("tags") or [])]))]
+        rx = build_keyword_regex(keyword)
+        # Title only, not tags: RemoteOK's tags are loosely applied (e.g. a "Freelance Creative
+        # Director" post tagged "junior") and matching them hurt precision more than it helped recall.
+        listings = [j for j in listings if rx.search(j.get("position") or j.get("title") or "")]
         print(f"remoteok: {len(listings)} left after --keyword {keyword!r}.", file=sys.stderr)
     return listings
 
@@ -832,18 +889,19 @@ def transform_remoteok(raw: dict, fetch_time: datetime, allow_non_english: bool 
 REMOTIVE_BASE = "https://remotive.com/api/remote-jobs"
 
 
-def fetch_remotive(pages: int, keyword: str | None, session: requests.Session) -> list[dict]:
+def fetch_remotive(pages: int, keyword: list[str] | None, session: requests.Session) -> list[dict]:
     if pages > 1:
         print("remotive returns one snapshot per call; ignoring --pages beyond 1.", file=sys.stderr)
-    params = {"limit": 500}
-    if keyword:
-        params["search"] = keyword     # Remotive's server-side filters are unreliable; --keyword still re-filters below
-    resp = session.get(REMOTIVE_BASE, params=params, timeout=20)
+    # Do NOT pass `keyword` as Remotive's own `search` param: that filters server-side *before*
+    # our own regex filter below ever runs, so a narrow/fuzzy server-side match can shrink the
+    # pool to near-nothing and hide listings that our own filter would have kept. Always fetch
+    # the full snapshot and filter client-side only.
+    resp = session.get(REMOTIVE_BASE, params={"limit": 500}, timeout=20)
     resp.raise_for_status()
     listings = resp.json().get("jobs") or []
     print(f"remotive: API returned {len(listings)} listings before keyword filter.", file=sys.stderr)
     if keyword:
-        rx = re.compile(r"(?<![A-Za-z])" + re.escape(keyword) + r"(?:s|ship|ships)?(?![A-Za-z])", re.I)
+        rx = build_keyword_regex(keyword)
         listings = [j for j in listings
                     if rx.search(" ".join([j.get("title") or "", j.get("category") or "",
                                             " ".join(str(t) for t in j.get("tags") or [])]))]
@@ -906,9 +964,54 @@ ADAPTERS = {
 # CLI
 # --------------------------------------------------------------------------
 
+def verify_url(url: str, session: requests.Session, timeout: float = 8.0) -> tuple[str, str]:
+    """Check that a job's own URL actually resolves. HEAD first (cheap); some servers reject HEAD
+    (405), so a GET is tried as a fallback.
+
+    Returns (status, reason):
+      "ok"           -- resolved fine.
+      "dead"         -- conclusively gone: 404/410, or the domain itself doesn't resolve.
+      "inconclusive" -- everything else (403, 429, 5xx, timeout, generic connection error). Many
+                        job boards sit behind bot-protection that blocks a script's request with a
+                        403 even though the same URL works fine in a real browser, so these are
+                        NOT treated as dead -- the caller keeps the job and just records the
+                        reason for a human to spot-check, rather than silently discarding a
+                        perfectly live listing.
+    `reason` is a short label (e.g. 'status_404', 'status_403', 'timeout'), never a raw exception
+    message, which can embed the URL/headers and isn't useful to store.
+    """
+    for method in ("head", "get"):
+        try:
+            resp = getattr(session, method)(url, timeout=timeout, allow_redirects=True,
+                                             stream=(method == "get"))
+            if method == "get":
+                resp.close()   # don't download the body, just confirm the status
+            if resp.status_code < 400:
+                return "ok", ""
+            if resp.status_code == 405 and method == "head":
+                continue        # method not allowed on HEAD -- retry with GET
+            if resp.status_code in (404, 410):
+                return "dead", f"status_{resp.status_code}"
+            return "inconclusive", f"status_{resp.status_code}"
+        except requests.exceptions.SSLError:
+            return "inconclusive", "ssl_error"
+        except requests.exceptions.ConnectionError as e:
+            # A genuine DNS failure (domain doesn't exist) is conclusive; anything else
+            # (refused connection, reset, proxy hiccup) is not.
+            if "Name or service not known" in str(e) or "NameResolutionError" in str(e):
+                return "dead", "dns_not_found"
+            return "inconclusive", "connection_error"
+        except requests.exceptions.Timeout:
+            return "inconclusive", "timeout"
+        except requests.exceptions.RequestException:
+            return "inconclusive", "request_error"
+    return "inconclusive", "method_not_allowed"
+
+
 def build_batch(source: str, pages: int, keyword: str | None, *,
                  enrich: bool = False, enrich_limit: int = 25,
-                 allow_non_english: bool = False, location: str | None = None) -> tuple[list[dict], int]:
+                 allow_non_english: bool = False, location: str | None = None,
+                 verify_urls: bool = False, verify_delay: float = 0.3) -> tuple[list[dict], int]:
     fetch_fn, transform_fn = ADAPTERS[source]
     session = requests.Session()
     session.headers["User-Agent"] = "INF2006-P1-G6 catalogue-fetcher/1.0 (student project)"
@@ -936,6 +1039,25 @@ def build_batch(source: str, pages: int, keyword: str | None, *,
             skipped += 1
             SKIPS["duplicate_id"] += 1
             continue
+        if verify_urls:
+            # apply_url and source_url are usually the same URL for these providers; check each
+            # distinct one once rather than twice.
+            urls = {job["apply_url"], job["source_url"]}
+            dead_reason = None
+            for u in urls:
+                status, reason = verify_url(u, session)
+                if status == "dead":
+                    dead_reason = reason
+                    break
+                if status == "inconclusive":
+                    # Not dropped -- see verify_url's docstring. Recorded so a human can
+                    # spot-check it, e.g. many Arbeitnow pages 403 a script but work in a browser.
+                    SKIPS[f"url_unverified_{reason}"] += 1
+                time.sleep(verify_delay)   # be polite to the job's own server, not just the API
+            if dead_reason:
+                skipped += 1
+                SKIPS[f"dead_url_{dead_reason}"] += 1
+                continue
         seen_ids.add(job["source_job_id"])
         jobs.append(job)
     return jobs, skipped
@@ -962,13 +1084,14 @@ PROVIDER_NOTES = {
 
 
 def write_provenance(provenance_path: Path, batch_path: Path, source: str, pages: int,
-                      keyword: str | None, job_count: int, fetch_time: datetime) -> None:
+                      keyword: str | None, job_count: int, fetch_time: datetime,
+                      verify_urls: bool = False) -> None:
     sidecar = {
         "batch_file": batch_path.name,
         "source_name": source.upper(),
         "provider": PROVIDER_NOTES.get(source, source),
         "collection_method": f"live API fetch via fetch_live_jobs.py (--source {source})",
-        "collection_params": {"pages": pages, "keyword": keyword},
+        "collection_params": {"pages": pages, "keyword": keyword, "verify_urls": verify_urls},
         "collected_at": fetch_time.isoformat(),
         "job_count": job_count,
         "transformations": [
@@ -980,7 +1103,10 @@ def write_provenance(provenance_path: Path, batch_path: Path, source: str, pages
             "non-English listings skipped; intermediary employers (" + ", ".join(sorted(INTERMEDIARIES)) + ") skipped; "
             "ATS suffixes such as ' - Personio' removed from company_name",
             "country_code from whole-word location match, otherwise ZZ",
-        ],
+        ] + (["apply_url and source_url each checked with a live HEAD/GET request; jobs whose URL didn't "
+              "resolve (dead_url_* in skipped_counts) were dropped"] if verify_urls else
+             ["apply_url/source_url were NOT checked for reachability -- re-run with --verify-urls before "
+              "import if link-rot is a concern"]),
         "skipped_counts": dict(SKIPS),
         # Left blank deliberately -- this is exactly what the guide asks
         # Zhihao to review and fill in before --allow-source is used for real.
@@ -1015,6 +1141,13 @@ def main(argv: list[str] | None = None) -> int:
                      help="ai_jobs_co only: cap on how many jobs get the extra page fetch")
     ap.add_argument("--allow-non-english", action="store_true",
                      help="keep listings that look German/French etc. (the embedding model is English)")
+    ap.add_argument("--verify-urls", action="store_true",
+                     help="HEAD/GET each job's apply_url and source_url before keeping it; drops jobs whose "
+                          "listing page is dead (404, timeout, connection error, etc.). One extra HTTP request "
+                          "per distinct URL, against the job's own site, not the source API -- slower, and be "
+                          "considerate of --verify-delay on a large batch.")
+    ap.add_argument("--verify-delay", type=float, default=0.3,
+                     help="seconds to wait between --verify-urls checks (default 0.3)")
     args = ap.parse_args(argv)
 
     if args.enrich_descriptions and args.source != "ai_jobs_co":
@@ -1025,7 +1158,8 @@ def main(argv: list[str] | None = None) -> int:
     jobs, skipped = build_batch(args.source, args.pages, args.keyword,
                                  enrich=args.enrich_descriptions, enrich_limit=args.enrich_limit,
                                  allow_non_english=args.allow_non_english,
-                                 location=args.location if args.source == "aidevboard" else None)
+                                 location=args.location if args.source == "aidevboard" else None,
+                                 verify_urls=args.verify_urls, verify_delay=args.verify_delay)
     if not jobs:
         print(f"No usable jobs produced (skipped {skipped}: {dict(SKIPS)}). Nothing written.", file=sys.stderr)
         return 1
@@ -1036,7 +1170,7 @@ def main(argv: list[str] | None = None) -> int:
 
     provenance_path = args.out.with_suffix(".provenance.json")
     write_provenance(provenance_path, args.out, args.source, args.pages, args.keyword,
-                      len(jobs), datetime.now(timezone.utc))
+                      len(jobs), datetime.now(timezone.utc), verify_urls=args.verify_urls)
 
     print(f"Wrote {len(jobs)} jobs to {args.out} (skipped {skipped} unusable listings: {dict(SKIPS)})")
     print(f"Wrote provenance sidecar to {provenance_path}")
