@@ -2,6 +2,10 @@
 
 This guide is for preparing a small, reviewable catalogue handoff for Jiaxin. It describes the current importer contract in `src/backend/app/catalogue/schema.py` and the current MiniLM pipeline. The example below is entirely synthetic. Do not treat it as a real vacancy or as permission to collect, retain, or redistribute any provider's listings.
 
+## Current repository data
+
+The committed `src/backend/app/catalogue/data/live_batch.json` and its provenance sidecar were removed because the records had no completed source permission review (`TODO`/`null` fields). Git history retains the old files; they are not approved input and must not be restored for import. Use [`data/synthetic_jobs.json`](../data/synthetic_jobs.json) for local catalogue fixtures and evaluation. Live fetcher outputs are marked `PENDING_HUMAN_PROVENANCE_REVIEW`; the sidecar is only a review handoff and does not grant collection, storage, display, or redistribution permission. Keep fetched provider batches out of Git unless their reuse terms permit it.
+
 ## 1. Confirm the source before collecting
 
 For real listings, first record the source owner/provider, the collection method and date, the applicable licence or written permission, whether storage and display are allowed, any expiry/refresh rule, and any limits on redistribution. Zhihao should review that provenance and permission before real records are added. A source flag only allows the importer to accept a source name; it does not establish permission.
@@ -182,6 +186,41 @@ The temporary `run --no-deps` container receives `DATABASE_URL` from the Compose
 To verify idempotency, repeat the same import invocation inside the maintenance sequence after the first one, before the services restart. For an unchanged batch, expect `created=0 updated=0 unchanged=<number of jobs>` and normally `embeddings_computed=0`. The importer does not create duplicate identities on re-import. Keep the successful output from the first import as well as the re-import output.
 
 Importing a file never removes database rows absent from that file. Existing synthetic rows therefore remain active unless they are explicitly updated. To close a listing, include its identity with `is_active: false` in an approved update; do not delete rows manually. The importer changes only listed identities and updates the catalogue revision when records change.
+
+### JSearch collection and local Docker handoff
+
+The optional JSearch adapter is `src/backend/app/catalogue/fetch_jsearch.py`. It reads `OPENWEBNINJA_API_KEY` only from the process environment, uses the JSearch v2 cursor response (`data.jobs` and `data.cursor`), and limits collection to five pages. Its default query is `software internship in Singapore`; provider parameters are country `sg`, language `en`, `date_posted=week`, and `employment_types=INTERN`. Each page costs one API credit. Keep the output under the Git-ignored `private-data/` directory:
+
+```sh
+mkdir -p private-data/jsearch
+PYTHONPATH="$PWD/src/backend" python -m app.catalogue.fetch_jsearch \
+  --query "software internship in Singapore" \
+  --pages 1 \
+  --out "$PWD/private-data/jsearch/jsearch_2026-10-01.json"
+```
+
+Set `OPENWEBNINJA_API_KEY` in the process environment before running the command. The adapter does not load `.env` files, and its logs omit keys and provider response bodies. It retains only rows whose returned `job_country` identifies Singapore and whose `job_location` explicitly corroborates Singapore: the full location must be `Singapore`/`SG` or end with `, Singapore`/`, SG`. If `job_location` is missing, `job_city` or `job_state` must exactly identify Singapore/SG. A conflicting or ambiguous location is skipped even when `job_country` says Singapore. The provider query asks for employment type `INTERN`. For each returned record, an exact provider `INTERN` category establishes `job_type=INTERNSHIP`; otherwise the description must affirmatively identify the role as an internship under the existing conservative classifier. Title text alone never establishes internship status. Explicit provider `FULLTIME`/`PARTTIME` labels map to `employment_time`; Unicode dash variants are accepted, and conflicting labels remain `UNKNOWN`. The UTC posting date must be within seven days of collection; missing, invalid, future, and older dates are skipped. Requirements and eligibility quotes come only from text present in the job description; provider highlights are not turned into quotes. `job_google_link` is used as `source_url` when it is HTTPS, otherwise the actual HTTPS `job_apply_link` is used. The provenance sidecar records the query, filters, cutoff, retrieval time, transformations, and pending provider-terms status. It does not claim provider approval.
+
+The [JSearch API page](https://www.openwebninja.com/api/jsearch) documents `/search-v2`, the `x-api-key` header, cursor pagination, Singapore country support, and the job response fields. The request contract was cross-checked against the provider's [generated endpoint manifest](https://raw.githubusercontent.com/OpenWeb-Ninja/openwebninja-mcp/main/src/generated/manifest.ts). OpenWebNinja's [Terms of Use](https://www.openwebninja.com/terms), last updated September 7, 2026, grant use and reproduction rights for API Data as part of a broader product, while excluding a standalone data/API product that substantially replicates its Services. The terms page does not state a retention period. This catalogue is a local coursework prototype; its sidecar records the terms link and leaves any retention, display, expiry, or redistribution decision pending. These terms describe OpenWebNinja API Data and do not establish rights from the underlying job publishers.
+
+For the local database, use the already-running API container selected from `docker ps`; do not invoke Compose with `src/.env`. Copy the batch into that container and run the existing importer there. Stop student traffic and confirm the API container has its normal `DATABASE_URL` and cached embedding model before the dry-run. Use the same file for dry-run, import, and idempotency re-import:
+
+```sh
+JOB_FILE="$PWD/private-data/jsearch/jsearch_2026-10-01.json"
+API_CONTAINER="<exact API container name from docker ps>"
+docker cp "$JOB_FILE" "$API_CONTAINER:/tmp/jsearch_batch.json"
+
+docker exec "$API_CONTAINER" python -m app.catalogue.import_jobs \
+  --file /tmp/jsearch_batch.json --dry-run --allow-source JSEARCH
+
+# Run only after the dry-run passes and the provenance review is complete.
+docker exec "$API_CONTAINER" python -m app.catalogue.import_jobs \
+  --file /tmp/jsearch_batch.json --allow-source JSEARCH
+docker exec "$API_CONTAINER" python -m app.catalogue.import_jobs \
+  --file /tmp/jsearch_batch.json --allow-source JSEARCH
+```
+
+The last run is the idempotency check and should report `created=0 updated=0 unchanged=<job count>` with normally `embeddings_computed=0`. Save the three summaries with the sidecar. `--allow-source JSEARCH` lets the importer accept that source label; it is not a provider permission decision.
 
 ## 6. Handoff acceptance
 

@@ -3,10 +3,10 @@
 fetch_live_jobs.py
 ===================
 
-Replaces the hard-coded / synthetic catalogue file with jobs fetched live from
-real job-board APIs, then transforms them into a batch that matches your
-importer's contract (see docs/JIAXIN_JOB_DATA_GUIDE.md and
-src/backend/app/catalogue/schema.py).
+Optionally fetches public job-board listings and prepares a local candidate
+batch for human provenance review (see docs/JIAXIN_JOB_DATA_GUIDE.md and
+src/backend/app/catalogue/schema.py). Prepared output is not approval to
+collect, retain, display, redistribute, or import provider data.
 
 WHY THIS EXISTS
 ----------------
@@ -14,10 +14,8 @@ Your current data/synthetic_jobs.json is hand-written. This script instead
 calls a live API at run time, normalises each listing into the exact shape
 `JobIn` in schema.py expects, and writes:
 
-  1. <output>.json              -- the importer-ready batch (schema_version 1)
-  2. <output>.provenance.json   -- the sidecar your guide asks for (source,
-                                    collection method/date, licence status,
-                                    etc. left as TODO for Zhihao to fill in)
+  1. <output>.json              -- a candidate batch in schema_version 1 shape
+  2. <output>.provenance.json   -- source and collection details marked pending
 
 IMPORTANT -- READ BEFORE RUNNING FOR REAL
 -------------------------------------------
@@ -86,9 +84,9 @@ USAGE
     #   get sign-off from Zhihao on the provenance sidecar
     #   only then run the real import
 
-This script performs read-only GET requests to public endpoints. It writes
-nothing to your database -- the importer CLI does that, separately, after
-your normal review process.
+Running this script performs GET requests to provider endpoints and writes
+local files. It writes nothing to a database. Review source permission and
+provenance before any import.
 """
 from __future__ import annotations
 
@@ -109,8 +107,8 @@ from typing import Any, Iterable
 
 try:
     import requests
-except ImportError:  # pragma: no cover
-    sys.exit("Missing dependency: pip install requests")
+except ImportError:  # JSearch's urllib adapter reuses only the offline parsing helpers.
+    requests = None  # type: ignore[assignment]
 
 MAX_REQUIREMENTS = 30
 MAX_REQ_TEXT = 2000
@@ -124,7 +122,8 @@ MAX_WORDS_FOR_EMBEDDING_TEXT = 150
 # the text), then labelled REQUIRED unless the line itself says preferred /
 # nice-to-have / advantage / plus. See extract_requirements().
 _PREFERRED_RX = re.compile(
-    r"\b(prefer(red|ably)?|nice[- ]to[- ]have|advantage(ous)?|bonus|good to have|a plus|is a plus|an asset|"
+    r"\b(prefer(red|ably)?|optional(ly)?|nice[- ]to[- ]have|advantage(ous)?|bonus|good to have|a plus|"
+    r"plus,?\s+but\s+not\s+(?:a\s+)?must|an asset|"
     r"beneficial|desirable|valuable|ideally|vorteil|w[uü]nschenswert|idealerweise)\b", re.I)
 _START_RX = re.compile(
     r"^(?:key |minimum |basic |required )?(?:requirements?|qualifications?(?: (?:&|and) experience)?|required(?: qualifications| skills)?"
@@ -177,6 +176,11 @@ _EN_RX = re.compile(r"\b(and|the|with|for|we|you|your|is|are|of|to)\b", re.I)
 # Publishers / ATS names that are not the employer.
 _PUBLISHER_SUFFIX_RX = re.compile(
     r"\s*[-–|]\s*(personio|greenhouse|smartrecruiters|join\.com|join|teamtailor|recruitee|comeet|lever|workable)\s*$", re.I)
+_DESCRIPTION_INTERNSHIP_RX = re.compile(
+    r"\b(?:(?:this|the)\s+(?:role|position|job|opportunity)\s+(?:is|will be)\s+(?:an?\s+)?"
+    r"(?:full[- ]time\s+|part[- ]time\s+)?(?:internship|intern|praktikum|werkstudent)|"
+    r"(?:this|it)\s+is\s+(?:an?\s+)?(?:full[- ]time\s+|part[- ]time\s+)?"
+    r"(?:internship|intern|praktikum|werkstudent)(?:\s+(?:role|position|job|opportunity))?)\b", re.I)
 # Intermediaries whose listings hide the real employer ("listed on behalf of a partner company").
 INTERMEDIARIES = {"jobgether", "huzzle"}
 ELIGIBILITY_CUES = [
@@ -299,8 +303,35 @@ def _split_inline_heading(line: str) -> list[str]:
     return [line]
 
 
-def _skills_in(text: str) -> list[str]:
-    return [k for k, rx in _SKILL_RX.items() if rx.search(text)][:20]
+def _skill_matches(text: str) -> list[tuple[int, int, str]]:
+    matches = [(match.start(), match.end(), skill)
+               for skill, rx in _SKILL_RX.items()
+               for match in rx.finditer(text)]
+    return sorted(matches)
+
+
+def _compound_skill_requirements(text: str, importance: str) -> list[Requirement] | None:
+    """Parse only one explicit two-skill conjunction; return None if ambiguous."""
+    matches = _skill_matches(text)
+    if len(matches) <= 1:
+        return [Requirement(text, importance, text, evidence_skills=[m[2] for m in matches])]
+    if len(matches) != 2:
+        return None
+    first_start, first_end, first_skill = matches[0]
+    second_start, second_end, second_skill = matches[1]
+    connector = text[first_end:second_start]
+    connector_match = re.fullmatch(r"\s*(or|and)\s*", connector, re.I)
+    if not connector_match:
+        return None
+    conjunction = connector_match.group(1).lower()
+    prefix, suffix = text[:first_start], text[second_end:]
+    contextual = [prefix + skill + suffix for skill in (first_skill, second_skill)]
+    if conjunction == "or":
+        return [Requirement(text, importance, text, alternatives=contextual,
+                            evidence_skills=[first_skill, second_skill])]
+    return [Requirement(requirement_text=alternative, importance=importance, source_quote=text,
+                        evidence_skills=[skill])
+            for alternative, skill in zip(contextual, (first_skill, second_skill))]
 
 
 def looks_non_english(text: str) -> bool:
@@ -310,10 +341,11 @@ def looks_non_english(text: str) -> bool:
 
 def extract_requirements(description: str, tags: Iterable[str] = ()) -> list[Requirement]:
     """Requirement rows = the lines inside the listing's own requirements /
-    qualifications / "what you bring" section, verbatim. Nothing is invented,
-    clipped or paraphrased: requirement_text == source_quote == a line of
-    `description`. Returns [] when the listing has no such section (the caller
-    then skips the job instead of adding a placeholder row)."""
+    qualifications / "what you bring" section. Quotes preserve the original
+    source line; an explicit two-skill OR adds contextualized alternatives and
+    an explicit two-skill AND creates separate contextualized requirement
+    texts. Ambiguous compounds are omitted and counted for whole-record review
+    by `extract_job_requirements`. Returns [] without a matching section."""
     lines: list[str] = []
     for raw_line in description.split("\n"):
         lines.extend(_split_inline_heading(_strip_bullet(raw_line)))
@@ -338,13 +370,20 @@ def extract_requirements(description: str, tags: Iterable[str] = ()) -> list[Req
                 or text not in desc_norm or _FILLER_LINE_RX.search(text)):
             continue
         seen.add(text.casefold())
-        picked.append(Requirement(
-            requirement_text=text,
-            importance="PREFERRED" if (pref or _PREFERRED_RX.search(text)) else "REQUIRED",
-            source_quote=text,
-            evidence_skills=_skills_in(text),
-        ))
+        importance = "PREFERRED" if (pref or _PREFERRED_RX.search(text)) else "REQUIRED"
+        compound = _compound_skill_requirements(text, importance)
+        if compound is None:
+            skip("ambiguous_compound_requirement")
+            continue
+        picked.extend(compound)
     return picked[:MAX_REQUIREMENTS]
+
+
+def extract_job_requirements(description: str, tags: Iterable[str] = ()) -> tuple[list[Requirement], bool]:
+    """Return requirements and whether ambiguity requires skipping the record."""
+    ambiguous_before = SKIPS["ambiguous_compound_requirement"]
+    requirements = extract_requirements(description, tags)
+    return requirements, SKIPS["ambiguous_compound_requirement"] > ambiguous_before
 
 
 def extract_eligibility_notes(description: str) -> list[dict]:
@@ -385,6 +424,8 @@ def build_keyword_regex(keywords: Iterable[str]) -> re.Pattern:
     that turns "intern" into "internship" and "trainee" into "traineeship" for free -- you don't
     need to type both forms.
     """
+    if isinstance(keywords, str):
+        keywords = (keywords,)
     alts = []
     for kw in keywords:
         kw = kw.strip()
@@ -401,6 +442,11 @@ def guess_country_code(location: str) -> str:
     found = {code for needle, code in _COUNTRY_HINTS.items()
              if re.search(r"(?<![a-zà-ÿ])" + re.escape(needle) + r"(?![a-zà-ÿ])", low)}
     return found.pop() if len(found) == 1 else "ZZ"
+
+
+def classify_description_job_type(description: str) -> str:
+    """Return INTERNSHIP only for an explicit description statement about the role."""
+    return "INTERNSHIP" if _DESCRIPTION_INTERNSHIP_RX.search(description) else "UNKNOWN"
 
 
 # --------------------------------------------------------------------------
@@ -498,9 +544,11 @@ def transform_arbeitnow(raw: dict, fetch_time: datetime, allow_non_english: bool
         return skip("non_english")
 
     job_types = [normalise_ws(t) for t in (raw.get("job_types") or [])]
-    job_types_low = [t.lower() for t in job_types]
-    # Only the provider's explicit job_types field decides; the title never does.
-    job_type = "INTERNSHIP" if any(t.startswith(("intern", "praktik")) for t in job_types_low) else (
+    job_types_low = [t.casefold() for t in job_types]
+    # Use exact provider categories; title text and incidental tag fragments do
+    # not establish that the vacancy itself is an internship.
+    internship_types = {"intern", "internship", "internships", "praktikum", "werkstudent", "working student"}
+    job_type = "INTERNSHIP" if any(t in internship_types for t in job_types_low) else (
         "OTHER" if job_types_low else "UNKNOWN")
 
     if any(t.startswith("part") or " part" in t for t in job_types_low):
@@ -524,7 +572,9 @@ def transform_arbeitnow(raw: dict, fetch_time: datetime, allow_non_english: bool
     if isinstance(created_at, (int, float)):
         posted_at = datetime.fromtimestamp(created_at, tz=timezone.utc).isoformat()
 
-    requirements = extract_requirements(description, raw.get("tags") or [])
+    requirements, ambiguous = extract_job_requirements(description, raw.get("tags") or [])
+    if ambiguous:
+        return skip("manual_review_ambiguous_requirements")
     if not requirements:
         return skip("no_requirements_section")   # never pad with a placeholder row
     eligibility = extract_eligibility_notes(description)
@@ -685,7 +735,9 @@ def transform_ai_jobs_co(raw: dict, fetch_time: datetime, *, enrich: bool = Fals
         except ValueError:
             posted_at = None
 
-    requirements = extract_requirements(description)
+    requirements, ambiguous = extract_job_requirements(description)
+    if ambiguous:
+        return skip("manual_review_ambiguous_requirements")
     if not requirements:
         return skip("no_requirements_section")
     eligibility = extract_eligibility_notes(description)
@@ -773,7 +825,9 @@ def transform_ai_dev_jobs(raw: dict, fetch_time: datetime) -> dict | None:
         # append it verbatim under its own heading so it stays quotable.
         description = description + "\n\nRequirements\n" + "\n".join(req_lines)
         desc_norm = normalise_ws(description)
-    requirements = extract_requirements(description)
+    requirements, ambiguous = extract_job_requirements(description)
+    if ambiguous:
+        return skip("manual_review_ambiguous_requirements")
     if not requirements:
         return skip("no_requirements_section")
 
@@ -847,7 +901,9 @@ def transform_remoteok(raw: dict, fetch_time: datetime, allow_non_english: bool 
     if not allow_non_english and looks_non_english(description):
         return skip("non_english")
 
-    requirements = extract_requirements(description, raw.get("tags") or [])
+    requirements, ambiguous = extract_job_requirements(description, raw.get("tags") or [])
+    if ambiguous:
+        return skip("manual_review_ambiguous_requirements")
     if not requirements:
         return skip("no_requirements_section")
 
@@ -926,7 +982,9 @@ def transform_remotive(raw: dict, fetch_time: datetime, allow_non_english: bool 
     if not allow_non_english and looks_non_english(description):
         return skip("non_english")
 
-    requirements = extract_requirements(description, raw.get("tags") or [])
+    requirements, ambiguous = extract_job_requirements(description, raw.get("tags") or [])
+    if ambiguous:
+        return skip("manual_review_ambiguous_requirements")
     if not requirements:
         return skip("no_requirements_section")
 
@@ -1012,6 +1070,8 @@ def build_batch(source: str, pages: int, keyword: str | None, *,
                  enrich: bool = False, enrich_limit: int = 25,
                  allow_non_english: bool = False, location: str | None = None,
                  verify_urls: bool = False, verify_delay: float = 0.3) -> tuple[list[dict], int]:
+    if requests is None:
+        raise RuntimeError("Missing dependency: install the backend requirements to run this API adapter")
     fetch_fn, transform_fn = ADAPTERS[source]
     session = requests.Session()
     session.headers["User-Agent"] = "INF2006-P1-G6 catalogue-fetcher/1.0 (student project)"
@@ -1094,12 +1154,14 @@ def write_provenance(provenance_path: Path, batch_path: Path, source: str, pages
         "collection_params": {"pages": pages, "keyword": keyword, "verify_urls": verify_urls},
         "collected_at": fetch_time.isoformat(),
         "job_count": job_count,
+        "review_status": "PENDING_HUMAN_PROVENANCE_REVIEW",
         "transformations": [
             "HTML converted to plain text (entities decoded before tags are parsed)",
-            "requirements = lines verbatim from the listing's own requirements/qualifications/'what you bring' "
-            "section; requirement_text == source_quote; lines with preferred/nice-to-have/advantage/plus wording "
-            "= PREFERRED, all others REQUIRED; jobs with no such section are skipped, no placeholder rows",
-            "job_type INTERNSHIP only when the provider's job_types field says internship/Praktikum; never from the title",
+            "requirements come only from the listing's own requirements/qualifications/'what you bring' section; "
+            "source_quote preserves source wording; explicit two-skill OR stays one alternatives row; explicit two-skill "
+            "AND becomes separate rows; ambiguous compound skill lines are skipped for review",
+            "preferred, optional, nice-to-have, advantage, or plus wording is PREFERRED",
+            "job_type INTERNSHIP only for an exact provider job_types category; never from title text",
             "non-English listings skipped; intermediary employers (" + ", ".join(sorted(INTERMEDIARIES)) + ") skipped; "
             "ATS suffixes such as ' - Personio' removed from company_name",
             "country_code from whole-word location match, otherwise ZZ",
@@ -1108,8 +1170,7 @@ def write_provenance(provenance_path: Path, batch_path: Path, source: str, pages
              ["apply_url/source_url were NOT checked for reachability -- re-run with --verify-urls before "
               "import if link-rot is a concern"]),
         "skipped_counts": dict(SKIPS),
-        # Left blank deliberately -- this is exactly what the guide asks
-        # Zhihao to review and fill in before --allow-source is used for real.
+        # These remain pending until a human reviews the source and permission.
         "licence_or_permission": "TODO: record the provider's terms of use / "
                                   "API licence and whether this project has "
                                   "written permission to store and display "
@@ -1155,11 +1216,15 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.location and args.source != "aidevboard":
         print("--location only applies to --source aidevboard; ignoring.", file=sys.stderr)
-    jobs, skipped = build_batch(args.source, args.pages, args.keyword,
-                                 enrich=args.enrich_descriptions, enrich_limit=args.enrich_limit,
-                                 allow_non_english=args.allow_non_english,
-                                 location=args.location if args.source == "aidevboard" else None,
-                                 verify_urls=args.verify_urls, verify_delay=args.verify_delay)
+    try:
+        jobs, skipped = build_batch(args.source, args.pages, args.keyword,
+                                    enrich=args.enrich_descriptions, enrich_limit=args.enrich_limit,
+                                    allow_non_english=args.allow_non_english,
+                                    location=args.location if args.source == "aidevboard" else None,
+                                    verify_urls=args.verify_urls, verify_delay=args.verify_delay)
+    except RuntimeError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2
     if not jobs:
         print(f"No usable jobs produced (skipped {skipped}: {dict(SKIPS)}). Nothing written.", file=sys.stderr)
         return 1
@@ -1175,8 +1240,9 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Wrote {len(jobs)} jobs to {args.out} (skipped {skipped} unusable listings: {dict(SKIPS)})")
     print(f"Wrote provenance sidecar to {provenance_path}")
     print()
+    print("Prepared output is PENDING HUMAN PROVENANCE REVIEW, not approved for import.")
     print("Next steps (per docs/JIAXIN_JOB_DATA_GUIDE.md):")
-    print(f"  1. Fill in the TODO fields in {provenance_path.name} and send to Zhihao for review.")
+    print(f"  1. Have Zhihao review source permission and provenance in {provenance_path.name}.")
     print(f"  2. Dry-run:  python -m app.catalogue.import_jobs --file {args.out} "
           f"--dry-run --allow-source {args.source.upper()}")
     print("  3. Only after Zhihao approves provenance/permission, run the real import "

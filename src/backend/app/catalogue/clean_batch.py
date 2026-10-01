@@ -1,27 +1,25 @@
 #!/usr/bin/env python3
-"""Clean an existing fetch_live_jobs.py batch offline, using the same rules as the patched fetcher.
+"""Clean a candidate fetch_live_jobs.py batch offline for human review.
 
     python clean_batch.py --in data/live_batch.json --out data/live_batch_clean.json
 
-Re-derives from each stored description (no network): plain-text description, requirements (verbatim lines from the
-listing's own requirements section, no placeholders), eligibility notes, country code, company name. Drops non-English
-listings, intermediaries and jobs with no requirements section. job_type INTERNSHIP is kept only when the description
-itself explicitly says internship/Praktikum/Werkstudent; otherwise it becomes UNKNOWN (the provider's job_types field is
-not stored in the batch, so re-fetch with the patched fetcher to get provider-verified values).
+Re-derives plain-text description, requirements, eligibility notes, country code, and company name without network
+access. Ambiguous compound skill clauses cause the whole record to be skipped for manual review. The sidecar is marked
+PENDING_HUMAN_PROVENANCE_REVIEW; cleaning does not grant permission to collect, store, display, or redistribute data.
 """
 from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 
-import fetch_live_jobs as f
-
-_INTERN_WORD = re.compile(r"\b(intern(?:ship)?s?|praktik\w*|werkstudent\w*|working student)\b", re.I)
+try:
+    from . import fetch_live_jobs as f
+except ImportError:  # direct `python clean_batch.py` invocation
+    import fetch_live_jobs as f
 
 
 def clean_job(j: dict, allow_non_english: bool) -> tuple[dict | None, str | None]:
@@ -34,12 +32,14 @@ def clean_job(j: dict, allow_non_english: bool) -> tuple[dict | None, str | None
         return None, "empty_description"
     if not allow_non_english and f.looks_non_english(desc):
         return None, "non_english"
-    reqs = f.extract_requirements(desc)
+    reqs, ambiguous = f.extract_job_requirements(desc)
+    if ambiguous:
+        return None, "manual_review_ambiguous_requirements"
     if not reqs:
         return None, "no_requirements_section"
     job_type = j["job_type"]
     downgraded = False
-    if job_type == "INTERNSHIP" and not _INTERN_WORD.search(desc):
+    if job_type == "INTERNSHIP" and f.classify_description_job_type(desc) != "INTERNSHIP":
         job_type, downgraded = "UNKNOWN", True
     out = dict(j)
     out.update({
@@ -77,16 +77,17 @@ def main() -> int:
     prov.update({
         "batch_file": a.out.name, "job_count": len(jobs), "cleaned_at": datetime.now(timezone.utc).isoformat(),
         "cleaned_from": a.inp.name, "input_job_count": len(src["jobs"]), "cleaning_counts": dict(stats),
+        "review_status": "PENDING_HUMAN_PROVENANCE_REVIEW",
         "transformations": [
             "HTML converted to plain text (entities decoded before tags are parsed)",
-            "requirements re-derived: lines verbatim from the listing's own requirements/qualifications/'what you bring' "
-            "section; requirement_text == source_quote; preferred/nice-to-have/advantage/plus wording = PREFERRED, "
-            "all others REQUIRED; no placeholder rows",
+            "requirements re-derived from the listing's own section; source_quote preserves the source line; explicit "
+            "two-skill OR stays one alternatives row; explicit two-skill AND becomes separate rows; ambiguous compound "
+            "skill lines are dropped for review; preferred/optional/nice-to-have/advantage/plus wording = PREFERRED",
             "dropped: non-English listings, intermediary employers (" + ", ".join(sorted(f.INTERMEDIARIES)) + "), "
-            "listings without a requirements section",
+            "listings without a requirements section or with ambiguous compound skill clauses",
             "company_name: ATS suffix such as ' - Personio' removed",
-            "job_type INTERNSHIP kept only where the description itself says internship/Praktikum/Werkstudent, else UNKNOWN "
-            "(provider job_types not stored in the original batch)",
+            "job_type INTERNSHIP kept only where the description explicitly identifies the role as an internship; "
+            "incidental mentions and title words do not count (provider job_types not stored in input)",
             "country_code re-derived from whole-word location match, otherwise ZZ",
         ],
     })
