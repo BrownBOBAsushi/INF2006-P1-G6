@@ -1,0 +1,17 @@
+{
+  "batch_file": "live_batch.json",
+  "source_name": "ARBEITNOW",
+  "collection_method": "live API fetch via fetch_live_jobs.py (--source arbeitnow)",
+  "collection_params": {
+    "pages": 3,
+    "keyword": "intern"
+  },
+  "collected_at": "2026-09-24T04:38:19.310652+00:00",
+  "job_count": 45,
+  "licence_or_permission": "TODO: record the provider's terms of use / API licence and whether this project has written permission to store and display these listings.",
+  "storage_and_display_allowed": "TODO",
+  "expiry_or_refresh_rule": "TODO: e.g. re-fetch and re-run import every N days; set is_active=false for listings that disappear from the source.",
+  "redistribution_limits": "TODO",
+  "reviewed_by": null,
+  "review_date": null
+}
