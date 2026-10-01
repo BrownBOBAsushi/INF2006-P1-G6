@@ -72,11 +72,15 @@ setting is chosen from it.
 
 ## Label files
 
-Only `labels.csv` is the original AI draft. An earlier non-blind partial adjudication and an unverified-origin
-label set were removed; independent blind human review is pending (see `LABELLING_CRITERIA.md`).
-No file here is independent human ground truth; `manifest.json` `label_review.status` is `PENDING`.
+`labels.csv` is the original AI draft for the 300-pair set. A separate 90-pair team-member submission for
+P06-P08 is preserved in `../evaluation_reviewed_subset/labels_human.csv`; its process was recorded as blind,
+but this is not independently verified. A distinct audit copy corrects P06-J29 after the first result using
+AI assistance; see `LABEL_REVIEW_LOG.md`. Neither file completes the remaining AI-drafted pairs or establishes
+independent human ground truth. `manifest.json` `label_review.status` is `PARTIAL` (90/300 pairs covered).
 
 | File | What it is |
 |---|---|
 | `labels.csv` | 300 labels drafted by an AI assistant before any model output (used by the headline run). |
-| `labelling_sheet_blank.csv` | Empty sheet for a blind human labelling pass (see `LABELLING_CRITERIA.md`). |
+| `../evaluation_reviewed_subset/labels_human.csv` | Preserved original 90-row team-member submission for P06-P08; recorded blind process not independently verified. |
+| `../evaluation_reviewed_subset/labels_audited.csv` | Separate AI-assisted, post-result audit copy with only P06-J29 corrected under the fixed rubric; not a new human label. |
+| `labelling_sheet_blank.csv` | Empty sheet for any future additional labelling pass (see `LABELLING_CRITERIA.md`). |

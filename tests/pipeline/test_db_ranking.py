@@ -6,6 +6,7 @@ import uuid
 import numpy as np
 import pytest
 from sqlalchemy import create_engine, text
+from sqlalchemy.engine import make_url
 
 from conftest import BACKEND, reenable_loggers
 
@@ -69,6 +70,26 @@ def rank(db, uid, **kw):
     kw.setdefault("limit", 50)
     page = rank_jobs_sql(db, user_id=uid, profile_revision=kw.pop("profile_revision", 1), embedding_version=kw.pop("embedding_version", VER), **kw)
     return [(uuid.UUID(r.job_id).int, r.score) for r in page.rows], page
+
+
+def _migration_database_url(database_url, database):
+    return make_url(database_url).set(database=database).render_as_string(hide_password=False)
+
+
+@pytest.mark.parametrize("database_url", [
+    "postgresql+psycopg://user:pass@localhost:5544/app?sslmode=require&application_name=test",
+    "postgresql+psycopg://user:pass@/app?host=%2Ftmp%2Fpgsocket&application_name=test",
+    "postgresql+psycopg://user:pass@/app?host=/tmp/pgsocket&application_name=test",
+])
+def test_migration_database_url_preserves_connection_details(database_url):
+    url = make_url(_migration_database_url(database_url, "mig_test"))
+    assert url.database == "mig_test"
+    assert url.username == "user" and url.password == "pass"
+    assert url.query["application_name"] == "test"
+    if url.host is None:
+        assert url.query["host"] == "/tmp/pgsocket"
+    else:
+        assert url.host == "localhost" and url.port == 5544 and url.query["sslmode"] == "require"
 
 
 # ------------------------------------------------------------------ parity on the real catalogue with the real model
@@ -224,21 +245,26 @@ def test_migration_upgrades_downgrades_and_upgrades_again_without_touching_exist
     with admin.connect() as c:
         c.execute(text("DROP DATABASE IF EXISTS mig_test"))
         c.execute(text("CREATE DATABASE mig_test"))
-    mig_url = pg_url.rsplit("/", 1)[0] + "/mig_test"
+    mig_url = _migration_database_url(pg_url, "mig_test")
     old = os.environ["DATABASE_URL"]
     os.environ["DATABASE_URL"] = mig_url
     try:
         cfg = Config(str(BACKEND / "alembic.ini"))
         cfg.set_main_option("script_location", str(BACKEND / "migrations"))
         eng = create_engine(mig_url)
-        tables = lambda: {r[0] for r in eng.connect().execute(text("SELECT table_name FROM information_schema.tables WHERE table_schema='public'"))}   # noqa: E731
+        def tables():
+            with eng.connect() as connection:
+                return {r[0] for r in connection.execute(
+                    text("SELECT table_name FROM information_schema.tables WHERE table_schema='public'")
+                )}
         command.upgrade(cfg, "e378f7a1a884")                                              # Jiaxin's head before this change
         before = tables()
         assert not {"jobs", "job_requirements", "requirement_embeddings", "app_state"} & before
         command.upgrade(cfg, "head")
         after = tables()
         assert {"jobs", "job_requirements", "requirement_embeddings", "app_state"} <= after and before <= after
-        assert eng.connect().execute(text("SELECT catalogue_revision FROM app_state")).scalar() == 0
+        with eng.connect() as connection:
+            assert connection.execute(text("SELECT catalogue_revision FROM app_state")).scalar() == 0
         command.downgrade(cfg, "e378f7a1a884")
         assert tables() == before                                                        # downgrade removes only the new tables
         command.upgrade(cfg, "head")

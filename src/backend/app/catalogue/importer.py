@@ -226,8 +226,9 @@ def import_catalogue(session: Session | None, raw: bytes | str | dict, embedder:
                                                      embedding_version=version))
         if summary.created or summary.updated:
             state.catalogue_revision += 1
+        committed_revision = int(state.catalogue_revision)
         session.commit()
-        summary.catalogue_revision = int(state.catalogue_revision)
+        summary.catalogue_revision = committed_revision
     except Exception:
         session.rollback()
         raise

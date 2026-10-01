@@ -1,12 +1,13 @@
 # data-ai test record
 
-Status: RUN on 2026-09-20, updated 2026-10-01. **Results are provisional for 7 of 10 profiles** (P01-P05
-development, P09-P10 held-out): the relevance labels are AI-drafted and have not been reviewed by a human team
-member. **For 3 of 10 profiles (P06-P08, held-out), an independent blind human review was completed on
-2026-10-01** (90/300 labels); see "Human-reviewed subset update" below and `data/evaluation/LABEL_REVIEW_LOG.md`.
-`data/evaluation/manifest.json` `label_review.status` is `PARTIAL`, not `COMPLETED` — do not treat the full
-300-label set as human ground truth. An earlier non-blind partial adjudication (12 pairs) and an unverified-origin
-label set (48 pairs) were removed before this review; see `AI_USE_DECLARATION.md`.
+Status: original run 2026-09-20, provenance and subset results updated 2026-10-01. The 300-row source labels
+are AI-drafted. A team member supplied labels for P06-P08 (90/300 pairs); the process was recorded as blind,
+but its independence and blinding have not been independently verified. The original submission is preserved
+as `data/evaluation_reviewed_subset/labels_human.csv`. After its first evaluation, a rubric inconsistency was
+corrected in a separate AI-assisted, user-authorized audit copy `labels_audited.csv` (one pair, P06-J29, 2 to 0).
+That is a post-result correction, not new human labelling or ratification. Manifest status remains `PARTIAL`;
+the remaining 210 labels are AI-drafted. All label-dependent results are provisional and scoped to their stated
+label file. See `data/evaluation/LABEL_REVIEW_LOG.md` and `AI_USE_DECLARATION.md`.
 
 - **Objective:** Measure ranking quality (Precision@5, NDCG@5) of the contract's requirement-level embedding
   ranking against two baselines (keyword/BM25, pooled-chunk embedding; plus a truncating whole-resume
@@ -84,14 +85,14 @@ label set (48 pairs) were removed before this review; see `AI_USE_DECLARATION.md
     effects are confounded and this data cannot separate them.
   - The no-code technical-writing job J29 was designed as a keyword/negation trap; embedding methods place it in a
     top-5 in several cases (see top-5 lists in the report).
-  - **Labels are AI-drafted (pending human review).** Fixtures and labels have the same AI author and the criteria refer
+  - **Labels were AI-drafted at the time of this 2026-09-20 run.** Fixtures and labels have the same AI author and the criteria refer
     to required requirements, which structurally favours the requirement-level method; job requirements are hand-authored
     (no extraction error); only the requirement-level method sees them. Synthetic text is cleaner than real resumes.
   - **Splitter coverage gap:** no fixture entry or job exceeded 240 tokens (largest chunk 108 tokens), so the
     sentence/token-boundary splitter was **not exercised by this evaluation**; it is verified only by unit tests
     (`tests/analytics/test_evaluate.py`, 16 passed).
-  - Human review is the priority next step: independent labelling via `data/evaluation/labelling_sheet_blank.csv`, then
-    re-run with `--labels` (workflow in `LABELLING_CRITERIA.md`). Any change to labels requires re-running everything.
+  - At the time, human labelling via `data/evaluation/labelling_sheet_blank.csv` was the planned next step. The later
+    90-pair submission and separate post-result audit are described below. Any changed label requires a separate rerun.
 - **Run log (nothing overwritten; all runs on 2026-09-20, no run failed):**
   1. Development-only MiniLM debug run (console only, script before diagnostics were added) to check the pipeline.
   2. Fixes from that run: replaced a deprecated method call; added split-coverage diagnostics (no scoring change).
@@ -100,42 +101,50 @@ label set (48 pairs) were removed before this review; see `AI_USE_DECLARATION.md
   5. Headline run, both models, both subsets (first time held-out was scored; code frozen at `de082b2`, not changed afterwards).
   6. Sensitivity run (bge + query prefix).
   7. Reproducibility rerun of the documented default command: MiniLM numbers identical to run 5 in all 24 cells; tests passed again (16).
-## Human-reviewed subset update (2026-10-01)
+## Original submission and audited subset results (2026-10-01)
 
-**Scope:** an independent blind human review of 90 of the 300 labels — 3 of the 5 held-out profiles (P06, P07,
-P08), all 30 jobs each — completed 2026-10-01, replacing the earlier non-blind partial adjudication and
-unverified-origin set referenced above. Full process, criteria and the complete list of disagreements are in
-`data/evaluation/LABEL_REVIEW_LOG.md`. This does **not** cover the other 7 profiles (P01-P05 development, P09-P10
-held-out), which remain AI-drafted and provisional; `manifest.json` `label_review.status` is `PARTIAL`.
+**Scope:** P06, P07, P08 only: 3 profiles x 30 jobs, all held-out. The process accompanying the original
+submission describes blind completion; this has not been independently verified. The original human-submitted
+file was scored first, then retained byte-for-byte. Review against the pre-existing J29 keyword-trap criterion
+found P06-J29 inconsistent: the rationale inferred technical-writing ability from coding experience, with no
+profile evidence of writing technical explanations or documentation. The user authorized an AI-assisted audit
+copy on 2026-10-01. It changes only P06-J29 from 2 to 0 and replaces its rationale. It is not a second human
+label, independent review, or human ratification. See `data/evaluation/LABEL_REVIEW_LOG.md`.
 
-**Agreement with the AI draft (same 90 pairs):** 72/90 (80.0%) agree. All 18 disagreements are the human reviewer
-rating a pair *more* relevant than the AI draft (never less) — consistent with an independent review rather than
-a copy of the draft, and suggesting the AI draft was, if anything, conservative on this subset.
+The original 90-row submission agreed with the AI draft on 72/90 (80.0%) pairs; the audited copy agrees on
+73/90 (81.1%). This count is descriptive only. Agreement direction does not establish correctness, blinding,
+or independence.
 
-**Re-scored with human labels** (MiniLM only, held-out, same 3 profiles; command:
-`python analytics/evaluate.py --fixtures data/evaluation_reviewed_subset --labels data/evaluation_reviewed_subset/labels_human.csv --out-dir evidence --tag human_review_P06_P08 --subset held_out`).
-Cells are strict P@5 / lenient P@5 / NDCG@5. Ceilings (human labels): strict 0.667, lenient 1.000.
+**Re-scored** with MiniLM on the same 3 profiles and fixtures. Cells are strict P@5 / lenient P@5 / NDCG@5.
+Ceilings: original submission strict 0.667, audited set strict 0.600; lenient 1.000 for both. These are point
+estimates on three profiles. The generated reports carry generic caveats about human provenance and a 5-profile
+subset; those template caveats do not describe this specific run's 3-profile scope. Provenance and scope here
+come from this dated evidence record and review log, not from the evaluator.
 
-| Method | AI-drafted labels (same 3 profiles, from the 09-20 run) | Human-reviewed labels (2026-10-01) |
-|---|---|---|
-| Requirement-level (contract method) | 0.533 / 0.600 / 0.895 | 0.533 / 0.800 / 0.870 |
-| Baseline A: keyword / BM25 | 0.533 / 0.667 / 0.925 | 0.600 / 0.867 / 0.920 |
-| Baseline B: pooled-chunk embedding | 0.533 / 0.600 / 0.888 | 0.667 / 0.800 / 0.904 |
-| Baseline B2: whole-resume (truncates) | 0.533 / 0.667 / 0.927 | 0.667 / 0.800 / 0.904 |
+| Method | AI-drafted labels (same 3 profiles, from 09-20 run) | Original human submission | Audited copy (2026-10-01) |
+|---|---|---|---|
+| Requirement-level (contract method) | 0.533 / 0.600 / 0.895 | 0.533 / 0.800 / 0.870 | 0.533 / 0.800 / 0.888 |
+| Baseline A: keyword / BM25 | 0.533 / 0.667 / 0.925 | 0.600 / 0.867 / 0.920 | 0.600 / 0.867 / 0.942 |
+| Baseline B: pooled-chunk embedding | 0.533 / 0.600 / 0.888 | 0.667 / 0.800 / 0.904 | 0.600 / 0.733 / 0.867 |
+| Baseline B2: whole-resume (truncates) | 0.533 / 0.667 / 0.927 | 0.667 / 0.800 / 0.904 | 0.600 / 0.733 / 0.875 |
 
-The AI-drafted column is the same 09-20 headline run (`evidence/data-ai-eval-2026-09-20.json`), re-averaged over
-only P06-P08 so the two columns compare the same 3 profiles under the two label sets.
+The AI-drafted column is from `evidence/data-ai-eval-2026-09-20.json`, re-averaged over P06-P08 so each column
+uses the same three profiles. Original-submission results are in the preserved
+`evidence/data-ai-eval-2026-10-01-human_review_P06_P08.*` outputs. Audited-copy results are in
+`evidence/data-ai-eval-2026-10-01-audited_P06_P08.*` outputs. The audit changes only the relevance value for
+P06-J29 from 2 to 0; because J29 appears in multiple top-5 lists, that changes the label-based evaluation metrics,
+not the model rankings.
 
-**Reading this honestly:** the human review does not strengthen the contract (requirement-level) method's
-position. Its strict P@5 is unchanged (0.533 -> 0.533), while every baseline's strict P@5 rose (BM25 0.533 ->
-0.600; both embedding baselines 0.533 -> 0.667) and requirement-level's NDCG@5 fell slightly (0.895 -> 0.870).
-The 18 label promotions (mostly 0 -> 1) mechanically help lenient P@5 for every method, which is why lenient
-scores rose across the board, but they narrow rather than widen any gap between requirement-level and the
-baselines on this held-out subset. With 3 profiles this is still a small-sample point estimate; no significance
-is claimed, and the headline 10-profile, AI-drafted comparison above remains the primary reported result until
-all 10 profiles are human-reviewed.
+**Reading this cautiously:** changing one relevance label affects strict counts, graded NDCG, and the J29 top-5
+contributions. The audited requirement-level strict P@5 remains 0.533; pooled-chunk and whole-resume strict P@5
+fall from 0.667 on the original submission to 0.600. BM25 strict P@5 remains 0.600. NDCG changes are shown in
+the table. These are small-sample point estimates, with no significance claim. The 10-profile AI-drafted run
+remains a separate result; this 3-profile audit neither replaces it nor completes review of the full set.
 
-**Output artefacts:** `evidence/data-ai-eval-2026-10-01-human_review_P06_P08.md` and `.json`.
+**Output artefacts:** original submission `evidence/data-ai-eval-2026-10-01-human_review_P06_P08.md` and `.json`;
+audited copy `evidence/data-ai-eval-2026-10-01-audited_P06_P08.md` and `.json`.
 
-- **Failure diagnosis / rerun:** No failures. Held-out was scored only after code freeze and no method, parameter or
-  label was changed after seeing any result. To reproduce: follow `analytics/README.md`.
+- **Failure diagnosis / rerun:** the first run without offline flags could not resolve the cached pinned model
+  because network name resolution failed. The same requested run succeeded with `HF_HUB_OFFLINE=1
+  TRANSFORMERS_OFFLINE=1`. The audit correction was made after the original result, recorded above, and rerun
+  separately. Reproduction commands are in `data/evaluation_reviewed_subset/README.md`.

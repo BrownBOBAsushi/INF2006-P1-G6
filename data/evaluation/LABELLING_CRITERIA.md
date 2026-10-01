@@ -31,18 +31,25 @@ Rules of thumb used consistently:
 
 - Profiles and jobs are entirely synthetic (no real people, resumes, employers or scraped data). Company names
   are invented; URLs use the reserved `example.com` domain.
-- **Labels were drafted by an AI assistant (Claude, 2026-09-20) working from the criteria above, before any
-  model output existed.** They have **not yet been reviewed by a human on the team**.
-  That is not the same as human ground truth. Until a team member has independently labelled the pairs, all
-  results computed from these labels are provisional (the evaluation harness prints this on every run).
-- No model or model-comparison output was used to write or adjust any label.
+- **The 300-label draft was written by an AI assistant (Claude, 2026-09-20) from the criteria above, before
+  any model output existed.** A team member later supplied a 90-row file for P06-P08. Its associated log
+  records a blind-labelling process, but the blinding and independence have not been independently verified.
+  The original file is preserved as `data/evaluation_reviewed_subset/labels_human.csv`.
+- Following the first scoring of that file, a rubric inconsistency was identified for P06-J29: the submitted
+  label was 2 although the profile showed no technical-writing evidence and the fixed keyword-trap rule
+  requires 0. At the user's direction, an AI-assisted audit copy was created on 2026-10-01 with only that
+  pair changed to 0. `labels_audited.csv` is a post-result correction, not a new independent human label,
+  review, or ratification. Both original and audited results are reported separately in
+  `evidence/test-data-ai.md`.
+- The 90-row subset and its audited copy do not constitute human ground truth for all 300 pairs. Metrics are
+  provisional, and the evaluator itself does not authenticate label provenance.
+- The P06-J29 correction was made after the original subset evaluation. Its stated basis is the fixed keyword-trap
+  criterion and the profile/job evidence, not the resulting metric values; because it is post-result, it is not a
+  blind label. The source human-submitted file was left unchanged.
 
-## Human review workflow (pending)
+## Review and audit record
 
-1. A team member fills the blank sheet `labelling_sheet_blank.csv` (`relevance` 0/1/2) using only this
-   document, the profiles and the jobs, **without** looking at `labels.csv` rationales or any evaluation output.
-2. Save it as `labels_human.csv` (same columns as `labels.csv`) and run
-   `python analytics/evaluate.py --fixtures data/evaluation --labels data/evaluation/labels_human.csv`.
-3. Record disagreements with the AI draft and how they were resolved in `data/evaluation/LABEL_REVIEW_LOG.md`.
-   Do not change labels after seeing model rankings; if a label must change, log why and re-run everything.
-4. When review is complete set `label_review.status` in `manifest.json` to `COMPLETED` with reviewer and date.
+The supplied 90-row file, the process as recorded, and the post-result rubric audit are documented in
+`data/evaluation/LABEL_REVIEW_LOG.md`. The submission is retained unchanged; the correction and its metrics
+are maintained separately. No claim of independently verified blind review is made. The manifest remains
+`PARTIAL` for the 90/300 coverage and does not describe the audit copy as additional human review.

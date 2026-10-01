@@ -4,6 +4,7 @@ import json
 
 import pytest
 from sqlalchemy import func, select, text
+from sqlalchemy.exc import DBAPIError
 
 from conftest import EVAL_DIR, ROOT
 
@@ -203,9 +204,12 @@ def test_import_detects_revision_change_between_snapshot_and_existing_rows(
 
 def test_repeating_the_same_import_changes_nothing(db, jobs_raw, fake_embedder):
     import_catalogue(db, jobs_raw, fake_embedder)
+    assert not db.in_transaction()
     ids = dict(db.execute(select(Job.source_job_id, Job.job_id)).all())
     before = counts(db)
+    db.rollback()  # close the read transaction before the next import
     s = import_catalogue(db, jobs_raw, fake_embedder)
+    assert not db.in_transaction()
     assert s.ok and (s.created, s.updated, s.unchanged, s.embeddings_computed) == (0, 0, 30, 0)
     assert counts(db) == before and dict(db.execute(select(Job.source_job_id, Job.job_id)).all()) == ids   # no dupes, same rows
     assert s.catalogue_revision == 1                                                                        # revision not bumped
@@ -217,6 +221,7 @@ def test_display_only_change_updates_the_job_but_regenerates_no_vectors(db, jobs
     raw = copy.deepcopy(jobs_raw)
     raw["jobs"][0]["title"] = "Backend Software Engineer Intern (Updated)"
     raw["jobs"][0]["posted_at"] = "2026-09-01T00:00:00+08:00"
+    db.rollback()  # close the vector-read transaction before the next import
     s = import_catalogue(db, raw, fake_embedder)
     assert (s.created, s.updated, s.unchanged) == (0, 1, 29)
     assert s.embeddings_computed == 0 and s.embeddings_reused > 0 and s.catalogue_revision == 2
@@ -248,6 +253,7 @@ def test_invalid_batch_writes_nothing_and_leaves_the_previous_catalogue_intact(d
     bad = subset(jobs_raw, {"J01", "J03"})
     bad["jobs"][0]["title"] = "Changed but batch is invalid"
     del bad["jobs"][1]["company_name"]
+    db.rollback()  # close the snapshot-read transaction before invoking the importer
     s = import_catalogue(db, bad, fake_embedder)
     assert not s.ok and s.issues and counts(db) == before
     assert db.execute(select(Job.title).where(Job.source_job_id == "J01")).scalar() != "Changed but batch is invalid"
@@ -256,6 +262,7 @@ def test_invalid_batch_writes_nothing_and_leaves_the_previous_catalogue_intact(d
 def test_dry_run_reports_the_plan_and_writes_nothing(db, jobs_raw, fake_embedder):
     import_catalogue(db, subset(jobs_raw, {"J01"}), fake_embedder)
     before = counts(db)
+    db.rollback()  # dry-run also requires a clean session
     s = import_catalogue(db, subset(jobs_raw, {"J01", "J02", "J03"}), fake_embedder, dry_run=True)
     assert s.ok and s.dry_run and (s.created, s.unchanged) == (2, 1) and s.embeddings_computed > 0
     assert counts(db) == before
@@ -268,6 +275,7 @@ def test_embedding_failure_and_a_failed_write_leave_the_catalogue_intact(db, job
     import numpy as np
     import_catalogue(db, subset(jobs_raw, {"J01"}), fake_embedder)
     before = counts(db)
+    db.rollback()  # close the snapshot-read transaction before the failing import attempts
 
     class Exploding(type(fake_embedder)):
         def embed(self, texts):
@@ -276,12 +284,13 @@ def test_embedding_failure_and_a_failed_write_leave_the_catalogue_intact(db, job
     with pytest.raises(RuntimeError):
         import_catalogue(db, subset(jobs_raw, {"J01", "J02"}), Exploding())
     assert counts(db) == before
+    db.rollback()  # close the post-failure count transaction before the next import
 
     class WrongDim(type(fake_embedder)):
         def embed(self, texts):
             return np.ones((len(texts), 3), dtype=np.float32)
 
-    with pytest.raises(Exception):
+    with pytest.raises(DBAPIError):
         import_catalogue(db, subset(jobs_raw, {"J01", "J02"}), WrongDim())     # fails inside the transaction: rolled back
     assert counts(db) == before
 
@@ -292,6 +301,7 @@ def test_absence_from_a_file_never_deactivates_and_is_active_false_closes(db, jo
     assert db.execute(select(func.count()).select_from(Job).where(Job.is_active)).scalar() == 4
     closing = subset(jobs_raw, {"J01"})
     closing["jobs"][0]["is_active"] = False
+    db.rollback()  # close the read transaction before the next import
     import_catalogue(db, closing, fake_embedder)
     db.expire_all()
     assert db.execute(select(Job.is_active).where(Job.source_job_id == "J01")).scalar() is False

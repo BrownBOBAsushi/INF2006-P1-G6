@@ -41,8 +41,8 @@
   },
   "label_review": {
     "status": "PARTIAL",
-    "reviewer": "team member (blind)",
+    "reviewer": "team member submission (process recorded as blind; not independently verified)",
     "date": "2026-10-01",
-    "note": "Independent blind human review completed for 90/300 labels (3 of 10 profiles: P06, P07, P08, held-out) on 2026-10-01; see data/evaluation/LABEL_REVIEW_LOG.md and data/evaluation_reviewed_subset/. The remaining 7 profiles (P01-P05 development, P09-P10 held-out) are still AI-drafted only and provisional. Do not report this as COMPLETED or treat the full 300-label set as human-reviewed."
+    "note": "A team member supplied labels for 90/300 pairs (P06-P08, held-out) on 2026-10-01; the process was recorded as blind but is not independently verified. The original submission is preserved at data/evaluation_reviewed_subset/labels_human.csv. After the first scoring, one AI-assisted, user-authorized rubric correction (P06-J29: 2 to 0) was recorded separately in labels_audited.csv; it is not a new human label or ratification. The remaining 210 pairs (P01-P05 development, P09-P10 held-out) remain AI-drafted. Status is PARTIAL; do not treat all 300 pairs as human-reviewed."
   }
 }

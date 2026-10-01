@@ -1,7 +1,10 @@
 # Analytics and evaluation
 
 Owner: Chuying. Status: `evaluate.py` implemented and executed; see `../evidence/test-data-ai.md` for the dated
-run record and results. **Labels are AI-drafted and pending human review, so all scores are provisional.**
+run record and results. The 300-row source set is AI-drafted. A team member supplied a separate 90-row held-out
+subset; its blind process is recorded but not independently verified. Its original submission and a separate,
+post-result AI-assisted audit copy are retained at `../data/evaluation_reviewed_subset/`. Coverage remains
+`PARTIAL` (90/300), all scores are provisional, and the evaluator does not verify label provenance.
 
 ## What it does
 
