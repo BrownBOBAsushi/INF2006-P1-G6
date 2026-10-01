@@ -40,9 +40,9 @@
     "model_output_used_to_write_or_adjust_labels": false
   },
   "label_review": {
-    "status": "PENDING",
-    "reviewer": null,
-    "date": null,
-    "note": "No human on the team has reviewed these labels yet; results are provisional until status is COMPLETED."
+    "status": "PARTIAL",
+    "reviewer": "team member (blind)",
+    "date": "2026-10-01",
+    "note": "Independent blind human review completed for 90/300 labels (3 of 10 profiles: P06, P07, P08, held-out) on 2026-10-01; see data/evaluation/LABEL_REVIEW_LOG.md and data/evaluation_reviewed_subset/. The remaining 7 profiles (P01-P05 development, P09-P10 held-out) are still AI-drafted only and provisional. Do not report this as COMPLETED or treat the full 300-label set as human-reviewed."
   }
 }

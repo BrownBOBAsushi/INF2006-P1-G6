@@ -421,7 +421,7 @@ def load_labels(repo_root):
     jobs = json.loads((repo_root / "data/evaluation/jobs.json").read_text())["jobs"]
     id2title = {j["source_job_id"]: j["title"] for j in jobs}
     labels = {}
-    with open(repo_root / "data/evaluation/labels_adjudicated_v1.csv") as f:
+    with open(repo_root / "data/evaluation/labels.csv") as f:
         for row in csv.DictReader(f):
             if row["relevance"] == "2":  # known-relevant jobs per profile
                 labels.setdefault(row["profile_id"], set()).add(id2title.get(row["job_id"]))
@@ -476,7 +476,7 @@ def main():
                          "cap_s": BACKOFF_CAP_S, "max_attempts": args.max_attempts, "step_deadline_s": args.step_deadline,
                          "honours_retry_after": True, "stops_if_retry_after_exceeds_budget": True, "same_key_for_transient_retry": True,
                          "wall_deadline": "late_responses_rejected; urllib socket timeout cannot cancel slow-drip reads"},
-        "fixture": "data/evaluation/labels_adjudicated_v1.csv relevance>=2 per profile (provisional labels)",
+        "fixture": "data/evaluation/labels.csv relevance>=2 per profile (AI-drafted, provisional; see data/evaluation/manifest.json label_review.status)",
         "rows": rows, "browse": browse,
     }, indent=2))
     args.timeline.write_text(json.dumps(timeline, indent=2))

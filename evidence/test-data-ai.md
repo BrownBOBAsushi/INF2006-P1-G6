@@ -1,9 +1,12 @@
 # data-ai test record
 
-Status: RUN on 2026-09-20. **Results are provisional: the relevance labels are AI-drafted and have not yet been
-reviewed by a human team member.** They are not human ground truth until `data/evaluation/manifest.json`
-`label_review.status` is `COMPLETED`. Later partial team input (12 adjudicated pairs, 48 labels of unverified origin) is described in
-"Label provenance and later label sets" at the end of this file.
+Status: RUN on 2026-09-20, updated 2026-10-01. **Results are provisional for 7 of 10 profiles** (P01-P05
+development, P09-P10 held-out): the relevance labels are AI-drafted and have not been reviewed by a human team
+member. **For 3 of 10 profiles (P06-P08, held-out), an independent blind human review was completed on
+2026-10-01** (90/300 labels); see "Human-reviewed subset update" below and `data/evaluation/LABEL_REVIEW_LOG.md`.
+`data/evaluation/manifest.json` `label_review.status` is `PARTIAL`, not `COMPLETED` — do not treat the full
+300-label set as human ground truth. An earlier non-blind partial adjudication (12 pairs) and an unverified-origin
+label set (48 pairs) were removed before this review; see `AI_USE_DECLARATION.md`.
 
 - **Objective:** Measure ranking quality (Precision@5, NDCG@5) of the contract's requirement-level embedding
   ranking against two baselines (keyword/BM25, pooled-chunk embedding; plus a truncating whole-resume
@@ -97,25 +100,42 @@ reviewed by a human team member.** They are not human ground truth until `data/e
   5. Headline run, both models, both subsets (first time held-out was scored; code frozen at `de082b2`, not changed afterwards).
   6. Sensitivity run (bge + query prefix).
   7. Reproducibility rerun of the documented default command: MiniLM numbers identical to run 5 in all 24 cells; tests passed again (16).
+## Human-reviewed subset update (2026-10-01)
+
+**Scope:** an independent blind human review of 90 of the 300 labels — 3 of the 5 held-out profiles (P06, P07,
+P08), all 30 jobs each — completed 2026-10-01, replacing the earlier non-blind partial adjudication and
+unverified-origin set referenced above. Full process, criteria and the complete list of disagreements are in
+`data/evaluation/LABEL_REVIEW_LOG.md`. This does **not** cover the other 7 profiles (P01-P05 development, P09-P10
+held-out), which remain AI-drafted and provisional; `manifest.json` `label_review.status` is `PARTIAL`.
+
+**Agreement with the AI draft (same 90 pairs):** 72/90 (80.0%) agree. All 18 disagreements are the human reviewer
+rating a pair *more* relevant than the AI draft (never less) — consistent with an independent review rather than
+a copy of the draft, and suggesting the AI draft was, if anything, conservative on this subset.
+
+**Re-scored with human labels** (MiniLM only, held-out, same 3 profiles; command:
+`python analytics/evaluate.py --fixtures data/evaluation_reviewed_subset --labels data/evaluation_reviewed_subset/labels_human.csv --out-dir evidence --tag human_review_P06_P08 --subset held_out`).
+Cells are strict P@5 / lenient P@5 / NDCG@5. Ceilings (human labels): strict 0.667, lenient 1.000.
+
+| Method | AI-drafted labels (same 3 profiles, from the 09-20 run) | Human-reviewed labels (2026-10-01) |
+|---|---|---|
+| Requirement-level (contract method) | 0.533 / 0.600 / 0.895 | 0.533 / 0.800 / 0.870 |
+| Baseline A: keyword / BM25 | 0.533 / 0.667 / 0.925 | 0.600 / 0.867 / 0.920 |
+| Baseline B: pooled-chunk embedding | 0.533 / 0.600 / 0.888 | 0.667 / 0.800 / 0.904 |
+| Baseline B2: whole-resume (truncates) | 0.533 / 0.667 / 0.927 | 0.667 / 0.800 / 0.904 |
+
+The AI-drafted column is the same 09-20 headline run (`evidence/data-ai-eval-2026-09-20.json`), re-averaged over
+only P06-P08 so the two columns compare the same 3 profiles under the two label sets.
+
+**Reading this honestly:** the human review does not strengthen the contract (requirement-level) method's
+position. Its strict P@5 is unchanged (0.533 -> 0.533), while every baseline's strict P@5 rose (BM25 0.533 ->
+0.600; both embedding baselines 0.533 -> 0.667) and requirement-level's NDCG@5 fell slightly (0.895 -> 0.870).
+The 18 label promotions (mostly 0 -> 1) mechanically help lenient P@5 for every method, which is why lenient
+scores rose across the board, but they narrow rather than widen any gap between requirement-level and the
+baselines on this held-out subset. With 3 profiles this is still a small-sample point estimate; no significance
+is claimed, and the headline 10-profile, AI-drafted comparison above remains the primary reported result until
+all 10 profiles are human-reviewed.
+
+**Output artefacts:** `evidence/data-ai-eval-2026-10-01-human_review_P06_P08.md` and `.json`.
+
 - **Failure diagnosis / rerun:** No failures. Held-out was scored only after code freeze and no method, parameter or
   label was changed after seeing any result. To reproduce: follow `analytics/README.md`.
-
-## Label provenance and later label sets (added 2026-09-22; written by Chuying, awaiting review by Zhihao)
-
-The headline run above used the AI-drafted `labels.csv` and is unchanged. Two further runs used label sets that include some team input. Neither is independent
-human ground truth; `manifest.json` `label_review.status` is still `PENDING`.
-
-| Label set | Contents | Held-out requirement-level, MiniLM / bge (strict / lenient / NDCG@5) | Evidence |
-|---|---|---|---|
-| `labels.csv` | 300 AI-drafted labels | 0.640 / 0.760 / 0.922 and 0.640 / 0.720 / 0.912 | `data-ai-eval-2026-09-20.md/.json` |
-| `labels_adjudicated_v1.csv` | AI draft with 12 disputed pairs decided by Chuying **after seeing the AI labels** (6 changed) | 0.680 / 0.760 / 0.919 and 0.680 / 0.720 / 0.912 | `data-ai-eval-2026-09-22-adjudicated-v1.md/.json` |
-| `labels_merged_v2_unverified48.csv` (not kept; rebuilt from `labels_adjudicated_v1.csv` + `labels_48.csv`, see `data/evaluation/README.md`) | adjudicated set with 48 team-supplied labels of **unverified origin** (3 changed, agree with the draft on 45/48) | 0.640 / 0.760 / 0.919 and 0.680 / 0.720 / 0.925 | `data-ai-eval-2026-09-22-merged-v2-unverified48.md/.json` |
-
-Held-out BM25 over the same sets: 0.640 / 0.720 / 0.910, 0.640 / 0.680 / 0.868 and 0.640 / 0.680 / 0.881. Requirement-level stays at or above BM25 on NDCG@5 in
-all three, but with 5 held-out profiles this is not tested for significance and no method or model winner is claimed. Labels were changed after the first
-results existed; the changes come from a person's review, none was tuned to improve a score, and all result sets are kept side by side.
-
-Limits: only 12 pairs are personally decided by a team member (4 %), and that was not blind; 48 further labels have unverified origin; about 240 pairs
-remain AI-drafted only. The plan in `LABELLING_CRITERIA.md` (independent blind labelling) has not been completed. Other label files supplied during
-review were checked and not used because their origin could not be established. Files: `data/evaluation/labels_human_adjudication12.csv`,
-`labels_48.csv`.

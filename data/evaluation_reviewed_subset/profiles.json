@@ -1,0 +1,212 @@
+{
+  "schema_version": 1,
+  "profiles": [
+    {
+      "profile_id": "P06",
+      "split": "held_out",
+      "focus": "full-stack web development with cloud deployment (React, Node.js, Docker, AWS)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "JavaScript",
+          "TypeScript",
+          "React",
+          "Node.js",
+          "PostgreSQL",
+          "Docker",
+          "AWS",
+          "Git",
+          "Linux"
+        ],
+        "projects": [
+          {
+            "title": "Recipe sharing web app",
+            "description": "Built a React and TypeScript interface for browsing and rating recipes, backed by a Node.js API and a PostgreSQL database. Wrote the API routes and the SQL queries, connected the front end to them and reviewed teammates' pull requests. Wrote Jest unit tests for the API routes and Playwright browser tests for the sign-up flow.",
+            "technologies": [
+              "React",
+              "TypeScript",
+              "Node.js",
+              "PostgreSQL",
+              "Jest",
+              "Playwright",
+              "Git"
+            ]
+          },
+          {
+            "title": "Containerised deployment",
+            "description": "Packaged the recipe app in Docker containers and deployed it to an AWS virtual machine. Set up a GitHub Actions workflow that runs the tests and rebuilds the containers on every merge.",
+            "technologies": [
+              "Docker",
+              "AWS",
+              "GitHub Actions"
+            ]
+          },
+          {
+            "title": "Server hardening exercise",
+            "description": "Configured a Linux server from the command line, set up SSH keys and a firewall, and wrote Bash scripts to automate backups.",
+            "technologies": [
+              "Linux",
+              "Bash"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Freelance website builder",
+            "description": "Built and launched a five-page website for a local bakery using HTML, CSS and JavaScript and handled the customer's change requests.",
+            "technologies": [
+              "HTML",
+              "CSS",
+              "JavaScript"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Computer Science",
+            "details": "Currently in year 3"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P07",
+      "split": "held_out",
+      "focus": "data engineering and analytics (Python, SQL, Airflow, Tableau)",
+      "notes": "",
+      "content": {
+        "skills": [
+          "Python",
+          "SQL",
+          "pandas",
+          "PostgreSQL",
+          "Airflow",
+          "Spark",
+          "Git",
+          "Docker"
+        ],
+        "projects": [
+          {
+            "title": "Bike-share data pipeline",
+            "description": "Wrote Python scripts that download monthly trip files, clean and reshape them with pandas and load them into a PostgreSQL warehouse using SQL COPY and INSERT statements. Added checks that stop the load when the row count or null rate looks wrong.",
+            "technologies": [
+              "Python",
+              "pandas",
+              "PostgreSQL",
+              "SQL"
+            ]
+          },
+          {
+            "title": "Scheduled ingestion",
+            "description": "Scheduled the pipeline to run every night using Apache Airflow and cron, and wrote alerts for failed runs.",
+            "technologies": [
+              "Airflow",
+              "cron"
+            ]
+          },
+          {
+            "title": "Warehouse reporting views",
+            "description": "Created SQL views that join and aggregate the trip tables so analysts could build weekly reports, then built an interactive Tableau dashboard on top of them.",
+            "technologies": [
+              "SQL",
+              "Tableau"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Data intern at a student-run startup",
+            "description": "Consolidated customer spreadsheets into one database table and explained the data quality issues to the founders in plain language.",
+            "technologies": [
+              "SQL",
+              "Excel"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BSc Data Science",
+            "details": "Databases and distributed systems modules completed"
+          }
+        ]
+      }
+    },
+    {
+      "profile_id": "P08",
+      "split": "held_out",
+      "focus": "embedded firmware (C/C++, microcontrollers, RTOS)",
+      "notes": "narrow profile; few relevant jobs exist in the fixture set",
+      "content": {
+        "skills": [
+          "C",
+          "C++",
+          "Arduino",
+          "STM32",
+          "Python",
+          "Git",
+          "I2C",
+          "SPI"
+        ],
+        "projects": [
+          {
+            "title": "Plant moisture monitor",
+            "description": "Programmed an Arduino microcontroller in C++ to read a soil sensor over I2C, sleep between readings and send data over a serial link. Used interrupts to wake the board on a timer.",
+            "technologies": [
+              "C++",
+              "Arduino",
+              "I2C"
+            ]
+          },
+          {
+            "title": "STM32 motor controller",
+            "description": "Wrote a driver in C for an STM32 board to drive a motor through PWM and read a wheel encoder using SPI. Used an oscilloscope and logic analyser to debug timing problems on the real hardware and read the datasheet to set registers.",
+            "technologies": [
+              "C",
+              "STM32",
+              "SPI"
+            ]
+          },
+          {
+            "title": "Small RTOS task scheduler",
+            "description": "Ran three tasks on FreeRTOS: sensor sampling, display update and logging, and used queues to share data safely.",
+            "technologies": [
+              "FreeRTOS",
+              "C"
+            ]
+          },
+          {
+            "title": "2D collision demo",
+            "description": "Wrote a small interactive 2D physics demo in C++ where the arrow keys move a ball, using vector maths to detect and resolve collisions with walls.",
+            "technologies": [
+              "C++"
+            ]
+          },
+          {
+            "title": "Sensor logger on a single-board computer",
+            "description": "Wrote a Python program on a Raspberry Pi that stores sensor readings in a SQLite database with SQL insert statements and exposes the latest readings through a small Flask endpoint.",
+            "technologies": [
+              "Python",
+              "Flask",
+              "SQLite"
+            ]
+          }
+        ],
+        "experience": [
+          {
+            "title": "Robotics club firmware volunteer",
+            "description": "Fixed hardware bugs on the club's line-following robot before competitions.",
+            "technologies": [
+              "C++"
+            ]
+          }
+        ],
+        "education": [
+          {
+            "qualification": "BEng Electrical and Computer Engineering",
+            "details": "Digital systems and microcontroller modules completed"
+          }
+        ]
+      }
+    }
+  ]
+}
