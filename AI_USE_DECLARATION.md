@@ -40,9 +40,10 @@ end-to-end cloud journey remain unverified.
 
 - The 300 relevance labels in `data/evaluation/labels.csv` were drafted by Claude before any model output existed. They are AI-drafted.
 - Chuying decided 12 disputed pairs personally, **after seeing the AI labels** (adjudication, not blind labelling), and changed 6 of them
-  (P04-J16, P04-J21, P06-J26, P07-J01, P07-J26, P08-J01). Record: `data/evaluation/labels_human_adjudication12.csv`.
-- A further 48 labels were supplied by a team member as `data/evaluation/labels_48.csv`. **Their origin has not been verified**; they agree with the
-  AI draft on 45 of 48 pairs. They are used only in one evaluation run (`evidence/data-ai-eval-2026-09-22-merged-v2-unverified48.md`, see `data/evaluation/README.md`) and are not claimed as human ground truth.
+  (P04-J16, P04-J21, P06-J26, P07-J01, P07-J26, P08-J01). This record (`labels_human_adjudication12.csv`) was removed on 2026-10-01 and superseded
+  by an independent blind human review (in progress; see `LABELLING_CRITERIA.md`).
+- A further 48 labels were supplied by a team member as `labels_48.csv`. **Their origin was never verified**; they agreed with the
+  AI draft on 45 of 48 pairs. That file and the evaluation run built from it were also removed on 2026-10-01 for the same reason.
 - The other pairs are AI-drafted and unreviewed. No label set is claimed to be independent human labelling; `manifest.json` `label_review.status` stays `PENDING`.
 - Other label files supplied during review were checked and not used. All metrics that depend on labels are provisional (`evidence/test-data-ai.md`).
 

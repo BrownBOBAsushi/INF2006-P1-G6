@@ -1,0 +1,91 @@
+profile_id,job_id,relevance,split,rationale
+P06,J01,2,held_out,"P06 built a Node.js/PostgreSQL web API with SQL queries and Jest automated unit tests, matching the backend API, SQL, and automated testing requirements."
+P06,J02,0,held_out,"P06 lacks experience in Java, Kotlin, and dependency-injection frameworks like Spring."
+P06,J03,2,held_out,"P06 built a full-stack recipe web app using React, TypeScript, Node.js, and used Git pull requests, perfectly matching all core requirements."
+P06,J04,2,held_out,"P06 deployed applications using Docker, set up GitHub Actions CI/CD pipelines, and configured Linux servers from the command line."
+P06,J05,0,held_out,P06 has no experience with mobile Android development or Kotlin/Java.
+P06,J06,1,held_out,"P06 knows SQL and PostgreSQL, but lacks experience building Tableau/Power BI charts or conducting data analysis."
+P06,J07,1,held_out,"P06 has experience with PostgreSQL, Docker, and GitHub Actions, but primarily works in JS/Node rather than Python data transformation pipelines."
+P06,J08,0,held_out,"P06 lacks machine learning, PyTorch/TensorFlow, and natural language processing experience."
+P06,J09,0,held_out,"P06 has no computer vision, deep learning, or OpenCV experience."
+P06,J10,1,held_out,"P06 can write SQL queries, but lacks experience building business intelligence dashboards in Tableau or Power BI."
+P06,J11,0,held_out,"P06 lacks statistical modeling, regression, and data science background."
+P06,J12,1,held_out,"P06 configured Linux servers, SSH keys, and firewalls, but lacks specific network capture/log analysis experience."
+P06,J13,0,held_out,P06 works on web/cloud technologies and lacks C/C++ microcontrollers and hardware peripheral experience.
+P06,J14,2,held_out,"P06 wrote automated browser tests using Playwright and API unit tests using Jest, matching the test automation requirement."
+P06,J15,0,held_out,P06's background is technical software development and lacks online campaign or SEO experience.
+P06,J16,0,held_out,P06 lacks video/photo content creation and social media management experience.
+P06,J17,0,held_out,P06 lacks corporate financial modeling and accounting knowledge.
+P06,J18,0,held_out,P06 lacks accounting background and audit working paper experience.
+P06,J19,0,held_out,"P06 lacks HR, recruiting, and event organization experience."
+P06,J20,1,held_out,"P06 built React web interfaces, but lacks formal UI/UX prototyping in Figma and usability testing experience."
+P06,J21,0,held_out,P06 lacks artwork creation in Illustrator/Photoshop and graphic design portfolio.
+P06,J22,0,held_out,P06 has no 3D CAD modeling or mechanical engineering background.
+P06,J23,0,held_out,"P06 lacks civil engineering, AutoCAD, and construction drawing background."
+P06,J24,0,held_out,"P06 lacks biological lab, PCR, and cell culture experience."
+P06,J25,0,held_out,P06 lacks logistics and supply chain management experience.
+P06,J26,0,held_out,P06's background is software engineering rather than CRM and sales operations.
+P06,J27,1,held_out,"P06 has technical experience working on web products and reviewing pull requests, but hasn't explicitly written formal user stories or product analytics."
+P06,J28,1,held_out,"P06 is familiar with Linux command line and web deployment, providing basic technical troubleshooting capability."
+P06,J29,2,held_out,"P06 has extensive JavaScript/TypeScript experience, knows Git, and can explain technical concepts and code snippets clearly."
+P06,J30,0,held_out,P06 lacks game engine (Unity/Unreal) and C#/C++ game programming experience.
+P07,J01,1,held_out,"P07 uses Python and PostgreSQL for database queries and data ingestion, but has built ETL pipelines rather than web HTTP APIs."
+P07,J02,0,held_out,P07 lacks Java/Kotlin and Spring framework experience.
+P07,J03,0,held_out,P07 lacks component-based frontend framework (React/Vue) and web UI experience.
+P07,J04,1,held_out,"P07 uses Docker and cron/Airflow on Linux, but lacks dedicated CI/CD pipeline and cloud infrastructure configuration experience."
+P07,J05,0,held_out,P07 lacks Android mobile application development experience.
+P07,J06,2,held_out,"P07 writes complex SQL queries (joins, aggregations), built interactive Tableau dashboards, and communicated data findings to non-technical stakeholders."
+P07,J07,2,held_out,"P07 wrote Python ETL scripts, loaded data into PostgreSQL, and automated/scheduled jobs using Apache Airflow and cron."
+P07,J08,0,held_out,P07 lacks neural network training (PyTorch/TensorFlow) and NLP/text dataset experience.
+P07,J09,0,held_out,"P07 lacks deep learning, image processing (OpenCV), and computer vision experience."
+P07,J10,2,held_out,"P07 built reporting views and interactive Tableau dashboards from PostgreSQL data, and explained data quality issues to non-technical users."
+P07,J11,1,held_out,"P07 uses Python, SQL, and pandas for data analysis, but lacks specific statistical forecasting or regression modeling project experience."
+P07,J12,0,held_out,"P07 lacks networking (TCP/IP, firewalls) and security log analysis experience."
+P07,J13,0,held_out,P07 lacks microcontroller programming in C/C++ and hardware debugging.
+P07,J14,0,held_out,P07 lacks automated test scripting in tools like Playwright or Selenium.
+P07,J15,0,held_out,P07 lacks marketing campaign and SEO experience.
+P07,J16,0,held_out,P07 lacks short-form video/photo content creation experience.
+P07,J17,0,held_out,P07 lacks financial statement analysis and corporate accounting background.
+P07,J18,0,held_out,P07 lacks accounting principles and financial audit experience.
+P07,J19,0,held_out,"P07 lacks recruiting, HR coordination, and event planning experience."
+P07,J20,0,held_out,P07 lacks UI design prototyping in Figma and usability testing experience.
+P07,J21,0,held_out,P07 lacks artwork creation and graphic design background.
+P07,J22,0,held_out,P07 lacks 3D CAD modeling and mechanical engineering background.
+P07,J23,0,held_out,P07 lacks civil engineering and AutoCAD background.
+P07,J24,0,held_out,P07 lacks molecular biology and PCR laboratory experience.
+P07,J25,1,held_out,"P07 is skilled in Excel data consolidation and data organizing, but lacks direct supply chain/logistics experience."
+P07,J26,1,held_out,"P07 has strong spreadsheet/database skills and stakeholder communication, but lacks sales CRM pipeline experience."
+P07,J27,1,held_out,"P07 communicated data quality insights to founders and handles data reporting, showing analytical skills relevant to product insights."
+P07,J28,0,held_out,P07's focus is data engineering rather than desktop hardware/network helpdesk support.
+P07,J29,1,held_out,P07 can read Python/SQL code and explain technical data quality issues to non-technical users in plain language.
+P07,J30,0,held_out,P07 lacks game engine and game programming experience.
+P08,J01,1,held_out,"P08 built a Python Flask web endpoint backed by a SQLite relational database, but lacks formal automated unit testing experience."
+P08,J02,0,held_out,"P08 works in C/C++ and Python, lacking Java/Kotlin and Spring framework experience."
+P08,J03,0,held_out,P08 lacks component-based web UI frameworks (React/Vue/TS).
+P08,J04,0,held_out,"P08 works on Linux/Raspberry Pi and FreeRTOS, but lacks container deployment and CI/CD pipeline automation."
+P08,J05,0,held_out,P08 lacks Android app development experience in Kotlin/Java.
+P08,J06,0,held_out,"P08 has basic SQL knowledge, but lacks business data analysis, chart/dashboard tools, and reporting experience."
+P08,J07,1,held_out,"P08 wrote Python scripts storing data into SQLite with SQL INSERT statements, but lacks Airflow and large-scale data warehousing experience."
+P08,J08,0,held_out,P08 lacks PyTorch/TensorFlow deep learning and natural language processing experience.
+P08,J09,0,held_out,P08 lacks deep learning and computer vision image processing experience.
+P08,J10,0,held_out,P08 lacks BI dashboard tools (Tableau/Power BI) and reporting experience.
+P08,J11,0,held_out,"P08 uses Python, but lacks statistical forecasting and regression modeling experience."
+P08,J12,0,held_out,"P08 has hardware serial/Linux experience, but lacks network security and log triage experience."
+P08,J13,2,held_out,"P08 programmed Arduino and STM32 microcontrollers in C/C++, handled I2C/SPI protocols, used FreeRTOS interrupts, and debugged on real hardware."
+P08,J14,0,held_out,P08 lacks automated browser/UI test automation scripting experience.
+P08,J15,0,held_out,P08 lacks digital marketing and campaign management experience.
+P08,J16,0,held_out,P08 lacks short-form video/photo content creation experience.
+P08,J17,0,held_out,P08 lacks financial modeling and accounting knowledge.
+P08,J18,0,held_out,P08 lacks accounting principles and financial audit experience.
+P08,J19,0,held_out,P08 lacks recruiting and HR coordination experience.
+P08,J20,0,held_out,P08 lacks Figma UI design and user usability testing experience.
+P08,J21,0,held_out,P08 lacks graphic design and artwork experience.
+P08,J22,1,held_out,"P08 works on robotics firmware, motor controllers, and hardware timing, but lacks 3D CAD modeling software (SolidWorks) experience."
+P08,J23,0,held_out,P08 lacks civil/structural engineering and AutoCAD drafting experience.
+P08,J24,0,held_out,"P08 lacks molecular biology, PCR, and cell culture lab experience."
+P08,J25,0,held_out,P08 lacks logistics and supply chain management experience.
+P08,J26,0,held_out,P08 lacks sales operations and CRM experience.
+P08,J27,0,held_out,P08 lacks user stories and product management experience.
+P08,J28,1,held_out,P08 has practical hardware debugging and Linux experience on single-board computers.
+P08,J29,1,held_out,"P08 writes Python and C/C++ code, allowing them to explain basic technical code examples."
+P08,J30,2,held_out,P08 wrote an interactive 2D physics demo in C++ using vector maths to detect and resolve collisions.
