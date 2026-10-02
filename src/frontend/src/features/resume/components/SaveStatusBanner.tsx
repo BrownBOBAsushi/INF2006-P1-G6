@@ -20,15 +20,40 @@ export function SaveStatusBanner({
 
   const tone = bannerTone(status);
   return (
-    <div role="status" aria-live="polite" data-testid="save-status" data-tone={tone}>
+    <div className="save-status" role="status" aria-live="polite" data-testid="save-status" data-tone={tone}>
+      <span className="save-status-icon" aria-hidden="true">
+        <ToneIcon tone={tone} />
+      </span>
       <strong>{bannerHeading(status)}</strong>
       <p>{bannerBody(status)}</p>
       {status.kind === 'OUTCOME_UNKNOWN' && onCheck && (
-        <button type="button" onClick={onCheck}>
+        <button type="button" className="button-secondary" onClick={onCheck}>
           Check save status
         </button>
       )}
     </div>
+  );
+}
+
+function ToneIcon({ tone }: { tone: 'progress' | 'success' | 'warning' | 'error' }): React.ReactElement {
+  const common = { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
+  if (tone === 'success') {
+    return (
+      <svg {...common}><circle cx="12" cy="12" r="9" /><path d="m8.5 12 2.5 2.5 4.5-5" /></svg>
+    );
+  }
+  if (tone === 'error') {
+    return (
+      <svg {...common}><circle cx="12" cy="12" r="9" /><path d="m9 9 6 6M15 9l-6 6" /></svg>
+    );
+  }
+  if (tone === 'warning') {
+    return (
+      <svg {...common}><path d="M12 4 3 19h18L12 4Z" /><path d="M12 10v4" /><path d="M12 17h.01" /></svg>
+    );
+  }
+  return (
+    <svg {...common} className="save-status-spinner"><path d="M12 3a9 9 0 1 1-6.4 2.6" /></svg>
   );
 }
 

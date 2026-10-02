@@ -37,7 +37,7 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
   };
 
   return (
-    <section aria-labelledby={`${inputId}-heading`}>
+    <section className="resume-upload" aria-labelledby={`${inputId}-heading`}>
       <h2 id={`${inputId}-heading`}>Add your resume</h2>
       <p>
         Upload one text-based PDF, up to {formatMebibytes(LIMITS.MAX_PDF_BYTES)}. We remove personal
@@ -45,6 +45,7 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
       </p>
 
       <div
+        className="resume-dropzone"
         data-testid="dropzone"
         data-drag-active={dragActive ? 'true' : 'false'}
         onDragOver={(event) => {
@@ -77,21 +78,21 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
       )}
 
       {selectedFile !== null && (
-        <div data-testid="selected-file">
+        <div className="resume-selected" data-testid="selected-file">
           <p>
             Selected: {selectedFile.name} ({formatMebibytes(selectedFile.size)})
           </p>
           <button type="button" onClick={onPrepare} disabled={preparing}>
             {preparing ? 'Preparing…' : 'Prepare for review'}
           </button>
-          <button type="button" onClick={onClearSelection} disabled={preparing}>
+          <button type="button" className="button-quiet" onClick={onClearSelection} disabled={preparing}>
             Remove file
           </button>
         </div>
       )}
 
-      <p>
-        <button type="button" onClick={onSkip} disabled={preparing}>
+      <p className="resume-skip">
+        <button type="button" className="button-secondary" onClick={onSkip} disabled={preparing}>
           Enter my details without a PDF
         </button>
       </p>

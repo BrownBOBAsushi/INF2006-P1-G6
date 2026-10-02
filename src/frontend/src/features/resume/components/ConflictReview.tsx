@@ -7,17 +7,19 @@ export function ConflictReview({ conflict, onRefresh, onResolve }: {
 }): React.ReactElement {
   const { profile, revision } = conflict;
   return (
-    <section aria-label="Current saved version">
+    <section className="resume-conflict" aria-label="Current saved version">
       <h2>Review the current saved version</h2>
       {profile === undefined || revision === null ? (
         <>
           <p>The current version could not be loaded. Your draft is still below. Saving is paused until you can review the current version.</p>
-          <button type="button" onClick={onRefresh}>Retry loading current version</button>
+          <div className="actions">
+            <button type="button" className="button-secondary" onClick={onRefresh}>Retry loading current version</button>
+          </div>
         </>
       ) : (
         <>
           {profile === null ? <p>Your resume was deleted elsewhere.</p> : (
-            <>
+            <div className="resume-conflict-preview">
               <h3>Skills</h3>
               <p>{profile.content.skills.join(', ') || 'None'}</p>
               {(['projects', 'experience'] as const).map(section => (
@@ -32,11 +34,13 @@ export function ConflictReview({ conflict, onRefresh, onResolve }: {
               {profile.content.education.map((entry, index) => (
                 <article key={index}><h4>{entry.qualification}</h4><p>{entry.details}</p></article>
               ))}
-            </>
+            </div>
           )}
           <p>Keeping your draft means your next save will replace this version. No changes are saved by choosing below.</p>
-          <button type="button" onClick={() => onResolve('USE_CURRENT')}>Discard my draft and use current version</button>
-          <button type="button" onClick={() => onResolve('KEEP_DRAFT')}>I reviewed this version; keep my draft</button>
+          <div className="actions">
+            <button type="button" onClick={() => onResolve('KEEP_DRAFT')}>I reviewed this version; keep my draft</button>
+            <button type="button" className="button-danger" onClick={() => onResolve('USE_CURRENT')}>Discard my draft and use current version</button>
+          </div>
         </>
       )}
     </section>
