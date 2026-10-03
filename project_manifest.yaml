@@ -1,27 +1,25 @@
-# Required schema: INF2006 Team Project brief Section 8. Paths are relative to the ZIP root.
-# TEAM INPUT REQUIRED before packaging: team.members[].student_id, project.repository_commit.
 project:
-  group_id: "P1-G5" # confirmed by the team operator 2026-10-03
+  group_id: "P1-G5"
   title: "Internship Matcher"
   problem_statement: "Students struggle to judge which internship listings fit their skills. Internship Matcher lets a student sign in with Google, upload a résumé PDF, review and approve a privacy-redacted extraction, and receive internships ranked by requirement-level semantic similarity with the matching evidence shown for each requirement."
   cloud_provider: "AWS"
   repository_commit: "" # TEAM INPUT: final commit hash of the submitted tree
 team:
   members:
-    - name: "Jiaxin"
-      student_id: "" # TEAM INPUT
+    - name: "Goh Jia Xin"
+      student_id: "2500020"
       role: "Backend: authentication, database, API integration"
-    - name: "Chuying"
-      student_id: "" # TEAM INPUT
+    - name: "Yu Chuying"
+      student_id: "2502258" 
       role: "Backend: résumé processing, embeddings, matching, evaluation"
-    - name: "Xue E"
-      student_id: "" # TEAM INPUT
+    - name: "Liao Xue E"
+      student_id: "2501777"
       role: "Frontend: authentication, catalogue, job details"
-    - name: "Nasya"
-      student_id: "" # TEAM INPUT
+    - name: "Chan Si Ying, Nasya"
+      student_id: "2502538"
       role: "Frontend: résumé review and recommendations"
-    - name: "Zhihao"
-      student_id: "" # TEAM INPUT
+    - name: "Chye Zhi Hao"
+      student_id: "2500961"
       role: "System design, cloud deployment, review"
 architecture:
   diagram: "evidence/architecture.png" # editable source: evidence/architecture.svg

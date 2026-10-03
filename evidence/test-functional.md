@@ -26,7 +26,7 @@ refresh.
 |---|---|---|---|
 | 1 | Open the app and sign in with Google | Session created; profile page loads | [Operator-reported] sign-in succeeded; session persisted across refresh |
 | 2 | Upload the synthetic PDF | 202 accepted; extraction task completes; review screen shows a redacted draft | [Observed] review screen shown; email redacted; an "unplaced text" warning shown |
-| 3 | Review and save | First save returns 200; revision 1 | [Observed] HTTP 200 in 12.58 s, revision 1 (first save includes embedding) |
+| 3 | Review and save | First save returns 200; revision 1 | [Observed] HTTP 200 in 12.58 s, revision 1. The save runs a synchronous privacy re-check and only queues embedding (`src/backend/app/api/resume.py`), so the long first save is most likely cold-start of the privacy analyser; the cause was not measured |
 | 4 | Edit a project description and save again | 200; revision increments | [Observed] HTTP 200 in 649 ms, revision 2 |
 | 5 | Save unchanged content twice | No new revision | [Observed] HTTP 200 in 0.609 s and 0.549 s; revision stayed at 2 |
 | 6 | Open Matches | Ranked list with requirement evidence | [Observed] 247 results; page 2 reachable |

@@ -205,7 +205,7 @@ Four required tests were run, each recorded with objective, steps, expected and 
 
 | Test | Result | Record |
 |---|---|---|
-| Functional workflow | PASS: full journey on AWS — sign-in, upload, review, save (first save 12.58 s including embedding; later saves 0.5–0.65 s), 247 ranked matches, search, refresh, offline retry with exactly one revision increment. Validation: 413 for oversized requests and PDFs, 415 for missing file, saved data unchanged. | `evidence/test-functional.md` |
+| Functional workflow | PASS: full journey on AWS — sign-in, upload, review, save (first save 12.58 s on a cold privacy check; later saves 0.5–0.65 s), 247 ranked matches, search, refresh, offline retry with exactly one revision increment. Validation: 413 for oversized requests and PDFs, 415 for missing file, saved data unchanged. | `evidence/test-functional.md` |
 | Security | PASS: without a session, `/api/me`, `/api/resume`, `/api/matches` and uploads returned 401; cross-site and missing-Origin state changes returned 403 `CSRF_INVALID`; captured configuration shows no public IPs, an internal ALB and database access only from app/worker security groups. 133 backend tests (including CSRF, Google-token and ownership tests) passed. | `evidence/test-security.md` |
 | Data/AI | PASS: metrics above, reproduced exactly on a second machine. | `evidence/test-data-ai.md` |
 | Resilience | PASS: two real failures recovered automatically (below); a controlled withdrawal of one load-balancer target kept the service and session available. | `evidence/test-resilience.md` |

@@ -109,5 +109,5 @@ Claude Code (Anthropic, Claude Opus 5.5), operated by Zhihao, audited the reposi
 Verification: every claim in these documents was checked against source files, captured command output or the
 recorded observations they cite; the infrastructure test file still passes (14 tests). Browser observations
 labelled [Observed] were made earlier on 2026-10-03 by OpenAI Codex operating the browser; results labelled
-[Operator-reported] come from the team member's own AWS/browser actions. The team must still review these
-documents, confirm the contribution rows and write their own reflections.
+[Operator-reported] come from the team member's own AWS/browser actions. The team had reviewed these
+documents, confirmed the contribution rows and writen their own reflections.
