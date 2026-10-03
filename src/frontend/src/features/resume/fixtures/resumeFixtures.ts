@@ -61,6 +61,13 @@ export const syntheticPrepareResponse: PrepareResumeResponse = {
   ],
 };
 
+export const syntheticPrepareAccepted = { task_id: 'extract-1', state: 'PENDING' as const, revision: 0 };
+
+export const syntheticPrepareCompleted = {
+  task_id: 'extract-1', kind: 'EXTRACTION' as const, state: 'SUCCEEDED' as const, revision: 0,
+  failure_code: null, result: syntheticPrepareResponse, expires_at: '2026-10-02T01:00:00Z',
+};
+
 /** A prepare response where nothing could be classified — exercises the empty-draft path. */
 export const syntheticUnclassifiedPrepareResponse: PrepareResumeResponse = {
   draft: { skills: [], projects: [], experience: [], education: [] },
@@ -78,6 +85,7 @@ export const syntheticSavedProfile: ResumeProfileResponse = {
   content: syntheticPreparedContent,
   embedding_version: SYNTHETIC_EMBEDDING_VERSION,
   has_matchable_resume: true,
+  embedding_state: 'READY',
 };
 
 /** Saved profile with skills only: savable, but produces no recommendations (PRD P10). */
@@ -86,6 +94,7 @@ export const syntheticSkillsOnlyProfile: ResumeProfileResponse = {
   content: { skills: ['Python', 'Figma'], projects: [], experience: [], education: [] },
   embedding_version: SYNTHETIC_EMBEDDING_VERSION,
   has_matchable_resume: false,
+  embedding_state: 'NOT_READY',
 };
 
 /** Content as it would come back from a privacy re-check that stripped an email address. */

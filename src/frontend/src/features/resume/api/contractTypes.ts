@@ -57,6 +57,22 @@ export interface PrepareResumeResponse {
   warnings: PrepareWarning[];
 }
 
+export interface PrepareTaskResponse {
+  task_id: string;
+  state: 'PENDING' | 'PROCESSING' | 'RETRY_WAIT' | 'SUCCEEDED';
+  revision: number;
+}
+
+export interface ProcessingTaskResponse {
+  task_id: string;
+  kind: 'EXTRACTION' | 'EMBEDDING';
+  state: 'PENDING' | 'PROCESSING' | 'RETRY_WAIT' | 'SUCCEEDED' | 'FAILED' | 'CANCELLED';
+  revision: number;
+  failure_code: string | null;
+  result: PrepareResumeResponse | null;
+  expires_at: string | null;
+}
+
 // --- GET /api/resume ------------------------------------------------------------
 
 export interface ResumeProfileResponse {
@@ -64,6 +80,7 @@ export interface ResumeProfileResponse {
   content: ResumeContent;
   embedding_version: string;
   has_matchable_resume: boolean;
+  embedding_state: 'READY' | 'PENDING' | 'FAILED' | 'NOT_READY';
 }
 
 // --- PUT /api/resume ------------------------------------------------------------
@@ -71,6 +88,7 @@ export interface ResumeProfileResponse {
 export interface SaveResumeRequest {
   expected_revision: number;
   content: ResumeContent;
+  extraction_task_id?: string;
 }
 
 export interface SaveResumeResponse {
@@ -135,6 +153,9 @@ export const ERROR_CODES = {
   INSUFFICIENT_RESUME_INFORMATION: 'INSUFFICIENT_RESUME_INFORMATION',
   PROCESSING_BUSY: 'PROCESSING_BUSY',
   MODEL_VERSION_UNAVAILABLE: 'MODEL_VERSION_UNAVAILABLE',
+  TASK_NOT_FOUND: 'TASK_NOT_FOUND',
+  EMBEDDING_PENDING: 'EMBEDDING_PENDING',
+  EMBEDDING_FAILED: 'EMBEDDING_FAILED',
   SERVICE_UNAVAILABLE: 'SERVICE_UNAVAILABLE',
   PROCESSING_TIMEOUT: 'PROCESSING_TIMEOUT',
   INTERNAL_ERROR: 'INTERNAL_ERROR',

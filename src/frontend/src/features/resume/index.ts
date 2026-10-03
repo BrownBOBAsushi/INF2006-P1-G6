@@ -18,4 +18,6 @@ export type {
   ResumeContent,
   ResumeProfileResponse,
   PrepareResumeResponse,
+  PrepareTaskResponse,
+  ProcessingTaskResponse,
 } from './api/contractTypes';

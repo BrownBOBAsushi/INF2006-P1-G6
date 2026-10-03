@@ -138,8 +138,8 @@ export class ResumeSaveController {
     }
   }
 
-  async save(content: ResumeContent, expectedRevision: number): Promise<SaveOutcome> {
-    const signature = contentSignature(content);
+  async save(content: ResumeContent, expectedRevision: number, extractionTaskId?: string): Promise<SaveOutcome> {
+    const signature = `${contentSignature(content)}|${extractionTaskId ?? ''}`;
     const previousAttempt = this.attempt;
     this.attempt = attemptForPayload(this.attempt, expectedRevision, signature, this.keyFactory);
     const reusingKey = previousAttempt === this.attempt;
@@ -168,7 +168,8 @@ export class ResumeSaveController {
 
       try {
         const result = await this.api.save(
-          { expected_revision: expectedRevision, content },
+          { expected_revision: expectedRevision, content,
+            ...(extractionTaskId ? { extraction_task_id: extractionTaskId } : {}) },
           key,
         );
 

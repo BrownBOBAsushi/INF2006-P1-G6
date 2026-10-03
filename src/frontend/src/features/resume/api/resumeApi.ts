@@ -2,7 +2,8 @@ import {
   ERROR_CODES,
   type DeleteResumeResponse,
   type OperationStatusResponse,
-  type PrepareResumeResponse,
+  type ProcessingTaskResponse,
+  type PrepareTaskResponse,
   type ResumeProfileResponse,
   type SaveResumeRequest,
   type SaveResumeResponse,
@@ -16,7 +17,10 @@ import type { HttpResponse, HttpTransport } from './httpTransport';
  */
 export interface ResumeApiPort {
   /** POST /api/resume/prepare (multipart). */
-  prepare(file: File, signal?: AbortSignal): Promise<PrepareResumeResponse>;
+  prepare(file: File, signal?: AbortSignal): Promise<PrepareTaskResponse>;
+  getProcessingTask(taskId: string): Promise<ProcessingTaskResponse>;
+  getActiveExtraction(): Promise<ProcessingTaskResponse | null>;
+  discardExtraction(taskId: string): Promise<void>;
   /** GET /api/resume. Returns null for 404 RESUME_NOT_FOUND (a normal empty state). */
   getProfile(): Promise<ResumeProfileResponse | null>;
   /** GET /api/me after a missing profile; reject concurrent recreation. */
@@ -109,7 +113,28 @@ export function createResumeApi(transport: HttpTransport): ResumeApiPort {
         throw new UnknownOutcomeError('The upload did not complete.', { cause });
       }
       if (!ok(response)) throw toApiError(response);
-      return response.body as PrepareResumeResponse;
+      return response.body as PrepareTaskResponse;
+    },
+
+    async getProcessingTask(taskId) {
+      const response = await transport.send({
+        method: 'GET', path: `/api/resume/tasks/${encodeURIComponent(taskId)}`,
+      });
+      if (!ok(response)) throw toApiError(response);
+      return response.body as ProcessingTaskResponse;
+    },
+
+    async getActiveExtraction() {
+      const response = await transport.send({ method: 'GET', path: '/api/resume/tasks/active' });
+      if (!ok(response)) throw toApiError(response);
+      return response.body as ProcessingTaskResponse | null;
+    },
+
+    async discardExtraction(taskId) {
+      const response = await sendUnsafe(transport, {
+        method: 'DELETE', path: `/api/resume/tasks/${encodeURIComponent(taskId)}`,
+      });
+      if (!ok(response)) throw toApiError(response);
     },
 
     async getProfile() {

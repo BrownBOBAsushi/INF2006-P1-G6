@@ -21,6 +21,7 @@ export interface FakeTransport extends HttpTransport {
   queue(...steps: TransportStep[]): void;
   /** Step used when the queue is exhausted. Defaults to a 500. */
   setFallback(step: TransportStep): void;
+  setActiveTask(body: unknown): void;
 }
 
 export function jsonResponse(
@@ -46,6 +47,7 @@ export function createFakeTransport(): FakeTransport {
       retryable: false,
     },
   });
+  let activeTaskBody: unknown = null;
 
   const transport: FakeTransport = {
     requests,
@@ -58,8 +60,17 @@ export function createFakeTransport(): FakeTransport {
     setFallback(step: TransportStep) {
       fallback = step;
     },
+    setActiveTask(body: unknown) {
+      activeTaskBody = body;
+    },
     async send(request: HttpRequest): Promise<HttpResponse> {
       requests.push(request);
+      if (request.method === 'GET' && request.path === '/api/resume/tasks/active') {
+        return { status: 200, body: activeTaskBody, header: () => null };
+      }
+      if (request.method === 'DELETE' && request.path.startsWith('/api/resume/tasks/')) {
+        return { status: 200, body: {}, header: () => null };
+      }
       const step = steps.shift() ?? fallback;
       if (step.type === 'reject') throw step.error;
       const headers = step.headers ?? {};

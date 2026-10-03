@@ -50,6 +50,11 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
         status={state.saveStatus}
         onCheck={state.pendingIdempotencyKey === null ? undefined : () => void actions.checkSaveStatus()}
       />
+      {state.processingTask && ['PENDING', 'PROCESSING', 'RETRY_WAIT'].includes(state.processingTask.state) && (
+        <p className="resume-hint" role="status" data-testid="extraction-processing">
+          Your PDF is stored temporarily while its details are prepared for review. You can reload this page to recover its status.
+        </p>
+      )}
 
       {phase === 'NO_RESUME' && (
         <>
@@ -73,7 +78,17 @@ export function ResumeWorkspace(props: ResumeWorkspaceProps): React.ReactElement
           <section className="panel resume-summary" aria-labelledby="saved-heading" data-testid="saved-profile">
             <h2 id="saved-heading">Saved resume details</h2>
             <p className="resume-revision">Revision {profile.revision}.</p>
-            {!profile.has_matchable_resume && (
+            {profile.embedding_state === 'PENDING' && (
+              <p className="resume-hint" role="status" data-testid="embedding-pending">
+                Your resume is saved. Recommendations are being prepared in the background.
+              </p>
+            )}
+            {profile.embedding_state === 'FAILED' && (
+              <p className="resume-hint" role="status" data-testid="embedding-failed">
+                Your resume is saved, but recommendations could not be prepared. Saving the same approved details again will retry.
+              </p>
+            )}
+            {!profile.has_matchable_resume && profile.embedding_state === 'NOT_READY' && (
               <p className="resume-hint" data-testid="no-chunks-state">
                 Your saved details do not yet include a project or experience entry, so we cannot
                 produce recommendations. Add one to get personalised results.

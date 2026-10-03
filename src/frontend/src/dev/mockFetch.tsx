@@ -47,6 +47,7 @@ export function createMockFetch(): typeof fetch {
       return job ? reply(job) : error('JOB_NOT_FOUND', 404);
     }
     if (url.pathname === '/api/resume' && method === 'GET') return error('RESUME_NOT_FOUND', 404);
+    if (url.pathname === '/api/resume/tasks/active' && method === 'GET') return reply(null);
     // Missing processing and matching are not simulated as successful work.
     return error('SERVICE_UNAVAILABLE', 503);
   }) as typeof fetch;

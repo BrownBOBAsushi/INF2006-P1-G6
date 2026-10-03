@@ -14,6 +14,8 @@ import {
   syntheticCleanedContent,
   syntheticPdfFile,
   syntheticPrepareResponse,
+  syntheticPrepareAccepted,
+  syntheticPrepareCompleted,
   syntheticSavedProfile,
   syntheticSkillsOnlyProfile,
 } from '../fixtures/resumeFixtures';
@@ -31,6 +33,11 @@ function renderWorkspace() {
     />,
   );
 }
+
+const prepareSteps = (result = syntheticPrepareResponse) => [
+  jsonResponse(202, syntheticPrepareAccepted),
+  jsonResponse(200, { ...syntheticPrepareCompleted, result }),
+];
 
 const absentAccount = () => jsonResponse(200, {
   user: { user_id: 'synthetic-user', display_name: null }, resume_revision: 0,
@@ -96,7 +103,7 @@ describe('upload', () => {
   });
 
   it('prepares a PDF and shows the editable review screen', async () => {
-    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), ...prepareSteps());
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -111,6 +118,30 @@ describe('upload', () => {
     const post = transport.requests.find((r) => r.method === 'POST');
     expect(post?.path).toBe('/api/resume/prepare');
     expect(post?.formData?.get('file')).toBeInstanceOf(File);
+  });
+
+  it('discards a server-held extraction draft when the user discards review', async () => {
+    transport.queue(noResume(), absentAccount(), ...prepareSteps());
+    const user = userEvent.setup();
+    renderWorkspace();
+    await screen.findByTestId('no-resume-state');
+    await user.upload(screen.getByLabelText(/choose a pdf resume/i), syntheticPdfFile());
+    await user.click(await screen.findByRole('button', { name: /prepare for review/i }));
+    await screen.findByRole('heading', { name: /review your details/i });
+    await user.click(screen.getByRole('button', { name: /discard changes/i }));
+    await user.click(screen.getByRole('button', { name: /yes, discard/i }));
+    await screen.findByTestId('no-resume-state');
+    expect(transport.requests.some((request) =>
+      request.method === 'DELETE' && request.path === `/api/resume/tasks/${syntheticPrepareAccepted.task_id}`,
+    )).toBe(true);
+  });
+
+  it('recovers a completed extraction draft from the owner task endpoint after reload', async () => {
+    transport.queue(noResume(), absentAccount());
+    transport.setActiveTask(syntheticPrepareCompleted);
+    renderWorkspace();
+    expect(await screen.findByRole('heading', { name: /review your details/i })).toBeInTheDocument();
+    expect(screen.getByLabelText('Skill 1')).toHaveValue('Python');
   });
 
   it('keeps the selected file when preparation is rejected as busy', async () => {
@@ -156,7 +187,7 @@ describe('upload', () => {
 
 describe('unassigned cleaned text', () => {
   it('offers the unclassified paragraphs instead of dropping them', async () => {
-    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), ...prepareSteps());
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -168,7 +199,7 @@ describe('unassigned cleaned text', () => {
   });
 
   it('copies a paragraph into an experience entry and removes it from the panel', async () => {
-    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), ...prepareSteps());
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -188,7 +219,7 @@ describe('unassigned cleaned text', () => {
     transport.queue(
       noResume(),
       absentAccount(),
-      jsonResponse(200, syntheticPrepareResponse),
+      ...prepareSteps(),
       jsonResponse(200, { operation_id: 'op-1', result_revision: 1, changed: true }),
     );
     const user = userEvent.setup();
@@ -216,7 +247,7 @@ describe('saving from the review screen', () => {
     transport.queue(
       noResume(),
       absentAccount(),
-      jsonResponse(200, syntheticPrepareResponse),
+      ...prepareSteps(),
       jsonResponse(200, { operation_id: 'op-1', result_revision: 1, changed: true }),
     );
     const user = userEvent.setup();
@@ -234,7 +265,7 @@ describe('saving from the review screen', () => {
     transport.queue(
       noResume(),
       absentAccount(),
-      jsonResponse(200, syntheticPrepareResponse),
+      ...prepareSteps(),
       jsonResponse(
         422,
         errorEnvelope('REVIEW_REQUIRED', 'privacy check changed your content', {
@@ -276,7 +307,7 @@ describe('saving from the review screen', () => {
 describe('draft privacy', () => {
   it('never writes the draft to browser storage', async () => {
     const setItem = vi.spyOn(Storage.prototype, 'setItem');
-    transport.queue(noResume(), absentAccount(), jsonResponse(200, syntheticPrepareResponse));
+    transport.queue(noResume(), absentAccount(), ...prepareSteps());
     const user = userEvent.setup();
     renderWorkspace();
     await screen.findByTestId('no-resume-state');
@@ -312,11 +343,12 @@ describe('review safety during requests', () => {
     await screen.findByTestId('saved-profile');
     await user.upload(screen.getByLabelText(/choose a pdf resume/i), syntheticPdfFile());
     let finish!: (value: import('../api/httpTransport').HttpResponse) => void;
+    transport.queue(jsonResponse(200, syntheticPrepareCompleted));
     vi.spyOn(transport, 'send').mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
     await user.click(screen.getByRole('button', { name: /prepare for review/i }));
     expect(screen.getByRole('button', { name: /enter my details without a pdf/i })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Edit details' })).toBeDisabled();
-    finish({ status: 200, body: syntheticPrepareResponse, header: () => null });
+    finish({ status: 202, body: syntheticPrepareAccepted, header: () => null });
     await screen.findByRole('heading', { name: /review your details/i });
   });
 
@@ -454,6 +486,7 @@ describe('uncertain delete outcomes', () => {
     await screen.findByTestId('saved-profile');
 
     await user.click(screen.getByRole('button', { name: /delete resume details/i }));
+    await user.click(screen.getByRole('button', { name: /yes, delete/i }));
 
     expect(await screen.findByTestId('no-resume-state')).toBeInTheDocument();
     expect(screen.getByTestId('save-status')).toHaveAttribute('data-tone', 'success');
@@ -468,6 +501,7 @@ describe('uncertain delete outcomes', () => {
     await screen.findByTestId('saved-profile');
 
     await user.click(screen.getByRole('button', { name: /delete resume details/i }));
+    await user.click(screen.getByRole('button', { name: /yes, delete/i }));
 
     expect(await screen.findByText(/could not confirm whether your resume was deleted/i)).toBeVisible();
     expect(screen.queryByRole('button', { name: /check save status/i })).not.toBeInTheDocument();

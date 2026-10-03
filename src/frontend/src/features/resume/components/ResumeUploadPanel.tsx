@@ -41,7 +41,7 @@ export function ResumeUploadPanel(props: ResumeUploadPanelProps): React.ReactEle
       <h2 id={`${inputId}-heading`}>Add your resume</h2>
       <p>
         Upload one text-based PDF, up to {formatMebibytes(LIMITS.MAX_PDF_BYTES)}. We remove personal
-        contact details before showing you the result. The file itself is not stored.
+        contact details before showing you the result. The PDF is held temporarily for extraction, then deleted; it is never saved to your profile or available for download.
       </p>
 
       <div

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type {
   PrepareWarning,
+  ProcessingTaskResponse,
   ResumeContent,
   ResumeProfileResponse,
 } from '../api/contractTypes';
@@ -50,6 +51,7 @@ export interface ResumeWorkspaceState {
   uploadRejection: UploadRejection | null;
   preparing: boolean;
   prepareWarnings: PrepareWarning[];
+  processingTask: ProcessingTaskResponse | null;
   /** Transient, never saved, never embedded. */
   unassignedParagraphs: string[];
 
@@ -67,7 +69,7 @@ export interface ResumeWorkspaceState {
     prepare: () => Promise<void>;
     startManualEntry: () => void;
     editSavedProfile: () => void;
-    cancelReview: () => void;
+    cancelReview: () => Promise<void>;
     assignParagraph: (index: number, section: EntrySection) => void;
     dismissParagraph: (index: number) => void;
     confirmSave: () => Promise<void>;
@@ -85,13 +87,18 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   const [phase, setPhase] = useState<WorkspacePhase>('LOADING');
   const [loadError, setLoadError] = useState<string | null>(null);
   const [profile, setProfile] = useState<ResumeProfileResponse | null>(null);
+  const profileRef = useRef(profile);
+  profileRef.current = profile;
   const [draft, dispatchDraft] = useReducer(draftReducer, undefined, emptyDraft);
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadRejection, setUploadRejection] = useState<UploadRejection | null>(null);
   const [preparing, setPreparing] = useState(false);
   const [prepareWarnings, setPrepareWarnings] = useState<PrepareWarning[]>([]);
+  const [processingTask, setProcessingTask] = useState<ProcessingTaskResponse | null>(null);
   const [paragraphs, setParagraphs] = useState<string[]>([]);
+  const [sourceExtractionTaskId, setSourceExtractionTaskId] = useState<string | null>(null);
+  const taskEpoch = useRef(0);
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>(IDLE);
   const [saving, setSaving] = useState(false);
@@ -120,6 +127,51 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     [draft, expectedRevision, conflict],
   );
 
+  const monitorExtraction = useCallback(async (taskId: string, epoch: number) => {
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      await (sleep ? sleep(1) : new Promise<void>((resolve) => setTimeout(resolve, 1000)));
+      if (epoch !== taskEpoch.current) return;
+      let task: ProcessingTaskResponse;
+      try {
+        task = await api.getProcessingTask(taskId);
+      } catch (error) {
+        if (isApiError(error) && (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED')) {
+          taskEpoch.current += 1;
+          authCallbackRef.current?.();
+          setUploadRejection({ code: error.code, message: 'Sign in again to continue reviewing your resume.' });
+        } else {
+          setUploadRejection({ code: 'TASK_STATUS_UNAVAILABLE', message: 'Processing continues in the background. Reload to check its status.' });
+        }
+        setPreparing(false);
+        return;
+      }
+      if (epoch !== taskEpoch.current) return;
+      setProcessingTask(task);
+      if (task.state === 'SUCCEEDED' && task.result !== null) {
+        setSourceExtractionTaskId(task.task_id);
+        dispatchDraft({ type: 'SET_CONTENT', content: task.result.draft });
+        setParagraphs(task.result.unassigned_text.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean));
+        setPrepareWarnings(task.result.warnings ?? []);
+        setSaveStatus(IDLE);
+        setPhase('REVIEW');
+        setPreparing(false);
+        return;
+      }
+      if (['FAILED', 'CANCELLED'].includes(task.state)) {
+        setUploadRejection({ code: task.failure_code ?? 'PROCESSING_FAILED',
+          message: task.failure_code === 'TEXT_REQUIRED'
+            ? prepareFailureMessage('TEXT_REQUIRED')
+            : 'The uploaded file could not be prepared. Your saved resume is unchanged; upload it again or enter details manually.' });
+        setPreparing(false);
+        return;
+      }
+    }
+    if (epoch === taskEpoch.current) {
+      setPreparing(false);
+      setUploadRejection({ code: 'PROCESSING_CONTINUES', message: 'Processing continues in the background. Reload to check its status.' });
+    }
+  }, [api, sleep]);
+
   const isDirty = useMemo(() => {
     if (phase !== 'REVIEW') return false;
     const candidate = toResumeContent(draft);
@@ -135,17 +187,45 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   }, [phase, draft, profile]);
 
   const reload = useCallback(async () => {
+    const epoch = ++taskEpoch.current;
     setPhase('LOADING');
     setLoadError(null);
     setExpectedRevision(null);
     try {
       const loaded = await api.getProfile();
       const revision = loaded?.revision ?? await api.getAccountRevision();
+      let active: ProcessingTaskResponse | null = null;
+      try {
+        active = await api.getActiveExtraction();
+      } catch (error) {
+        if (isApiError(error) && (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED')) {
+          authCallbackRef.current?.();
+          throw error;
+        }
+        // Profile loading remains available when task status is temporarily unavailable.
+        setUploadRejection({ code: 'TASK_STATUS_UNAVAILABLE', message: 'Your saved resume loaded, but processing status could not be checked. Reload to try again.' });
+      }
+      if (epoch !== taskEpoch.current) return;
       setExpectedRevision(revision);
       setConflict(null);
       setProfile(loaded);
-      setPhase(loaded === null ? 'NO_RESUME' : 'PROFILE');
+      setProcessingTask(active);
+      const result = active?.state === 'SUCCEEDED' ? active.result : null;
+      if (active && result !== null && result !== undefined) {
+        setSourceExtractionTaskId(active.task_id);
+        dispatchDraft({ type: 'SET_CONTENT', content: result.draft });
+        setParagraphs(result.unassigned_text.split(/\n\s*\n/).map((part) => part.trim()).filter(Boolean));
+        setPrepareWarnings(result.warnings ?? []);
+        setPhase('REVIEW');
+      } else {
+        setPhase(loaded === null ? 'NO_RESUME' : 'PROFILE');
+        if (active && ['PENDING', 'PROCESSING', 'RETRY_WAIT'].includes(active.state)) {
+          setPreparing(true);
+          void monitorExtraction(active.task_id, epoch);
+        }
+      }
     } catch (error) {
+      if (epoch !== taskEpoch.current) return;
       if (isApiError(error) && (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED')) {
         authCallbackRef.current?.();
         setLoadError('Your session ended. Sign in again to see your resume.');
@@ -156,11 +236,40 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       }
       setPhase('NO_RESUME');
     }
-  }, [api]);
+  }, [api, monitorExtraction]);
 
   useEffect(() => {
     void reload();
+    return () => { taskEpoch.current += 1; };
   }, [reload]);
+
+  useEffect(() => {
+    if (profile?.embedding_state !== 'PENDING') return undefined;
+    const revision = profile.revision;
+    let stopped = false;
+    let attempts = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const poll = async () => {
+      if (stopped || attempts >= 30) return;
+      attempts += 1;
+      try {
+        const current = await api.getProfile();
+        if (stopped || profileRef.current?.revision !== revision) return;
+        if (current === null || current.revision !== revision) return;
+        setProfile(current);
+        if (current.embedding_state === 'PENDING') timer = setTimeout(() => void poll(), 2000);
+      } catch (error) {
+        if (isApiError(error) && (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED')) {
+          authCallbackRef.current?.();
+        }
+      }
+    };
+    timer = setTimeout(() => void poll(), 1000);
+    return () => {
+      stopped = true;
+      if (timer !== undefined) clearTimeout(timer);
+    };
+  }, [api, profile?.revision, profile?.embedding_state]);
 
   // PRD P07/P12: warn before losing an in-memory draft. Nothing is persisted.
   useEffect(() => {
@@ -174,6 +283,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   }, [isDirty]);
 
   const selectFiles = useCallback((files: readonly File[]) => {
+    taskEpoch.current += 1;
     const check = validateUploadSelection(files);
     if (check.ok) {
       setSelectedFile(check.file);
@@ -185,27 +295,22 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
   }, []);
 
   const clearSelection = useCallback(() => {
+    taskEpoch.current += 1;
     setSelectedFile(null);
     setUploadRejection(null);
   }, []);
 
   const prepare = useCallback(async () => {
     if (selectedFile === null || preparing || saving) return;
+    const epoch = ++taskEpoch.current;
     setPreparing(true);
     setUploadRejection(null);
     try {
-      const response = await api.prepare(selectedFile);
-      dispatchDraft({ type: 'SET_CONTENT', content: response.draft });
-      setParagraphs(
-        response.unassigned_text
-          .split(/\n\s*\n/)
-          .map((p) => p.trim())
-          .filter((p) => p.length > 0),
-      );
-      setPrepareWarnings(response.warnings ?? []);
-      setSaveStatus(IDLE);
-      setPhase('REVIEW');
+      const accepted = await api.prepare(selectedFile);
+      if (epoch !== taskEpoch.current) return;
+      await monitorExtraction(accepted.task_id, epoch);
     } catch (error) {
+      if (epoch !== taskEpoch.current) return;
       if (isApiError(error)) {
         if (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED') {
           authCallbackRef.current?.();
@@ -219,12 +324,14 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
         });
       }
     } finally {
-      setPreparing(false);
+      if (epoch === taskEpoch.current) setPreparing(false);
     }
-  }, [api, selectedFile, preparing, saving]);
+  }, [api, selectedFile, preparing, saving, monitorExtraction]);
 
   const startManualEntry = useCallback(() => {
     if (preparing || saving) return;
+    taskEpoch.current += 1;
+    setSourceExtractionTaskId(null);
     dispatchDraft({ type: 'CLEAR' });
     setParagraphs([]);
     setPrepareWarnings([]);
@@ -234,6 +341,8 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
 
   const editSavedProfile = useCallback(() => {
     if (profile === null || preparing || saving) return;
+    taskEpoch.current += 1;
+    setSourceExtractionTaskId(null);
     dispatchDraft({ type: 'SET_CONTENT', content: profile.content });
     setParagraphs([]);
     setPrepareWarnings([]);
@@ -241,7 +350,25 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     setPhase('REVIEW');
   }, [profile, preparing, saving]);
 
-  const cancelReview = useCallback(() => {
+  const cancelReview = useCallback(async () => {
+    const taskId = sourceExtractionTaskId ?? processingTask?.task_id ?? null;
+    const epoch = ++taskEpoch.current;
+    if (taskId !== null) {
+      try {
+        await api.discardExtraction(taskId);
+      } catch (error) {
+        if (epoch !== taskEpoch.current) return;
+        if (isApiError(error) && (error.code === 'AUTH_REQUIRED' || error.code === 'SESSION_EXPIRED')) {
+          authCallbackRef.current?.();
+          return;
+        }
+        setUploadRejection({ code: 'TASK_DISCARD_FAILED', message: 'The reviewed draft could not be discarded on the server. Reload and try again.' });
+        return;
+      }
+    }
+    if (epoch !== taskEpoch.current) return;
+    setSourceExtractionTaskId(null);
+    setProcessingTask(null);
     dispatchDraft({ type: 'CLEAR' });
     setParagraphs([]);
     setPrepareWarnings([]);
@@ -250,7 +377,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     controller.startNewAttempt();
     setKeyTick((t) => t + 1);
     setPhase(profile === null ? 'NO_RESUME' : 'PROFILE');
-  }, [profile, controller]);
+  }, [profile, controller, sourceExtractionTaskId, processingTask, api]);
 
   const assignParagraph = useCallback((index: number, section: EntrySection) => {
     setParagraphs((current) => {
@@ -298,6 +425,9 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       else dispatchDraft({ type: 'CLEAR' });
       setParagraphs([]);
     }
+    // The reviewed text remains an intentional manual draft, but a source task
+    // from the prior revision can no longer authorize saving it.
+    setSourceExtractionTaskId(null);
     controller.startNewAttempt();
     setConflict(null);
     setSaveStatus(IDLE);
@@ -318,7 +448,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
 
     setSaving(true);
     try {
-      const outcome = await controller.save(result.content, expectedRevision);
+      const outcome = await controller.save(result.content, expectedRevision, sourceExtractionTaskId ?? undefined);
       if (outcome.status.kind === 'REVISION_CONFLICT') {
         await recordConflict(outcome.profile);
         return;
@@ -344,12 +474,14 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
               revision: outcome.status.revision,
               content: result.content,
               embedding_version: profile?.embedding_version ?? '',
-              has_matchable_resume:
-                result.content.projects.length > 0 || result.content.experience.length > 0,
+              has_matchable_resume: false,
+              embedding_state: result.content.projects.length > 0 || result.content.experience.length > 0
+                ? 'PENDING' : 'NOT_READY',
             });
           }
           setParagraphs([]);
           setSelectedFile(null);
+          setSourceExtractionTaskId(null);
           setPhase(outcome.profile === null ? 'NO_RESUME' : 'PROFILE');
           break;
         }
@@ -369,7 +501,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       setSaving(false);
       setKeyTick((t) => t + 1);
     }
-  }, [saving, draft, expectedRevision, controller, applyProfile, profile, conflict, recordConflict, api]);
+  }, [saving, draft, expectedRevision, controller, applyProfile, profile, conflict, recordConflict, api, sourceExtractionTaskId]);
 
   const checkSaveStatus = useCallback(async () => {
     if (saving || conflict !== null) return;
@@ -417,6 +549,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
       dispatchDraft({ type: 'CLEAR' });
       setParagraphs([]);
       setSelectedFile(null);
+      setSourceExtractionTaskId(null);
       setSaveStatus({
         kind: 'DELETED',
         revision: response.resume_revision,
@@ -464,6 +597,7 @@ export function useResumeWorkspace(options: UseResumeWorkspaceOptions): ResumeWo
     uploadRejection,
     preparing,
     prepareWarnings,
+    processingTask,
     unassignedParagraphs: paragraphs,
     saveStatus,
     saving,
