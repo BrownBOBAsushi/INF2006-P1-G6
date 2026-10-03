@@ -1,0 +1,39 @@
+# Unauthenticated public HTTP probes against the deployed API Gateway origin
+# Captured (UTC): 2026-10-03T07:14:31Z. Origin redacted as https://<api-id>.execute-api.<region>.amazonaws.com
+# Command form: curl -sS -X <METHOD> [-H 'Origin: ...'] https://<api-id>.execute-api.<region>.amazonaws.com<path>  (no cookies sent)
+
+### GET /health/ready — readiness through API Gateway → VPC Link → internal ALB → Nginx → FastAPI
+HTTP 200 in 0.767748s
+{"status":"ready"}
+
+### GET /api/me — no session cookie
+HTTP 401 in 0.901484s
+{"error":{"code":"AUTH_REQUIRED","message":"Sign in to continue.","request_id":"<id>","retryable":false,"details":{}}}
+
+### GET /api/resume — no session cookie
+HTTP 401 in 0.871205s
+{"error":{"code":"AUTH_REQUIRED","message":"Sign in to continue.","request_id":"<id>","retryable":false,"details":{}}}
+
+### GET /api/matches — no session cookie
+HTTP 401 in 0.743085s
+{"error":{"code":"AUTH_REQUIRED","message":"Sign in to continue.","request_id":"<id>","retryable":false,"details":{}}}
+
+### POST /api/resume/prepare — no session cookie
+HTTP 401 in 0.793027s
+{"error":{"code":"AUTH_REQUIRED","message":"Sign in to continue.","request_id":"<id>","retryable":false,"details":{}}}
+
+### POST /api/auth/logout — no Origin header, no cookie, no CSRF token
+HTTP 403 in 0.761868s
+{"error":{"code":"CSRF_INVALID","message":"Origin not allowed.","request_id":"<id>","retryable":false,"details":{}}}
+
+### POST /api/auth/logout — cross-site Origin
+HTTP 403 in 0.732584s
+{"error":{"code":"CSRF_INVALID","message":"Origin not allowed.","request_id":"<id>","retryable":false,"details":{}}}
+
+### PUT /api/resume — cross-site Origin, no cookie
+HTTP 401 in 0.732992s
+{"error":{"code":"AUTH_REQUIRED","message":"Sign in to continue.","request_id":"<id>","retryable":false,"details":{}}}
+
+### Response security headers on GET / (HEAD request)
+HTTP/2 200 
+(Only the status line was returned: no HSTS/CSP/X-Content-Type-Options headers are set at the edge — recorded as a limitation.)

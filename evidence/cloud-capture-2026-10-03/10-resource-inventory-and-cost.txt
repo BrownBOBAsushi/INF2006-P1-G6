@@ -1,0 +1,52 @@
+# Billable resource inventory and running-cost estimate
+# Captured (UTC): 2026-10-03T07:15Z
+# Read-only commands: ec2 describe-instances/describe-nat-gateways/describe-addresses/describe-volumes/describe-vpc-endpoints;
+#   rds describe-db-instances/describe-db-snapshots --snapshot-type manual; elbv2 describe-load-balancers;
+#   apigatewayv2 get-apis; cloudformation list-stacks; ecr describe-repositories/describe-images; ce get-cost-and-usage
+# Redacted: account IDs and resource IDs.
+
+## Inventory at capture (us-east-1)
+
+| Resource | Count / size | Owning stack |
+|---|---|---|
+| EC2 t3.small (web/API, Auto Scaling group) | 2 running | inf2006-private-app |
+| EC2 t3.medium (extraction + embedding worker) | 1 running | inf2006-private-base-retry1 |
+| EBS gp3 volumes | 2 x 24 GiB + 1 x 32 GiB, in use | (instance root volumes) |
+| NAT gateway | 2 available | inf2006-private-base-retry1 |
+| Elastic IPs | 2 associated (NAT) + 3 unassociated | 2 stack-owned, 3 untagged leftovers |
+| RDS PostgreSQL db.t3.micro, 20 GiB gp2, Single-AZ | 1 available | inf2006-private-base-retry1 |
+| RDS manual snapshot, 20 GiB | 1 (created 2026-10-02T14:54Z) | retained from an earlier attempt |
+| Internal Application Load Balancer | 1 active | inf2006-private-ingress |
+| API Gateway HTTP API | 1 | inf2006-private-ingress |
+| S3 gateway VPC endpoint | 1 (no hourly charge) | inf2006-private-base-retry1 |
+| Secrets Manager secrets | 5 | created 2026-09-27 |
+| ECR images | api ~2.60 GB, web ~0.10 GB, bootstrap ~0.22 GB | inf2006-images |
+| CloudFormation stack in ROLLBACK_COMPLETE | inf2006-private-base (failed earlier attempt) | — |
+
+Cost Explorer (`ce get-cost-and-usage`, 2026-09-20 to 2026-10-03, by service) returned effectively 0 USD for every
+service in this Learner Lab account, so it cannot be used as spend evidence. The Learner Lab budget panel is the
+authoritative spend figure and may lag by 8-12 hours (docs/LEARNER_LAB_CAPABILITIES.md).
+
+## Estimate (approximate us-east-1 on-demand list prices; verify with the AWS Pricing Calculator before quoting)
+
+| Item | Assumed rate | Per hour (USD) |
+|---|---|---|
+| 2 x t3.small | 0.0208 /h each | 0.042 |
+| 1 x t3.medium | 0.0416 /h | 0.042 |
+| 2 x NAT gateway (hourly only; data processing extra at ~0.045/GB) | 0.045 /h each | 0.090 |
+| RDS db.t3.micro Single-AZ PostgreSQL | ~0.018 /h | 0.018 |
+| Internal ALB (excluding LCU usage) | ~0.0225 /h | 0.023 |
+| 5 public IPv4 addresses (2 NAT + 3 idle EIPs) | 0.005 /h each | 0.025 |
+| EBS gp3 80 GiB + RDS gp2 20 GiB + 20 GiB snapshot | ~0.08, 0.115, 0.095 /GiB-month | ~0.014 |
+| Secrets Manager 5 secrets, ECR ~2.9 GB, SQS/API Gateway/CloudWatch at demo volume | ~2.0 + 0.3 /month + negligible | ~0.003 |
+| **Total while fully running** | | **~0.26 /h ≈ 6.2 /day ≈ 190 /month** |
+
+Interpretation:
+- At this footprint a 50 USD Learner Lab allowance lasts roughly 8 days of continuous running.
+- The two NAT gateways (~35% of the hourly estimate) are the largest single cost driver; they exist so that
+  private instances can reach ECR, SQS, Secrets Manager and SSM without public IPs. A single NAT gateway or
+  interface VPC endpoints are the main cost/availability trade-off to discuss in the report.
+- Ending a Learner Lab session stops EC2 instances, but NAT gateways, the ALB, Elastic IPs and (per the lab notes)
+  possibly RDS continue to accrue charges. Stopping spend requires deleting stacks, not only ending the session.
+- Leftovers outside the live stacks (3 unassociated EIPs, 1 manual RDS snapshot, the ROLLBACK_COMPLETE stack)
+  add cost without serving the application; their removal is a separate, user-approved cleanup action.

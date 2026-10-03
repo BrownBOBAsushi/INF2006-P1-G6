@@ -1,0 +1,85 @@
+# API Gateway HTTP API, VPC Link integration, internal ALB and target health
+# Captured (UTC): 2026-10-03T07:11:50Z
+# Read-only command(s): apigatewayv2 get-api/get-integrations/get-routes; elbv2 describe-load-balancers/describe-listeners/describe-target-groups/describe-target-health
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "HttpApi": {
+    "ProtocolType": "HTTP",
+    "ApiEndpoint": "https://<api-id>.execute-api.<region>.amazonaws.com",
+    "DisableExecuteApiEndpoint": false
+  },
+  "Routes": [
+    "$default"
+  ],
+  "Integrations": [
+    {
+      "IntegrationType": "HTTP_PROXY",
+      "ConnectionType": "VPC_LINK",
+      "IntegrationMethod": "ANY",
+      "TimeoutInMillis": 30000,
+      "PayloadFormatVersion": "1.0",
+      "TlsConfig": {
+        "ServerNameToVerify": "<certificate-hostname>"
+      },
+      "RequestParameters": {
+        "overwrite:path": "$request.path"
+      }
+    }
+  ],
+  "InternalAlb": {
+    "Scheme": "internal",
+    "Type": "application",
+    "State": {
+      "Code": "active"
+    },
+    "AvailabilityZones": [
+      {
+        "ZoneName": "us-east-1a",
+        "SubnetId": "<subnet-1>",
+        "LoadBalancerAddresses": []
+      },
+      {
+        "ZoneName": "us-east-1b",
+        "SubnetId": "<subnet-2>",
+        "LoadBalancerAddresses": []
+      }
+    ],
+    "SecurityGroups": [
+      "<sg-1>"
+    ]
+  },
+  "Listeners": [
+    {
+      "Port": 443,
+      "Protocol": "HTTPS",
+      "SslPolicy": "ELBSecurityPolicy-TLS13-1-2-2021-06"
+    }
+  ],
+  "TargetGroup": {
+    "Protocol": "HTTPS",
+    "Port": 8443,
+    "HealthCheckProtocol": "HTTPS",
+    "HealthCheckPath": "/health/ready",
+    "HealthCheckIntervalSeconds": 30,
+    "HealthyThresholdCount": 5,
+    "UnhealthyThresholdCount": 2,
+    "Matcher": {
+      "HttpCode": "200"
+    }
+  },
+  "TargetHealth": [
+    {
+      "Target": "<instance-1>",
+      "Port": 8443,
+      "State": "healthy",
+      "Reason": null
+    },
+    {
+      "Target": "<instance-2>",
+      "Port": 8443,
+      "State": "healthy",
+      "Reason": null
+    }
+  ]
+}

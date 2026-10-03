@@ -1,0 +1,54 @@
+# Security group rules (sources shown by CloudFormation logical name where internal)
+# Captured (UTC): 2026-10-03T07:12:03Z
+# Read-only command(s): ec2 describe-security-groups
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "AppTargetSecurityGroup": {
+    "Ingress": [
+      "tcp 8443-8443 <-> ['InternalAlbSecurityGroup']"
+    ],
+    "Egress": [
+      "-1 all-all <-> ['127.0.0.1/32 (CloudFormation placeholder: blocks default egress)']"
+    ]
+  },
+  "DatabaseSecurityGroup": {
+    "Ingress": [
+      "tcp 5432-5432 <-> ['AppSecurityGroup', 'WorkerSecurityGroup']"
+    ],
+    "Egress": [
+      "-1 all-all <-> ['0.0.0.0/0']"
+    ]
+  },
+  "AppSecurityGroup": {
+    "Ingress": [],
+    "Egress": [
+      "-1 all-all <-> ['0.0.0.0/0']"
+    ]
+  },
+  "InternalAlbSecurityGroup": {
+    "Ingress": [
+      "tcp 443-443 <-> ['VpcLinkSecurityGroup']"
+    ],
+    "Egress": [
+      "-1 all-all <-> ['127.0.0.1/32 (CloudFormation placeholder: blocks default egress)']",
+      "tcp 8443-8443 <-> ['AppTargetSecurityGroup']"
+    ]
+  },
+  "VpcLinkSecurityGroup": {
+    "Ingress": [],
+    "Egress": [
+      "-1 all-all <-> ['127.0.0.1/32 (CloudFormation placeholder: blocks default egress)']",
+      "tcp 443-443 <-> ['InternalAlbSecurityGroup']"
+    ]
+  },
+  "WorkerSecurityGroup": {
+    "Ingress": [],
+    "Egress": [
+      "tcp 5432-5432 <-> ['DatabaseSecurityGroup']",
+      "tcp 53-53 <-> ['0.0.0.0/0']",
+      "udp 53-53 <-> ['0.0.0.0/0']",
+      "tcp 443-443 <-> ['0.0.0.0/0']"
+    ]
+  }
+}

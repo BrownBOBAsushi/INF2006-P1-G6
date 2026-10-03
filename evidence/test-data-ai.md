@@ -148,3 +148,24 @@ audited copy `evidence/data-ai-eval-2026-10-01-audited_P06_P08.md` and `.json`.
   because network name resolution failed. The same requested run succeeded with `HF_HUB_OFFLINE=1
   TRANSFORMERS_OFFLINE=1`. The audit correction was made after the original result, recorded above, and rerun
   separately. Reproduction commands are in `data/evaluation_reviewed_subset/README.md`.
+
+## Reproduction on a second machine (2026-10-03)
+
+- **Command:** `HF_HUB_OFFLINE=1 analytics/.venv/bin/python analytics/evaluate.py --fixtures data/evaluation --out-dir <dir>`
+  and `analytics/.venv/bin/python -m pytest tests/analytics -q`, on macOS (Apple Silicon, CPU), 2026-10-03T07:16Z.
+- **Expected:** identical held-out MiniLM metrics to run 5 above; analytics tests pass.
+- **Actual:** 16 tests passed. Held-out MiniLM: requirement-level 0.640 / 0.760 / 0.922, BM25 0.640 / 0.720 / 0.910,
+  pooled-chunk 0.560 / 0.640 / 0.771, whole-resume 0.560 / 0.680 / 0.808 — identical to the 2026-09-20 result on a
+  different OS and CPU, so the evaluation is deterministic for these pinned revisions.
+- **Artefacts:** `evidence/local-tests-2026-10-03/data-ai-eval-2026-10-03.{md,json}`, `evidence/local-tests-2026-10-03/analytics.log`.
+
+## Integration with the deployed service
+
+The evaluated method is the one the service runs: the embedding worker encodes the student's approved résumé chunks
+and each catalogue requirement with the same pinned MiniLM revision, PostgreSQL/pgvector stores the vectors, and
+`GET /api/matches` ranks jobs by the mean, over each job's required requirements, of that requirement's best
+cosine similarity to any résumé chunk (alternatives combined by max; preferred requirements do not affect rank;
+`src/backend/app/matching/scoring.py`), and shows the closest résumé passage for every requirement. On the deployed stack the operator reported 247 imported listings with 1,588 requirement embeddings and an
+idempotent re-import (`evidence/cloud-acceptance-2026-10-03.md`); the matches page returned 247 ranked results
+([Observed], `evidence/test-functional.md` F1). Quality on these real listings was not measured: no labels exist for
+them, so the synthetic held-out metrics above are the only quantitative evaluation.

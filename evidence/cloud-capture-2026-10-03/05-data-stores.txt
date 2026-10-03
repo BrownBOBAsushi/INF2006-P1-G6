@@ -1,0 +1,99 @@
+# RDS PostgreSQL, temporary-input S3 bucket and SQS queues
+# Captured (UTC): 2026-10-03T07:12:25Z
+# Read-only command(s): rds describe-db-instances; s3api get-public-access-block/get-bucket-encryption/get-bucket-lifecycle-configuration/get-bucket-policy-status/list-objects-v2 (KeyCount only); sqs get-queue-attributes
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "RDS": {
+    "Engine": "postgres",
+    "EngineVersion": "16.15",
+    "DBInstanceClass": "db.t3.micro",
+    "MultiAZ": false,
+    "PubliclyAccessible": false,
+    "StorageEncrypted": true,
+    "BackupRetentionPeriod": 1,
+    "LatestRestorableTime": "2026-10-03T07:05:39+00:00",
+    "DeletionProtection": false,
+    "AllocatedStorage": 20,
+    "StorageType": "gp2",
+    "DBInstanceStatus": "available",
+    "AvailabilityZone": "us-east-1a",
+    "IAMDatabaseAuthenticationEnabled": false
+  },
+  "S3TemporaryInput": {
+    "PublicAccessBlock": {
+      "BlockPublicAcls": true,
+      "IgnorePublicAcls": true,
+      "BlockPublicPolicy": true,
+      "RestrictPublicBuckets": true
+    },
+    "Encryption": {
+      "Rules": [
+        {
+          "ApplyServerSideEncryptionByDefault": {
+            "SSEAlgorithm": "AES256"
+          },
+          "BucketKeyEnabled": false,
+          "BlockedEncryptionTypes": {
+            "EncryptionType": [
+              "SSE-C"
+            ]
+          }
+        }
+      ]
+    },
+    "Lifecycle": [
+      {
+        "Expiration": {
+          "Days": 1
+        },
+        "ID": "expire-temporary-inputs",
+        "Filter": {
+          "Prefix": ""
+        },
+        "Status": "Enabled",
+        "AbortIncompleteMultipartUpload": {
+          "DaysAfterInitiation": 1
+        }
+      }
+    ],
+    "PolicyStatus": {
+      "IsPublic": false
+    },
+    "ObjectCountAtCapture": 0
+  },
+  "SQS": {
+    "ExtractionQueue": {
+      "ApproximateNumberOfMessages": "0",
+      "ApproximateNumberOfMessagesNotVisible": "0",
+      "VisibilityTimeout": "900",
+      "MessageRetentionPeriod": "345600",
+      "SqsManagedSseEnabled": "true",
+      "RedrivePolicy": "{\"deadLetterTargetArn\":\"<arn:sqs>",\"maxReceiveCount\":5}"
+    },
+    "EmbeddingQueue": {
+      "ApproximateNumberOfMessages": "0",
+      "ApproximateNumberOfMessagesNotVisible": "0",
+      "VisibilityTimeout": "900",
+      "MessageRetentionPeriod": "345600",
+      "SqsManagedSseEnabled": "true",
+      "RedrivePolicy": "{\"deadLetterTargetArn\":\"<arn:sqs>",\"maxReceiveCount\":5}"
+    },
+    "ExtractionDlq": {
+      "ApproximateNumberOfMessages": "0",
+      "ApproximateNumberOfMessagesNotVisible": "0",
+      "VisibilityTimeout": "900",
+      "MessageRetentionPeriod": "1209600",
+      "SqsManagedSseEnabled": "true",
+      "RedrivePolicy": null
+    },
+    "EmbeddingDlq": {
+      "ApproximateNumberOfMessages": "0",
+      "ApproximateNumberOfMessagesNotVisible": "0",
+      "VisibilityTimeout": "900",
+      "MessageRetentionPeriod": "1209600",
+      "SqsManagedSseEnabled": "true",
+      "RedrivePolicy": null
+    }
+  }
+}

@@ -1,0 +1,105 @@
+# Auto Scaling group activity history (AppAutoScalingGroup), newest first
+# Captured (UTC): 2026-10-03T07:30:31Z
+# Read-only command(s): autoscaling describe-scaling-activities
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+[
+  {
+    "StartTime": "2026-10-03T05:28:45.632000+00:00",
+    "EndTime": "2026-10-03T05:28:52+00:00",
+    "StatusCode": "Successful",
+    "Description": "Launching a new EC2 instance: <instance-1>",
+    "Cause": "At 2026-10-03T05:28:43Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:28:45.539000+00:00",
+    "EndTime": "2026-10-03T05:28:50+00:00",
+    "StatusCode": "Successful",
+    "Description": "Launching a new EC2 instance: <instance-2>",
+    "Cause": "At 2026-10-03T05:28:43Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:26:41.194000+00:00",
+    "EndTime": "2026-10-03T05:26:50+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-3>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:26:39Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:26:41.134000+00:00",
+    "EndTime": "2026-10-03T05:26:45+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-4>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:26:39Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:25:34.541000+00:00",
+    "EndTime": "2026-10-03T05:25:38+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-5>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:25:32Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:25:34.409000+00:00",
+    "EndTime": "2026-10-03T05:25:38+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-6>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:25:32Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:25:31.932000+00:00",
+    "EndTime": "2026-10-03T05:30:54+00:00",
+    "StatusCode": "Successful",
+    "Description": "Terminating EC2 instance: <instance-7>",
+    "Cause": "At 2026-10-03T05:25:31Z an instance was taken out of service in response to an EC2 health check indicating it has been terminated or stopped."
+  },
+  {
+    "StartTime": "2026-10-03T05:24:46.008000+00:00",
+    "EndTime": "2026-10-03T05:24:50+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-8>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:24:44Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 1 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T05:23:39.344000+00:00",
+    "EndTime": "2026-10-03T05:23:43+00:00",
+    "StatusCode": "Cancelled",
+    "Description": "Launching a new EC2 instance: <instance-9>.  Status Reason: Instance became unhealthy while waiting for instance to be in InService state. Termination Reason: Client.InternalError: Client error on launch",
+    "Cause": "At 2026-10-03T05:23:37Z an instance was launched in response to an unhealthy instance needing to be replaced."
+  },
+  {
+    "StartTime": "2026-10-03T05:23:37.423000+00:00",
+    "EndTime": "2026-10-03T05:29:20+00:00",
+    "StatusCode": "Successful",
+    "Description": "Terminating EC2 instance: <instance-10>",
+    "Cause": "At 2026-10-03T05:23:37Z an instance was taken out of service in response to an EC2 health check indicating it has been terminated or stopped."
+  },
+  {
+    "StartTime": "2026-10-03T02:42:48.689000+00:00",
+    "EndTime": "2026-10-03T02:42:53+00:00",
+    "StatusCode": "Successful",
+    "Description": "Launching a new EC2 instance: <instance-7>",
+    "Cause": "At 2026-10-03T02:42:46Z an instance was launched in response to an unhealthy instance needing to be replaced."
+  },
+  {
+    "StartTime": "2026-10-03T02:42:46.639000+00:00",
+    "EndTime": "2026-10-03T02:48:29+00:00",
+    "StatusCode": "Successful",
+    "Description": "Terminating EC2 instance: <instance-11>",
+    "Cause": "At 2026-10-03T02:42:46Z an instance was taken out of service in response to an ELB system health check failure."
+  },
+  {
+    "StartTime": "2026-10-03T02:34:37.766000+00:00",
+    "EndTime": "2026-10-03T02:34:44+00:00",
+    "StatusCode": "Successful",
+    "Description": "Launching a new EC2 instance: <instance-10>",
+    "Cause": "At 2026-10-03T02:34:32Z a user request update of AutoScalingGroup constraints to min: 2, max: 2, desired: 2 changing the desired capacity from 0 to 2.  At 2026-10-03T02:34:35Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  },
+  {
+    "StartTime": "2026-10-03T02:34:37.537000+00:00",
+    "EndTime": "2026-10-03T02:34:42+00:00",
+    "StatusCode": "Successful",
+    "Description": "Launching a new EC2 instance: <instance-11>",
+    "Cause": "At 2026-10-03T02:34:32Z a user request update of AutoScalingGroup constraints to min: 2, max: 2, desired: 2 changing the desired capacity from 0 to 2.  At 2026-10-03T02:34:35Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2."
+  }
+]

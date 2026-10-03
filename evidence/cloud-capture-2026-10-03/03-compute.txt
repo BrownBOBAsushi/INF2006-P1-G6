@@ -1,0 +1,76 @@
+# Auto Scaling group and EC2 instances (app tier + worker)
+# Captured (UTC): 2026-10-03T07:11:55Z
+# Read-only command(s): autoscaling describe-auto-scaling-groups; ec2 describe-instances
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "AutoScalingGroup": {
+    "MinSize": 2,
+    "MaxSize": 2,
+    "DesiredCapacity": 2,
+    "HealthCheckType": "ELB",
+    "HealthCheckGracePeriod": 420,
+    "AvailabilityZones": [
+      "us-east-1a",
+      "us-east-1b"
+    ],
+    "SuspendedProcesses": []
+  },
+  "AsgInstances": [
+    {
+      "InstanceId": "<instance-2>",
+      "AvailabilityZone": "us-east-1b",
+      "LifecycleState": "InService",
+      "HealthStatus": "Healthy"
+    },
+    {
+      "InstanceId": "<instance-1>",
+      "AvailabilityZone": "us-east-1a",
+      "LifecycleState": "InService",
+      "HealthStatus": "Healthy"
+    }
+  ],
+  "Instances": [
+    {
+      "InstanceId": "<instance-2>",
+      "Role": "web/api",
+      "InstanceType": "t3.small",
+      "State": "running",
+      "SubnetId": "<subnet-2>",
+      "HasPublicIp": false,
+      "IamInstanceProfile": "LabInstanceProfile",
+      "ImdsHttpTokens": "required",
+      "SecurityGroups": [
+        "<sg-2>",
+        "<sg-3>"
+      ]
+    },
+    {
+      "InstanceId": "<instance-3>",
+      "Role": "worker",
+      "InstanceType": "t3.medium",
+      "State": "running",
+      "SubnetId": "<subnet-1>",
+      "HasPublicIp": false,
+      "IamInstanceProfile": "LabInstanceProfile",
+      "ImdsHttpTokens": "required",
+      "SecurityGroups": [
+        "<sg-4>"
+      ]
+    },
+    {
+      "InstanceId": "<instance-1>",
+      "Role": "web/api",
+      "InstanceType": "t3.small",
+      "State": "running",
+      "SubnetId": "<subnet-1>",
+      "HasPublicIp": false,
+      "IamInstanceProfile": "LabInstanceProfile",
+      "ImdsHttpTokens": "required",
+      "SecurityGroups": [
+        "<sg-2>",
+        "<sg-3>"
+      ]
+    }
+  ]
+}

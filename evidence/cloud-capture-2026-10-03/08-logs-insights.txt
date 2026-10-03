@@ -1,0 +1,68 @@
+# CloudWatch Logs Insights — Nginx access log (sanitised format: method, path without query string, status, bytes)
+# Log group: /inf2006/inf2006-private-app/web
+# Window (UTC): 2026-10-02T07:13:49Z to 2026-10-03T07:13:49Z
+# Read-only: logs start-query / get-query-results. Aggregates only; client IPs are not selected.
+
+## status_by_route
+Query:
+```
+parse @message /^\S+ (?<ts>\S+) "(?<method>[A-Z]+) (?<path>\S+) \S+" (?<status>\d{3}) (?<bytes>\d+)/
+| filter ispresent(status)
+| stats count(*) as requests by status, method, substr(path, 0, 18) as route_prefix
+| sort requests desc
+| limit 25
+```
+Status: Complete; records matched: 2269.0
+
+  status=200 | method=GET | route_prefix=/health/ready | requests=2035
+  status=200 | method=GET | route_prefix=/api/resume/tasks/ | requests=36
+  status=200 | method=GET | route_prefix=/api/resume | requests=30
+  status=200 | method=GET | route_prefix=/api/me | requests=28
+  status=200 | method=GET | route_prefix=/api/matches | requests=17
+  status=200 | method=GET | route_prefix=/index.html | requests=13
+  status=200 | method=GET | route_prefix=/api/jobs/b7309a78 | requests=12
+  status=401 | method=GET | route_prefix=/api/me | requests=10
+  status=200 | method=GET | route_prefix=/api/auth/bootstra | requests=9
+  status=200 | method=POST | route_prefix=/api/auth/google | requests=9
+  status=200 | method=PUT | route_prefix=/api/resume | requests=7
+  status=200 | method=GET | route_prefix=/api/jobs | requests=6
+  status=404 | method=GET | route_prefix=/favicon.ico | requests=6
+  status=200 | method=GET | route_prefix=/assets/index-DZTt | requests=6
+  status=404 | method=GET | route_prefix=/api/resume | requests=6
+  status=200 | method=GET | route_prefix=/assets/index-BXTK | requests=6
+  status=304 | method=GET | route_prefix=/index.html | requests=6
+  status=200 | method=GET | route_prefix=/api/jobs/8166a1fb | requests=5
+  status=200 | method=PATCH | route_prefix=/api/me | requests=4
+  status=204 | method=POST | route_prefix=/api/auth/logout | requests=3
+  status=202 | method=POST | route_prefix=/api/resume/prepar | requests=3
+  status=403 | method=POST | route_prefix=/api/auth/logout | requests=2
+  status=422 | method=GET | route_prefix=/api/matches | requests=2
+  status=413 | method=POST | route_prefix=/api/resume/prepar | requests=2
+  status=200 | method=GET | route_prefix=/api/jobs/676b1e5c | requests=2
+
+## error_responses_per_hour
+Query:
+```
+parse @message /^\S+ (?<ts>\S+) "(?<method>[A-Z]+) (?<path>\S+) \S+" (?<status>\d{3}) (?<bytes>\d+)/
+| filter ispresent(status)
+| filter status >= 400
+| stats count(*) as error_responses by bin(1h) as hour, status
+| sort hour desc
+| limit 30
+```
+Status: Complete; records matched: 30.0
+
+  hour=2026-10-03 06:00:00.000 | status=401 | error_responses=1
+  hour=2026-10-03 06:00:00.000 | status=404 | error_responses=2
+  hour=2026-10-03 06:00:00.000 | status=415 | error_responses=1
+  hour=2026-10-03 06:00:00.000 | status=413 | error_responses=2
+  hour=2026-10-03 05:00:00.000 | status=403 | error_responses=2
+  hour=2026-10-03 05:00:00.000 | status=401 | error_responses=1
+  hour=2026-10-03 04:00:00.000 | status=401 | error_responses=2
+  hour=2026-10-03 04:00:00.000 | status=404 | error_responses=4
+  hour=2026-10-03 03:00:00.000 | status=401 | error_responses=2
+  hour=2026-10-03 02:00:00.000 | status=401 | error_responses=4
+  hour=2026-10-03 02:00:00.000 | status=422 | error_responses=2
+  hour=2026-10-03 02:00:00.000 | status=409 | error_responses=1
+  hour=2026-10-03 02:00:00.000 | status=404 | error_responses=6
+

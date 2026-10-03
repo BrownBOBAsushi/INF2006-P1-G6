@@ -1,0 +1,99 @@
+# CloudFormation stacks and resources
+# Captured (UTC): 2026-10-03T07:11:39Z
+# Read-only command(s): cloudformation describe-stacks; list-stack-resources
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "inf2006-private-base-retry1": {
+    "StackStatus": "UPDATE_COMPLETE",
+    "Created": "2026-10-02T15:22:57.343000+00:00",
+    "LastUpdated": "2026-10-03T02:17:21.802000+00:00",
+    "Resources": [
+      "AppAssociationA (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "AppAssociationB (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "AppDefaultRouteA (AWS::EC2::Route): CREATE_COMPLETE",
+      "AppDefaultRouteB (AWS::EC2::Route): CREATE_COMPLETE",
+      "AppRouteTableA (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "AppRouteTableB (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "AppSecurityGroup (AWS::EC2::SecurityGroup): UPDATE_COMPLETE",
+      "AppSubnetA (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "AppSubnetB (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "Database (AWS::RDS::DBInstance): UPDATE_COMPLETE",
+      "DatabaseAssociationA (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "DatabaseAssociationB (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "DatabaseFromApp (AWS::EC2::SecurityGroupIngress): CREATE_COMPLETE",
+      "DatabaseFromWorker (AWS::EC2::SecurityGroupIngress): CREATE_COMPLETE",
+      "DatabaseRouteTableA (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "DatabaseRouteTableB (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "DatabaseSecurityGroup (AWS::EC2::SecurityGroup): UPDATE_COMPLETE",
+      "DatabaseSubnetA (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "DatabaseSubnetB (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "DatabaseSubnetGroup (AWS::RDS::DBSubnetGroup): UPDATE_COMPLETE",
+      "EmbeddingAgeAlarm (AWS::CloudWatch::Alarm): UPDATE_COMPLETE",
+      "EmbeddingDlq (AWS::SQS::Queue): CREATE_COMPLETE",
+      "EmbeddingDlqAlarm (AWS::CloudWatch::Alarm): UPDATE_COMPLETE",
+      "EmbeddingQueue (AWS::SQS::Queue): CREATE_COMPLETE",
+      "ExtractionAgeAlarm (AWS::CloudWatch::Alarm): UPDATE_COMPLETE",
+      "ExtractionDlq (AWS::SQS::Queue): CREATE_COMPLETE",
+      "ExtractionDlqAlarm (AWS::CloudWatch::Alarm): UPDATE_COMPLETE",
+      "ExtractionQueue (AWS::SQS::Queue): CREATE_COMPLETE",
+      "InternetGateway (AWS::EC2::InternetGateway): UPDATE_COMPLETE",
+      "InternetGatewayAttachment (AWS::EC2::VPCGatewayAttachment): UPDATE_COMPLETE",
+      "NatEipA (AWS::EC2::EIP): UPDATE_COMPLETE",
+      "NatEipB (AWS::EC2::EIP): UPDATE_COMPLETE",
+      "NatGatewayA (AWS::EC2::NatGateway): UPDATE_COMPLETE",
+      "NatGatewayB (AWS::EC2::NatGateway): UPDATE_COMPLETE",
+      "PublicAssociationA (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "PublicAssociationB (AWS::EC2::SubnetRouteTableAssociation): CREATE_COMPLETE",
+      "PublicDefaultRouteA (AWS::EC2::Route): CREATE_COMPLETE",
+      "PublicDefaultRouteB (AWS::EC2::Route): CREATE_COMPLETE",
+      "PublicRouteTableA (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "PublicRouteTableB (AWS::EC2::RouteTable): UPDATE_COMPLETE",
+      "PublicSubnetA (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "PublicSubnetB (AWS::EC2::Subnet): CREATE_COMPLETE",
+      "S3Endpoint (AWS::EC2::VPCEndpoint): CREATE_COMPLETE",
+      "TemporaryInputBucket (AWS::S3::Bucket): UPDATE_COMPLETE",
+      "TemporaryInputBucketTlsOnly (AWS::S3::BucketPolicy): CREATE_COMPLETE",
+      "Vpc (AWS::EC2::VPC): CREATE_COMPLETE",
+      "WorkerInstanceRecovery (AWS::EC2::Instance): CREATE_COMPLETE",
+      "WorkerLogGroup (AWS::Logs::LogGroup): UPDATE_COMPLETE",
+      "WorkerSecurityGroup (AWS::EC2::SecurityGroup): UPDATE_COMPLETE"
+    ]
+  },
+  "inf2006-private-ingress": {
+    "StackStatus": "CREATE_COMPLETE",
+    "Created": "2026-10-03T02:24:08.648000+00:00",
+    "LastUpdated": "2026-10-03T02:25:13.711000+00:00",
+    "Resources": [
+      "AccessLogGroup (AWS::Logs::LogGroup): CREATE_COMPLETE",
+      "AlbFromVpcLinkIngress (AWS::EC2::SecurityGroupIngress): CREATE_COMPLETE",
+      "AlbToAppEgress (AWS::EC2::SecurityGroupEgress): CREATE_COMPLETE",
+      "AppFromAlbIngress (AWS::EC2::SecurityGroupIngress): CREATE_COMPLETE",
+      "AppHttpsTargetGroup (AWS::ElasticLoadBalancingV2::TargetGroup): CREATE_COMPLETE",
+      "AppTargetSecurityGroup (AWS::EC2::SecurityGroup): CREATE_COMPLETE",
+      "DefaultRoute (AWS::ApiGatewayV2::Route): CREATE_COMPLETE",
+      "DefaultStage (AWS::ApiGatewayV2::Stage): CREATE_COMPLETE",
+      "DeploymentR1 (AWS::ApiGatewayV2::Deployment): CREATE_COMPLETE",
+      "HttpApi (AWS::ApiGatewayV2::Api): CREATE_COMPLETE",
+      "InternalAlb (AWS::ElasticLoadBalancingV2::LoadBalancer): CREATE_COMPLETE",
+      "InternalAlbHttpsListener (AWS::ElasticLoadBalancingV2::Listener): CREATE_COMPLETE",
+      "InternalAlbSecurityGroup (AWS::EC2::SecurityGroup): CREATE_COMPLETE",
+      "ProxyIntegration (AWS::ApiGatewayV2::Integration): CREATE_COMPLETE",
+      "VpcLink (AWS::ApiGatewayV2::VpcLink): CREATE_COMPLETE",
+      "VpcLinkSecurityGroup (AWS::EC2::SecurityGroup): CREATE_COMPLETE",
+      "VpcLinkToAlbEgress (AWS::EC2::SecurityGroupEgress): CREATE_COMPLETE"
+    ]
+  },
+  "inf2006-private-app": {
+    "StackStatus": "CREATE_COMPLETE",
+    "Created": "2026-10-03T02:31:52.034000+00:00",
+    "LastUpdated": "2026-10-03T02:34:08.146000+00:00",
+    "Resources": [
+      "ApiLogGroup (AWS::Logs::LogGroup): CREATE_COMPLETE",
+      "AppAutoScalingGroup (AWS::AutoScaling::AutoScalingGroup): CREATE_COMPLETE",
+      "AppInServiceAlarm (AWS::CloudWatch::Alarm): CREATE_COMPLETE",
+      "AppLaunchTemplate (AWS::EC2::LaunchTemplate): CREATE_COMPLETE",
+      "WebLogGroup (AWS::Logs::LogGroup): CREATE_COMPLETE"
+    ]
+  }
+}

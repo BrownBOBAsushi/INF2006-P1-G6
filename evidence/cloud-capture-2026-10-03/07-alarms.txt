@@ -1,0 +1,221 @@
+# CloudWatch alarms and recent state-change history
+# Captured (UTC): 2026-10-03T07:12:29Z
+# Read-only command(s): cloudwatch describe-alarms; describe-alarm-history --history-item-type StateUpdate
+# Redacted: account IDs, ARNs, resource IDs, IPs, hostnames.
+
+{
+  "Alarms": [
+    {
+      "AlarmName": "inf2006-private-app-AppInServiceAlarm-YYhBHO6yaH8o",
+      "StateValue": "OK",
+      "StateReason": "Threshold Crossed: 1 datapoint [2.0 (03/10/26 05:29:00)] was not less than the threshold (2.0).",
+      "StateUpdatedTimestamp": "2026-10-03T13:30:59.209000+08:00",
+      "Namespace": "AWS/AutoScaling",
+      "MetricName": "GroupInServiceInstances",
+      "Statistic": "Minimum",
+      "Period": 60,
+      "EvaluationPeriods": 2,
+      "Threshold": 2.0,
+      "ComparisonOperator": "LessThanThreshold",
+      "TreatMissingData": "breaching",
+      "AlarmActionsConfigured": 0
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-EmbeddingAgeAlarm-7QdAKtwsQhDU",
+      "StateValue": "OK",
+      "StateReason": "Threshold Crossed: no datapoints were received for 5 periods and 5 missing datapoints were treated as [NonBreaching].",
+      "StateUpdatedTimestamp": "2026-10-02T23:33:06.843000+08:00",
+      "Namespace": "AWS/SQS",
+      "MetricName": "ApproximateAgeOfOldestMessage",
+      "Statistic": "Maximum",
+      "Period": 60,
+      "EvaluationPeriods": 5,
+      "Threshold": 900.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "TreatMissingData": "notBreaching",
+      "AlarmActionsConfigured": 0
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-EmbeddingDlqAlarm-4knu00yg7TBp",
+      "StateValue": "OK",
+      "StateReason": "Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].",
+      "StateUpdatedTimestamp": "2026-10-02T23:32:05.627000+08:00",
+      "Namespace": "AWS/SQS",
+      "MetricName": "ApproximateNumberOfMessagesVisible",
+      "Statistic": "Maximum",
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 1.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "TreatMissingData": "notBreaching",
+      "AlarmActionsConfigured": 0
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-ExtractionAgeAlarm-rdrHWAKfLfyY",
+      "StateValue": "OK",
+      "StateReason": "Threshold Crossed: no datapoints were received for 5 periods and 5 missing datapoints were treated as [NonBreaching].",
+      "StateUpdatedTimestamp": "2026-10-02T23:33:11.620000+08:00",
+      "Namespace": "AWS/SQS",
+      "MetricName": "ApproximateAgeOfOldestMessage",
+      "Statistic": "Maximum",
+      "Period": 60,
+      "EvaluationPeriods": 5,
+      "Threshold": 900.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "TreatMissingData": "notBreaching",
+      "AlarmActionsConfigured": 0
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-ExtractionDlqAlarm-lA0Udq2njvFB",
+      "StateValue": "OK",
+      "StateReason": "Threshold Crossed: no datapoints were received for 1 period and 1 missing datapoint was treated as [NonBreaching].",
+      "StateUpdatedTimestamp": "2026-10-02T23:31:26.535000+08:00",
+      "Namespace": "AWS/SQS",
+      "MetricName": "ApproximateNumberOfMessagesVisible",
+      "Statistic": "Maximum",
+      "Period": 60,
+      "EvaluationPeriods": 1,
+      "Threshold": 1.0,
+      "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+      "TreatMissingData": "notBreaching",
+      "AlarmActionsConfigured": 0
+    }
+  ],
+  "StateHistory": [
+    {
+      "AlarmName": "inf2006-private-app-AppInServiceAlarm-YYhBHO6yaH8o",
+      "Timestamp": "2026-10-03T13:30:59.209000+08:00",
+      "HistorySummary": "Alarm updated from ALARM to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-app-AppInServiceAlarm-YYhBHO6yaH8o",
+      "Timestamp": "2026-10-03T13:25:59.208000+08:00",
+      "HistorySummary": "Alarm updated from OK to ALARM"
+    },
+    {
+      "AlarmName": "inf2006-private-app-AppInServiceAlarm-YYhBHO6yaH8o",
+      "Timestamp": "2026-10-03T10:41:59.207000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-ExtractionAgeAlarm-rdrHWAKfLfyY",
+      "Timestamp": "2026-10-02T23:33:11.620000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-EmbeddingAgeAlarm-7QdAKtwsQhDU",
+      "Timestamp": "2026-10-02T23:33:06.843000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-EmbeddingDlqAlarm-4knu00yg7TBp",
+      "Timestamp": "2026-10-02T23:32:05.627000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-retry1-ExtractionDlqAlarm-lA0Udq2njvFB",
+      "Timestamp": "2026-10-02T23:31:26.535000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-EmbeddingAgeAlarm-7cwxqjcPXRmk",
+      "Timestamp": "2026-10-02T22:44:00.319000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-ExtractionDlqAlarm-Igh1MAIiKyC2",
+      "Timestamp": "2026-10-02T22:43:02.632000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-ExtractionAgeAlarm-Y4mq4auPQmN5",
+      "Timestamp": "2026-10-02T22:43:01.373000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-private-base-EmbeddingDlqAlarm-5zXQQQGIYoLU",
+      "Timestamp": "2026-10-02T22:42:38.997000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiReadinessAlarm-jcpNMovDTbk7",
+      "Timestamp": "2026-09-27T20:34:19.346000+08:00",
+      "HistorySummary": "Alarm updated from ALARM to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiReadinessAlarm-jcpNMovDTbk7",
+      "Timestamp": "2026-09-27T20:31:19.349000+08:00",
+      "HistorySummary": "Alarm updated from OK to ALARM"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiReadinessAlarm-jcpNMovDTbk7",
+      "Timestamp": "2026-09-27T20:20:19.442000+08:00",
+      "HistorySummary": "Alarm updated from ALARM to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiHostStatusAlarm-vxW6Ts5pJTOb",
+      "Timestamp": "2026-09-27T20:14:22.271000+08:00",
+      "HistorySummary": "Alarm updated from ALARM to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiHostStatusAlarm-vxW6Ts5pJTOb",
+      "Timestamp": "2026-09-27T20:08:22.271000+08:00",
+      "HistorySummary": "Alarm updated from OK to ALARM"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiHostStatusAlarm-vxW6Ts5pJTOb",
+      "Timestamp": "2026-09-27T19:56:22.272000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiReadinessAlarm-jcpNMovDTbk7",
+      "Timestamp": "2026-09-27T19:56:19.347000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to ALARM"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiHostStatusAlarm-nVHy5S7BxQh5",
+      "Timestamp": "2026-09-27T18:45:35.246000+08:00",
+      "HistorySummary": "Alarm updated from ALARM to OK"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiHostStatusAlarm-nVHy5S7BxQh5",
+      "Timestamp": "2026-09-27T18:40:35.246000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to ALARM"
+    },
+    {
+      "AlarmName": "inf2006-foundation-ApiReadinessAlarm-KeBJ7t65jXq0",
+      "Timestamp": "2026-09-27T18:39:57.629000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to ALARM"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmHigh-03cbfa21-8808-46e2-a8eb-b734eb6a4777",
+      "Timestamp": "2026-09-17T10:59:24.987000+08:00",
+      "HistorySummary": "Alarm updated from OK to INSUFFICIENT_DATA"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmLow-b54cd30c-8048-4231-bd0f-5a268863050c",
+      "Timestamp": "2026-09-17T10:35:41.620000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to ALARM"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmHigh-03cbfa21-8808-46e2-a8eb-b734eb6a4777",
+      "Timestamp": "2026-09-17T10:35:24.963000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmLow-ed044d2f-2a94-4c08-9d2e-5f2a493c0f1a",
+      "Timestamp": "2026-09-17T10:30:23.586000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmHigh-a280f3c0-5526-4a17-8910-48d8f9a1ab6a",
+      "Timestamp": "2026-09-17T10:29:44.467000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to ALARM"
+    },
+    {
+      "AlarmName": "TargetTracking-WebServerAutoScalingGroup-AlarmHigh-4550821a-2693-430f-b5ae-210e7ad84b38",
+      "Timestamp": "2026-09-17T10:25:30.976000+08:00",
+      "HistorySummary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    }
+  ]
+}
