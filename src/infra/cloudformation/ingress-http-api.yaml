@@ -1,0 +1,273 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Public HTTP API and dedicated internal HTTPS ALB ingress for existing application instances.
+  This stack creates no application hosts, database, DNS, or certificate resources.
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: Existing project VPC.
+  TargetRegistrationMode:
+    Type: String
+    Default: instances
+    AllowedValues: [instances, asg]
+    Description: Keep the existing static-instance path, or create an empty target group for the private app ASG.
+  AppInstanceIdA:
+    Type: String
+    Default: unused
+    AllowedPattern: '^(i-[0-9a-fA-F]{8,17}|unused)$'
+    Description: First existing private app instance; used only when TargetRegistrationMode is instances.
+  AppInstanceIdB:
+    Type: String
+    Default: unused
+    AllowedPattern: '^(i-[0-9a-fA-F]{8,17}|unused)$'
+    Description: Second existing private app instance; used only when TargetRegistrationMode is instances.
+  IngressCertificateArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:acm:[a-z0-9-]+:[0-9]{12}:certificate/[0-9a-fA-F-]+$'
+    Description: Existing ACM certificate ARN whose SAN covers BackendTlsServerName.
+  BackendTlsServerName:
+    Type: String
+    Default: internshipmatcher.duckdns.org
+    AllowedPattern: '^[A-Za-z0-9.-]+$'
+    Description: DNS name validated by API Gateway for the ALB listener certificate.
+  VpcLinkSubnetIdA:
+    Type: AWS::EC2::Subnet::Id
+    Description: First eligible private subnet for the VPC Link.
+  VpcLinkSubnetIdB:
+    Type: AWS::EC2::Subnet::Id
+    Description: Second eligible private subnet in a distinct supported Availability Zone.
+  StageThrottleBurstLimit:
+    Type: Number
+    Default: 20
+    MinValue: 1
+    MaxValue: 100
+  StageThrottleRateLimit:
+    Type: Number
+    Default: 10
+    MinValue: 1
+    MaxValue: 100
+  LogRetentionDays:
+    Type: Number
+    Default: 14
+    AllowedValues: [7, 14, 30]
+
+Conditions:
+  StaticInstanceRegistration: !Equals [!Ref TargetRegistrationMode, instances]
+
+Rules:
+  StaticTargetsMustBeProvided:
+    Assertions:
+      - Assert: !Or
+          - !Equals [!Ref TargetRegistrationMode, asg]
+          - !And
+            - !Not [!Equals [!Ref AppInstanceIdA, unused]]
+            - !Not [!Equals [!Ref AppInstanceIdB, unused]]
+            - !Not [!Equals [!Ref AppInstanceIdA, !Ref AppInstanceIdB]]
+        AssertDescription: Static mode requires two distinct instance IDs; ASG mode uses an empty target group.
+
+Resources:
+  VpcLinkSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: API Gateway VPC Link egress only to the ingress ALB on 443.
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 127.0.0.1/32
+
+  InternalAlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Internal ALB ingress from VPC Link on 443 and egress to app targets on 8443.
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 127.0.0.1/32
+
+  AppTargetSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Attach to existing app instances; permits Nginx HTTPS only from the ingress ALB.
+      VpcId: !Ref VpcId
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 127.0.0.1/32
+
+  VpcLinkToAlbEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref VpcLinkSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      DestinationSecurityGroupId: !Ref InternalAlbSecurityGroup
+
+  AlbFromVpcLinkIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref InternalAlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref VpcLinkSecurityGroup
+
+  AlbToAppEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref InternalAlbSecurityGroup
+      IpProtocol: tcp
+      FromPort: 8443
+      ToPort: 8443
+      DestinationSecurityGroupId: !Ref AppTargetSecurityGroup
+
+  AppFromAlbIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref AppTargetSecurityGroup
+      IpProtocol: tcp
+      FromPort: 8443
+      ToPort: 8443
+      SourceSecurityGroupId: !Ref InternalAlbSecurityGroup
+
+  InternalAlb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn:
+      - AlbFromVpcLinkIngress
+      - AlbToAppEgress
+    Properties:
+      Name: !Sub '${AWS::StackName}-internal'
+      Scheme: internal
+      Type: application
+      IpAddressType: ipv4
+      Subnets: [!Ref VpcLinkSubnetIdA, !Ref VpcLinkSubnetIdB]
+      SecurityGroups: [!Ref InternalAlbSecurityGroup]
+
+  AppHttpsTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId: !Ref VpcId
+      TargetType: instance
+      Protocol: HTTPS
+      Port: 8443
+      HealthCheckEnabled: true
+      HealthCheckProtocol: HTTPS
+      HealthCheckPort: traffic-port
+      HealthCheckPath: /health/ready
+      Matcher:
+        HttpCode: '200'
+      Targets: !If
+        - StaticInstanceRegistration
+        - [{Id: !Ref AppInstanceIdA, Port: 8443}, {Id: !Ref AppInstanceIdB, Port: 8443}]
+        - !Ref AWS::NoValue
+
+  InternalAlbHttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    DependsOn: AppFromAlbIngress
+    Properties:
+      LoadBalancerArn: !Ref InternalAlb
+      Port: 443
+      Protocol: HTTPS
+      SslPolicy: ELBSecurityPolicy-TLS13-1-2-2021-06
+      Certificates:
+        - CertificateArn: !Ref IngressCertificateArn
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AppHttpsTargetGroup
+
+  AccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub '/aws/apigateway/${AWS::StackName}/access'
+      RetentionInDays: !Ref LogRetentionDays
+
+  HttpApi:
+    Type: AWS::ApiGatewayV2::Api
+    Properties:
+      Name: !Sub '${AWS::StackName}-http'
+      ProtocolType: HTTP
+      Description: Same-origin SPA and API proxy to the private application ALB.
+      DisableExecuteApiEndpoint: false
+
+  VpcLink:
+    Type: AWS::ApiGatewayV2::VpcLink
+    DependsOn: VpcLinkToAlbEgress
+    Properties:
+      Name: !Sub '${AWS::StackName}-link'
+      SubnetIds: [!Ref VpcLinkSubnetIdA, !Ref VpcLinkSubnetIdB]
+      SecurityGroupIds: [!Ref VpcLinkSecurityGroup]
+
+  ProxyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    DependsOn:
+      - VpcLinkToAlbEgress
+      - AppFromAlbIngress
+    Properties:
+      ApiId: !Ref HttpApi
+      ConnectionId: !Ref VpcLink
+      ConnectionType: VPC_LINK
+      IntegrationType: HTTP_PROXY
+      IntegrationMethod: ANY
+      IntegrationUri: !Ref InternalAlbHttpsListener
+      PayloadFormatVersion: '1.0'
+      TimeoutInMillis: 30000
+      TlsConfig:
+        ServerNameToVerify: !Ref BackendTlsServerName
+      RequestParameters:
+        overwrite:path: '$request.path'
+
+  DefaultRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: '$default'
+      Target: !Sub 'integrations/${ProxyIntegration}'
+
+  DeploymentR1:
+    Type: AWS::ApiGatewayV2::Deployment
+    DependsOn: [DefaultRoute]
+    Properties:
+      ApiId: !Ref HttpApi
+      Description: Explicit release snapshot R1; increment the logical ID for each API configuration release.
+
+  DefaultStage:
+    Type: AWS::ApiGatewayV2::Stage
+    Properties:
+      ApiId: !Ref HttpApi
+      StageName: '$default'
+      AutoDeploy: false
+      DeploymentId: !Ref DeploymentR1
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: !Ref StageThrottleBurstLimit
+        ThrottlingRateLimit: !Ref StageThrottleRateLimit
+      AccessLogSettings:
+        DestinationArn: !GetAtt AccessLogGroup.Arn
+        Format: '{"requestId":"$context.requestId","routeKey":"$context.routeKey","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength","integrationLatency":"$context.integrationLatency","integrationStatus":"$context.integrationStatus","error":"$context.error.responseType"}'
+
+Outputs:
+  ApiId:
+    Value: !Ref HttpApi
+  PublicApiOrigin:
+    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}'
+  VpcLinkId:
+    Value: !Ref VpcLink
+  InternalAlbHttpsListenerArn:
+    Description: HTTPS listener ARN for any separately managed HTTP API integration.
+    Value: !Ref InternalAlbHttpsListener
+    Export:
+      Name: !Sub '${AWS::StackName}-InternalAlbHttpsListenerArn'
+  InternalAlbDnsName:
+    Value: !GetAtt InternalAlb.DNSName
+  AppHttpsTargetGroupArn:
+    Value: !Ref AppHttpsTargetGroup
+  VpcLinkSecurityGroupId:
+    Value: !Ref VpcLinkSecurityGroup
+  InternalAlbSecurityGroupId:
+    Value: !Ref InternalAlbSecurityGroup
+  AppTargetSecurityGroupId:
+    Description: Attach this SG to app instances; it permits Nginx HTTPS only from the internal ALB.
+    Value: !Ref AppTargetSecurityGroup
+  AccessLogGroupName:
+    Value: !Ref AccessLogGroup

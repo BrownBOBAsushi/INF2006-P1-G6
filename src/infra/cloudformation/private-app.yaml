@@ -1,0 +1,214 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Two private web/API instances for the final HTTP API + internal ALB path. Deploy
+  only after private-base and the empty-target ingress stack are ready. Does not
+  run database role setup or migrations; the private worker owns that singleton step.
+
+Parameters:
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Description: Reviewed x86_64 Amazon Linux 2023 AMI for this region.
+  AppInstanceType:
+    Type: String
+    Default: t3.small
+    AllowedValues: [t3.small, t3.medium, t3.large]
+    Description: Provisional; cold and steady-state memory must be measured before acceptance.
+  LabInstanceProfileName:
+    Type: String
+    Default: LabInstanceProfile
+  ApiImageUri:
+    Type: String
+    AllowedPattern: '^([0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com|[A-Za-z0-9./_-]+)@sha256:[a-f0-9]{64}$'
+  WebImageUri:
+    Type: String
+    AllowedPattern: '^([0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com|[A-Za-z0-9./_-]+)@sha256:[a-f0-9]{64}$'
+  BootstrapImageUri:
+    Type: String
+    AllowedPattern: '^([0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com|[A-Za-z0-9./_-]+)@sha256:[a-f0-9]{64}$'
+  SourceSnapshotSha256:
+    Type: String
+    AllowedPattern: '^[a-fA-F0-9]{64}$'
+  AppOrigin:
+    Type: String
+    AllowedPattern: '^https://[A-Za-z0-9.-]+$'
+    Description: Exact execute-api HTTPS browser origin; must also be authorized in Google GIS.
+  TlsServerName:
+    Type: String
+    Default: internshipmatcher.duckdns.org
+    AllowedPattern: '^[A-Za-z0-9-]+\.duckdns\.org$'
+  GoogleClientId:
+    Type: String
+    AllowedPattern: '^[0-9]+-[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$'
+  AppSubnetAId:
+    Type: AWS::EC2::Subnet::Id
+  AppSubnetBId:
+    Type: AWS::EC2::Subnet::Id
+  BaseAppSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Private base app egress group, including database access.
+  AppTargetSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Ingress stack target group; only internal ALB may reach TCP 8443.
+  IngressTargetGroupArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:elasticloadbalancing:[a-z0-9-]+:[0-9]{12}:targetgroup/.+$'
+  DatabaseEndpoint:
+    Type: String
+  DatabaseName:
+    Type: String
+    AllowedPattern: '^[A-Za-z][A-Za-z0-9_]{0,62}$'
+  DatabaseRuntimeSecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  AppSigningKeySecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  TemporaryInputBucket:
+    Type: String
+  ExtractionQueueUrl:
+    Type: String
+    AllowedPattern: '^https://.+$'
+  EmbeddingQueueUrl:
+    Type: String
+    AllowedPattern: '^https://.+$'
+  LogRetentionDays:
+    Type: Number
+    Default: 30
+    AllowedValues: [7, 14, 30]
+
+Resources:
+  ApiLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties: {LogGroupName: !Sub '/inf2006/${AWS::StackName}/api', RetentionInDays: !Ref LogRetentionDays}
+  WebLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties: {LogGroupName: !Sub '/inf2006/${AWS::StackName}/web', RetentionInDays: !Ref LogRetentionDays}
+
+  AppLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: !Sub '${AWS::StackName}-app'
+      LaunchTemplateData:
+        ImageId: !Ref AmiId
+        InstanceType: !Ref AppInstanceType
+        IamInstanceProfile: {Name: !Ref LabInstanceProfileName}
+        SecurityGroupIds: [!Ref BaseAppSecurityGroupId, !Ref AppTargetSecurityGroupId]
+        MetadataOptions: {HttpTokens: required, HttpPutResponseHopLimit: 2, HttpEndpoint: enabled}
+        CreditSpecification: {CpuCredits: standard}
+        Monitoring: {Enabled: true}
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs: {VolumeSize: 24, VolumeType: gp3, Encrypted: true, DeleteOnTermination: true}
+        TagSpecifications:
+          - ResourceType: instance
+            Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-app'}, {Key: Project, Value: INF2006}, {Key: SourceSnapshotSha256, Value: !Ref SourceSnapshotSha256}]
+          - ResourceType: volume
+            Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-app'}, {Key: Project, Value: INF2006}]
+        UserData:
+          Fn::Base64:
+            Fn::Sub:
+              - |
+                #!/bin/bash
+                set -euo pipefail
+                set +x
+                signal_on_exit() {
+                  status=$?
+                  trap - EXIT
+                  /opt/aws/bin/cfn-signal --exit-code "$status" --stack '${AWS::StackName}' --resource AppAutoScalingGroup --region '${AWS::Region}' || true
+                  exit "$status"
+                }
+                trap signal_on_exit EXIT
+                exec > >(tee -a /var/log/inf2006-app-bootstrap.log | logger -t inf2006-app -s 2>/dev/console) 2>&1
+                dnf install -y aws-cfn-bootstrap awscli-2 docker nginx jq python3
+                # Ensure AL2023 HTTPS curl is available without replacing curl-minimal.
+                if ! command -v curl >/dev/null 2>&1; then
+                  dnf install -y curl-minimal
+                fi
+                command -v curl >/dev/null 2>&1
+                curl_version="$(curl --version)"
+                if [[ ! "$curl_version" =~ (^|[[:space:]])https([[:space:]]|$) ]]; then
+                  printf 'curl command does not advertise HTTPS support\n' >&2
+                  exit 1
+                fi
+                unset curl_version
+                # End AL2023 HTTPS curl check.
+                install -d -m 0755 /usr/local/lib/docker/cli-plugins /opt/inf2006 /etc/inf2006
+                compose_tmp="$(mktemp)"
+                curl --fail --silent --show-error --location 'https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64' --output "$compose_tmp"
+                printf '%s  %s\n' '7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4' "$compose_tmp" | sha256sum --check --status
+                install -m 0755 "$compose_tmp" /usr/local/lib/docker/cli-plugins/docker-compose
+                rm -f "$compose_tmp"
+                systemctl enable --now docker
+                registry='${BootstrapRegistry}'
+                aws ecr get-login-password --region '${AWS::Region}' | docker login --username AWS --password-stdin "$registry"
+                docker pull '${BootstrapImageUri}'
+                container_id="$(docker create '${BootstrapImageUri}')"
+                docker cp "$container_id:/opt/inf2006/." /opt/inf2006/
+                docker rm "$container_id"
+                chmod 0750 /opt/inf2006/src/infra/scripts/*.sh
+                export AWS_DEFAULT_REGION='${AWS::Region}'
+                export BOOTSTRAP_IMAGE_URI='${BootstrapImageUri}' API_IMAGE_URI='${ApiImageUri}' WEB_IMAGE_URI='${WebImageUri}'
+                export APP_ORIGIN='${AppOrigin}' TLS_SERVER_NAME='${TlsServerName}' GOOGLE_CLIENT_ID='${GoogleClientId}'
+                export DB_ENDPOINT='${DatabaseEndpoint}' DB_NAME='${DatabaseName}' DB_RUNTIME_SECRET_ARN='${DatabaseRuntimeSecretArn}'
+                export APP_SIGNING_KEY_SECRET_ARN='${AppSigningKeySecretArn}'
+                export PROCESSING_TEMP_BUCKET='${TemporaryInputBucket}' PROCESSING_TEMP_PREFIX='temporary-resume-inputs'
+                export PROCESSING_EXTRACTION_QUEUE_URL='${ExtractionQueueUrl}' PROCESSING_EMBEDDING_QUEUE_URL='${EmbeddingQueueUrl}'
+                export API_LOG_GROUP='${ApiLogGroup}' WEB_LOG_GROUP='${WebLogGroup}' SOURCE_SNAPSHOT_SHA256='${SourceSnapshotSha256}'
+                token="$(curl --fail --silent --show-error -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 60' http://169.254.169.254/latest/api/token)"
+                export APP_INSTANCE_ID="$(curl --fail --silent --show-error -H "X-aws-ec2-metadata-token: $token" http://169.254.169.254/latest/meta-data/instance-id)"
+                /opt/inf2006/src/infra/scripts/bootstrap-private-app.sh
+              - BootstrapRegistry: !Select [0, !Split ['/', !Ref BootstrapImageUri]]
+                DatabaseEndpoint: !Ref DatabaseEndpoint
+  AppAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    CreationPolicy:
+      ResourceSignal: {Count: 2, Timeout: PT45M}
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        MaxBatchSize: 1
+        PauseTime: PT45M
+        WaitOnResourceSignals: true
+    Properties:
+      MinSize: '2'
+      MaxSize: '2'
+      DesiredCapacity: '2'
+      AvailabilityZoneDistribution: {CapacityDistributionStrategy: balanced-only}
+      VPCZoneIdentifier: [!Ref AppSubnetAId, !Ref AppSubnetBId]
+      TargetGroupARNs: [!Ref IngressTargetGroupArn]
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 420
+      LaunchTemplate:
+        LaunchTemplateId: !Ref AppLaunchTemplate
+        Version: !GetAtt AppLaunchTemplate.LatestVersionNumber
+      MetricsCollection:
+        - Granularity: 1Minute
+          Metrics: [GroupInServiceInstances, GroupPendingInstances, GroupTerminatingInstances, GroupTotalInstances]
+      Tags:
+        - {Key: Name, Value: !Sub '${AWS::StackName}-app', PropagateAtLaunch: true}
+        - {Key: Project, Value: INF2006, PropagateAtLaunch: true}
+
+  AppInServiceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: The private application ASG must maintain both healthy instances.
+      Namespace: AWS/AutoScaling
+      MetricName: GroupInServiceInstances
+      Dimensions: [{Name: AutoScalingGroupName, Value: !Ref AppAutoScalingGroup}]
+      Statistic: Minimum
+      Period: 60
+      EvaluationPeriods: 2
+      Threshold: 2
+      ComparisonOperator: LessThanThreshold
+      TreatMissingData: breaching
+
+Outputs:
+  AppAutoScalingGroupName: {Value: !Ref AppAutoScalingGroup}
+  AppOrigin: {Value: !Ref AppOrigin}
+  AppSecurityGroupId: {Value: !Ref AppTargetSecurityGroupId}
+  AppApiLogGroupName: {Value: !Ref ApiLogGroup}
+  AppWebLogGroupName: {Value: !Ref WebLogGroup}

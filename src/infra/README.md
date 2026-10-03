@@ -1,5 +1,8 @@
 # Synchronous AWS foundation preparation
 
+The final private async target is prepared separately in [`docs/PRIVATE_CLOUD_ROLLOUT.md`](../../docs/PRIVATE_CLOUD_ROLLOUT.md). It does not replace this historical foundation path. Its templates and bootstrap helpers are preparation only and have not been deployed or cloud-validated.
+
+
 This directory contains the synchronous foundation implementation and runbook for the existing API. A temporary deployment and scoped user-reported checks, followed by user-reported teardown, are recorded in [`evidence/cloud-foundation-run-2026-09-27.md`](../../evidence/cloud-foundation-run-2026-09-27.md); current AWS state was not independently verified by Codex. The proposed split asynchronous target remains separate and undeployed. The foundation adds no worker, S3, SQS, outbox, NAT gateway, load balancer, or custom IAM role. The app stays stopped until the operator explicitly verifies DuckDNS and activates HTTPS. Future resource changes, DNS updates, certificate requests, Google-origin changes, and teardown require operator authorization.
 
 ## What the templates propose
@@ -91,6 +94,136 @@ curl --fail --silent --show-error http://127.0.0.1:8080/health/ready
 ```
 
 This is the documented manual recovery path; automated container recovery does not clear the app's latched readiness failure.
+
+## Private API Gateway ingress preparation (local only)
+
+The approved ingress preparation is deliberately separate from `cloudformation/main.yaml` and its legacy public-host HTTP-01 flow. `cloudformation/ingress-http-api.yaml` creates the HTTP API, `$default` route/stage, VPC Link, a dedicated internal ALB HTTPS listener, HTTPS target group for two existing app instances, and least-privilege ingress/egress security-group rules. Parameters identify the existing VPC, private subnets, app instances and ACM certificate. To suppress the EC2 default allow-all egress, each new group includes the documented `127.0.0.1/32` allow-all-protocol sentinel; explicit standalone rules add only VPC Link→ALB TCP 443 and ALB→app TCP 8443. The app target group permits ingress only from the ALB SG. Attach the output `AppTargetSecurityGroupId` to both existing app instances alongside required dependency/egress security groups, and inspect/remove any broader inbound rules that would defeat the intended source restriction. Existing security groups are additive, so the new target group must not replace unrelated groups. [CloudFormation security-group egress behavior](https://docs.aws.amazon.com/AWSCloudFormation/latest/TemplateReference/aws-resource-ec2-securitygroup.html). The full multi-instance/async target is not implemented or deployed. The template does not add Cognito, Lambda, DynamoDB, or CloudFront.
+
+The execute-api origin serves both SPA assets and `/api/*`, so `APP_ORIGIN` is the exact `https://<api-id>.execute-api.<region>.amazonaws.com` origin. The `$default` route proxies paths without a stage prefix. API Gateway validates `TLS_SERVER_NAME` using SNI and hostname verification against the certificate on the ALB HTTPS listener. `TLS_SERVER_NAME` is independent of `APP_ORIGIN`. The existing foundation still defaults it to `PUBLIC_HOSTNAME` and still requires `APP_ORIGIN=https://PUBLIC_HOSTNAME`; private bootstrap mode does not call the DuckDNS A/AAAA update or legacy HTTP-01 activation helpers and does not require the DNS token on app hosts.
+
+Private mode uses `compose.private-ingress.yml` and Nginx on host port 8443. It publishes no 8080 listener. A per-instance self-signed key and certificate are generated under `/etc/inf2006/tls`, outside the image. The ALB encrypts this target hop but does **not** validate its certificate; the template limits ALB egress to the target SG on 8443 and target ingress to ALB SG on 8443. The VPC Link SG may reach only ALB SG TCP 443, and the ALB accepts only that VPC Link SG on 443. The target group health check uses HTTPS `/health/ready`. Nginx forwards `Origin`, `Cookie`, `X-CSRF-Token`, request paths and multiple `Set-Cookie` response headers through the same origin. Missing `/assets/*` and known static asset extensions return 404 rather than SPA HTML. Access logs record the URI without query strings and do not log cookies, headers, or request bodies. Container-local Nginx-to-FastAPI remains HTTP.
+
+The Gateway quota remains 10 MB per request, 30 seconds integration time, and 10,240 bytes for request line plus headers. Nginx's 6 MiB limit is above the 5,242,880-byte PDF limit with multipart overhead and below Gateway's payload cap. Existing code performs upload preparation, preview privacy checks and save privacy checks synchronously. The 30-second deadline is **not yet validated** on the proposed host class, including cold model loading and concurrent requests. Keep deployment blocked until synthetic near-limit multipart requests, authenticated preview/save, timeouts and retry idempotency are measured below a proposed 25-second engineering gate; this margin is a proposal, not a requirement. If those checks exceed the Gateway limit, stop and design explicit async state semantics rather than skipping privacy checks. The source does not currently prove API Gateway behavior for cookie duplication, static asset MIME/gzip, or Gateway-generated 429/502/504 responses.
+
+### Local checks
+
+These checks make no AWS, DNS, OAuth, certificate, or deployment request:
+
+```sh
+for script in src/infra/scripts/bootstrap-api.sh \
+  src/infra/scripts/duckdns-acme-hook.sh \
+  src/infra/scripts/ingress-certificate.sh \
+  src/infra/scripts/create-target-tls.sh \
+  src/infra/scripts/validate-ingress-config.sh \
+  tests/infra/test-duckdns-acme-hook.sh \
+  tests/infra/test-ingress-config.sh; do bash -n "$script"; done
+python3 tests/infra/test_private_ingress_config.py
+bash tests/infra/test-ingress-config.sh
+bash tests/infra/test-duckdns-acme-hook.sh
+```
+
+The structural ingress suite substitutes temporary dummy bind paths before running Docker Compose config parsing. This avoids requiring the deployed host's `/etc/inf2006/api.env`, certificate, or RDS bundle, and does not start containers.
+
+Offline checks on 2026-10-02: `src/backend/.venv/bin/python -m pytest -q tests/infra` passed 53 tests and 6 subtests; the dedicated ingress structural and mocked-certificate suite passed 7 tests; ingress-mode and mocked authoritative DNS hook shell checks passed; `bash -n` passed for changed shell scripts; and `git diff --check` passed. `npm run build -- --outDir /tmp/inf2006-ingress-dist` passed; the largest local asset was `assets/index-Ctxb8-E1.js` at 369,355 bytes (below the 10 MB Gateway payload ceiling). Earlier focused backend auth/Origin/CSRF tests passed 3 tests, and frontend auth/upload/save recovery tests passed 62 tests. Mocks verify new-ARN first import, in-place ARN reuse, failed-renew no-import, safe config parsing, and that the DNS hook refuses conflicting or partially propagated TXT state and only issues a TXT-scoped clear for the exact challenge value. No DuckDNS, AWS, certificate authority, Gateway, ALB, browser, or live multipart behavior was exercised. Gateway/ALB behavior, multiple `Set-Cookie` delivery, timeouts and cross-target recovery remain unverified.
+
+### Separate execution approval checklist
+
+Nothing below has been run. The operator must first verify DuckDNS control without printing the token; inspect actual account AZ IDs and choose two VPC Link eligible AZs (current us-east-1 VPC Link support lists `use1-az1`, `use1-az2`, `use1-az4`, `use1-az5`, and `use1-az6`, excluding `use1-az3`); check Learner Lab create permissions and service-linked role/ENI capabilities; confirm the app/ALB network and target stack; verify the complete certificate chain is trusted by API Gateway; and measure full synchronous request timing on the intended host.
+
+The DNS-01 hook obtains `DUCKDNS_TOKEN_SECRET_ARN` at runtime and runs only under the certificate helper's shared `flock` lock. DuckDNS TXT state is shared across all subdomains in the account. Auth refuses to overwrite a different value and polls every authoritative DuckDNS nameserver until all return the exact challenge. Cleanup rechecks that every authoritative answer is exactly the challenge value, then sends `txt=<challenge>&clear=true`; DuckDNS interprets this TXT-scoped request as clearing TXT only. It never calls generic address-record cleanup. If records differ, cleanup preserves them. Staging ACME certificates use separate `/etc/letsencrypt-staging`, `/var/lib/letsencrypt-staging`, and `/var/log/letsencrypt-staging` directories and are for renewal rehearsal only; the production timer does not inspect them and they must never be imported for service.
+
+For manual `sudo` commands, the helper reads `/etc/inf2006/ingress-acme.env` itself; systemd loads the same file for timer invocations. It accepts only these plain `NAME=value` entries (no shell code), requires root ownership and mode 0600, and never accepts the DuckDNS token itself:
+
+```sh
+sudo install -d -o root -g root -m 0700 /etc/inf2006
+sudo install -o root -g root -m 0600 /dev/null /etc/inf2006/ingress-acme.env
+sudoedit /etc/inf2006/ingress-acme.env
+```
+
+Before the first certificate issue, add `AWS_DEFAULT_REGION=us-east-1`, `TLS_SERVER_NAME=internshipmatcher.duckdns.org`, and `DUCKDNS_TOKEN_SECRET_ARN=<secret-arn>`. After the first import prints a new ACM ARN, add `INGRESS_CERTIFICATE_ARN=<returned-arn>` before renewal or reimport. These values are configuration identifiers, not the DuckDNS credential.
+
+After separate approval for DNS writes and any ACM update, configure the region, DNS hostname, and Secrets Manager ARN in root-only `/etc/inf2006/ingress-acme.env`, then use these commands on the certificate-owning worker. They read the DuckDNS token directly from Secrets Manager and do not print it:
+
+```sh
+# DNS TXT writes and staging ACME issuance; no ACM import.
+sudo /opt/inf2006/src/infra/scripts/ingress-certificate.sh --apply issue-staging
+
+# First production issuance imports a new ACM cert and prints its ARN; later runs set that ARN.
+sudo /opt/inf2006/src/infra/scripts/ingress-certificate.sh --apply issue
+
+# Scheduled by inf2006-ingress-cert-renew.timer; may renew and reimport in-place.
+sudo /opt/inf2006/src/infra/scripts/ingress-certificate.sh --apply renew
+```
+
+For first import, omit `INGRESS_CERTIFICATE_ARN`; ACM returns a new ARN for the operator to configure on the listener and in the root-only environment file. Subsequent renewal/reimport requires that exact ARN and updates it in place. Mutating actions require the explicit `--apply` gate. Certbot uses RSA-2048; import uses leaf `cert.pem`, the matching private key, and `chain.pem` separately. Renewal is scoped to the configured certificate name and its ACM import runs only after Certbot succeeds. The helper validates SAN, system-trusted chain and key match before import. Actual API Gateway trust remains unverified.
+
+The systemd unit expects the same root-only environment file. After the worker, secret read, DNS ownership, CA chain, ACM permissions and renewal alerting have passed their separately approved setup checks, the reviewed operator commands are:
+
+```sh
+sudo install -m 0644 src/infra/systemd/inf2006-ingress-cert-renew.service /etc/systemd/system/
+sudo install -m 0644 src/infra/systemd/inf2006-ingress-cert-renew.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now inf2006-ingress-cert-renew.timer
+```
+
+These host changes were not made. ACM imported certificates do not renew themselves; reimport to the existing ARN retains its ALB listener association. Local checks do not confirm ACM reaches `ISSUED` or that API Gateway trusts the chain; the actual private-integration TLS handshake remains a release gate.
+
+After separately approving the exact resource plan, deploy the prepared ingress stack with the existing VPC/subnets/app instances and the issued ACM certificate. The app instances must already serve the private Nginx target on 8443. Example command shape (replace every placeholder with values reviewed for the approved account and stack):
+
+```sh
+aws cloudformation deploy --region us-east-1 \
+  --stack-name inf2006-private-ingress \
+  --template-file src/infra/cloudformation/ingress-http-api.yaml \
+  --parameter-overrides \
+    VpcId='<existing-vpc-id>' \
+    AppInstanceIdA='<private-app-instance-a>' \
+    AppInstanceIdB='<private-app-instance-b>' \
+    IngressCertificateArn='<acm-certificate-arn-from-first-issue>' \
+    BackendTlsServerName='internshipmatcher.duckdns.org' \
+    VpcLinkSubnetIdA='<private-subnet-a>' \
+    VpcLinkSubnetIdB='<private-subnet-b>'
+```
+
+The template creates the internal ALB, HTTPS listener, target group, VPC Link, and restricted VPC Link/ALB/app ingress rules. It outputs the API origin and listener ARN; the listener ARN is also exported for a separately managed integration if the stack is split later. Attach `AppTargetSecurityGroupId` to both existing app instances while preserving their required egress groups. `Deployment` resources are snapshots while `$default` has `AutoDeploy: false`. For every route/integration release, change `DeploymentR1` to the next unused logical ID (for example `DeploymentR2`) and update `DefaultStage.DeploymentId` to reference that ID. A `DeploymentRevision` label or description change does not create a deployment. Inspect the change set for a new deployment and stage update, and only then execute under separate approval. VPC Link subnet/security-group changes require replacement planning; do not silently mutate the existing link.
+
+After separately approved stack creation and SG attachment, inspect deployment health with:
+
+```sh
+aws cloudformation describe-stacks --region us-east-1 --stack-name inf2006-private-ingress \
+  --query 'Stacks[0].Outputs[?OutputKey==`PublicApiOrigin` || OutputKey==`AppHttpsTargetGroupArn`].[OutputKey,OutputValue]' \
+  --output table
+aws elbv2 describe-target-health --region us-east-1 --target-group-arn '<AppHttpsTargetGroupArn-output>'
+curl --fail --show-error 'https://<api-id>.execute-api.us-east-1.amazonaws.com/health/ready'
+curl --fail --show-error 'https://<api-id>.execute-api.us-east-1.amazonaws.com/'
+```
+
+Before attaching the app target SG, inspect the current security-group IDs for each instance. Include all required existing egress/dependency groups when adding the output group; the `--groups` argument replaces the instance's SG list, so omitting an existing group can interrupt database, ECR, SSM or NAT access. Do not accept the route until both targets report healthy and the same-origin browser acceptance checks below pass.
+
+Before enabling users, verify execute-api HTTPS loads `/`, hashed JS/CSS/fonts/images, and deep-link refresh; confirm MIME, content encoding, cache-control and query handling; upload synthetic PDFs near 5 MiB and over the application limit and verify body bytes/hash, content type and expected errors; preserve bootstrap cookie deletion plus session cookie issuance and multiple `Set-Cookie` headers; test cookie reuse, Origin and CSRF, 204 logout, two-account isolation, request/response headers, and no-CORS same-origin behavior; test 4xx/5xx envelopes, 429/502/504 retry UI, integration failure, and timeout with idempotent save recovery; remove one target and observe service recovery; and measure cold/warm/concurrent upload, preview, privacy checks, and saves against the 30-second Gateway limit. Do not log cookies, authorization, PDF body, OAuth credentials, or DuckDNS tokens. Fresh local app tests are useful regressions but cannot establish these Gateway/ALB properties.
+
+Capture sanitized Gateway status/latency/integration errors/throttles, ALB target health, app health, queue age/DLQ counts and certificate expiry. The template's access log excludes source headers and query strings. Prove Gateway-to-ALB TLS with the real imported certificate; test an incorrect server name and certificate failure only using a temporary test integration. ALB-to-target TLS is encryption-only. Record the test date, exact command, fixture and expected/actual result before making any acceptance claim.
+
+### Cost, rollback, and teardown planning
+
+Planning-only monthly baseline for the current private template at 730 hours is approximately **$172.30/month**, conditional on assumed us-east-1 rates: two app `t3.small` ($30.51); one provisional worker `t3.medium` ($30.51); ALB base hours ($16.43) before LCU; two NAT gateways at assumed $0.045/hour each ($65.70); two public IPv4 addresses at $0.005/hour ($7.30); 80 GiB gp3 across the current 24+24+32 GiB disks ($6.40); and 20 GiB gp2 RDS at assumed $0.115/GiB-month plus assumed $0.018/hour `db.t3.micro` compute ($15.44). The RDS us-east-1 prices and NAT rate need final calculator confirmation; NAT's cited rate is an Ohio example. One average ALB LCU adds about $5.84/month. Also exclude API requests (first tier $1/million metered in 512 KiB units), transfer, ECR ($0.10/GB-month), Secrets Manager ($0.40/secret-month plus API calls), CloudWatch ingestion (example $0.50/GB), snapshots, tax, RDS/EC2 credit effects, and variable usage. These values are assumptions and public-rate examples, not a quote or a free-tier claim. Recalculate before requesting execution approval.
+
+For an approved trial rollback, first disable the public route or API stage, then delete its HTTP API stack. Delete the VPC Link only after all integrations release it. Remove only the tagged trial internal ALB/target groups/security groups and trial certificate if separately approved. Stop/disable the renewal timer and remove only the trial DNS challenge TXT value after confirming no issuance is active. Inspect retained access logs, secrets, ECR, EBS and RDS snapshots; preserve shared EIPs/resources and required evidence. No cleanup is automatic, and this preparation task performed no provisioning or teardown.
+
+After a separate cleanup approval, stop the renewal timer, disable the execute-api endpoint, remove the attached app-target SG from each existing instance while specifying its complete reviewed pre-existing SG list, and delete only this stack:
+
+```sh
+sudo systemctl disable --now inf2006-ingress-cert-renew.timer
+aws apigatewayv2 update-api --region us-east-1 --api-id '<ApiId-output>' \
+  --disable-execute-api-endpoint
+aws ec2 modify-instance-attribute --region us-east-1 --instance-id '<app-instance-id>' \
+  --groups '<reviewed-existing-security-group-id-1>' '<reviewed-existing-security-group-id-2>'
+aws cloudformation delete-stack --region us-east-1 --stack-name inf2006-private-ingress
+aws cloudformation wait stack-delete-complete --region us-east-1 --stack-name inf2006-private-ingress
+```
+
+Repeat the EC2 command for the other instance with its complete reviewed SG list. CloudFormation retains the configured API access log group; inspect and remove that retained log group only if separately approved. The template does not own the ACM certificate, application instances, database, EIPs or DNS records.
+
+Official pricing references: [EC2 T3](https://aws.amazon.com/ec2/instance-types/t3/), [ELB](https://aws.amazon.com/elasticloadbalancing/pricing/), [VPC public IPv4 and NAT](https://aws.amazon.com/vpc/pricing/), [RDS PostgreSQL](https://aws.amazon.com/rds/postgresql/pricing/), [EBS](https://aws.amazon.com/ebs/pricing/), [API Gateway](https://aws.amazon.com/api-gateway/pricing/), [ECR](https://aws.amazon.com/ecr/pricing/), [Secrets Manager](https://aws.amazon.com/secrets-manager/pricing/), and [CloudWatch](https://aws.amazon.com/cloudwatch/pricing/).
 
 Sources: [EC2 sizing rate reference](https://docs.aws.amazon.com/prescriptive-guidance/latest/optimize-costs-microsoft-workloads/right-size-selection.html), [EBS pricing](https://docs.aws.amazon.com/en_en/emr/latest/ManagementGuide/emr-plan-storage-compare-volume-types.html), [VPC public IPv4 pricing](https://aws.amazon.com/vpc/pricing/), [Secrets Manager pricing](https://aws.amazon.com/secrets-manager/pricing/), [RDS PostgreSQL calculator](https://calculator.aws/#/createCalculator/RDSPostgreSQL), [CloudWatch pricing](https://aws.amazon.com/cloudwatch/pricing/), [ECR pricing](https://aws.amazon.com/ecr/pricing/).
 

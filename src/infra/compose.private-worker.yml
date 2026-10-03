@@ -1,0 +1,58 @@
+services:
+  extraction-worker:
+    image: ${API_IMAGE_URI:?set an immutable API image URI}
+    restart: unless-stopped
+    env_file:
+      - /etc/inf2006/worker.env
+      - /etc/inf2006/api.env
+    volumes:
+      - /etc/pki/tls/certs/rds-global-bundle.pem:/etc/ssl/certs/rds-global-bundle.pem:ro
+    command: ["python", "-m", "app.processing.local_worker", "--kind", "EXTRACTION"]
+    environment:
+      WORKER_HEARTBEAT_PATH: /tmp/inf2006-worker-ready
+    init: true
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import os,sys,time; p='/tmp/inf2006-worker-ready'; ok=os.path.isfile(p) and time.time()-os.path.getmtime(p)<300; sys.exit(0 if ok else 1)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 900s
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:?set AWS_REGION}
+        awslogs-group: ${LOG_GROUP:?set LOG_GROUP}
+        awslogs-stream: ${INSTANCE_ID:?set INSTANCE_ID}/extraction
+        awslogs-create-group: "false"
+        mode: non-blocking
+        max-buffer-size: 4m
+
+  embedding-worker:
+    image: ${API_IMAGE_URI:?set an immutable API image URI}
+    restart: unless-stopped
+    env_file:
+      - /etc/inf2006/worker.env
+      - /etc/inf2006/api.env
+    volumes:
+      - /etc/pki/tls/certs/rds-global-bundle.pem:/etc/ssl/certs/rds-global-bundle.pem:ro
+    command: ["python", "-m", "app.processing.local_worker", "--kind", "EMBEDDING"]
+    environment:
+      WORKER_HEARTBEAT_PATH: /tmp/inf2006-worker-ready
+    init: true
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import os,sys,time; p='/tmp/inf2006-worker-ready'; ok=os.path.isfile(p) and time.time()-os.path.getmtime(p)<300; sys.exit(0 if ok else 1)\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 900s
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ${AWS_REGION:?set AWS_REGION}
+        awslogs-group: ${LOG_GROUP:?set LOG_GROUP}
+        awslogs-stream: ${INSTANCE_ID:?set INSTANCE_ID}/embedding
+        awslogs-create-group: "false"
+        mode: non-blocking
+        max-buffer-size: 4m

@@ -1,0 +1,15 @@
+[Unit]
+Description=Renew the INF2006 DNS-01 certificate and reimport it to ACM
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+EnvironmentFile=/etc/inf2006/ingress-acme.env
+ExecStart=/opt/inf2006/src/infra/scripts/ingress-certificate.sh --apply renew
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/etc/letsencrypt /var/lib/letsencrypt /var/log/letsencrypt /run

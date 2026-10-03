@@ -1,0 +1,574 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  New isolated private INF2006 async foundation. Creates its own VPC, two NAT paths,
+  private PostgreSQL, temporary S3 input, separate SQS queues/DLQs, and one worker.
+  It does not alter the historical synchronous foundation or create IAM identities.
+
+Parameters:
+  AvailabilityZoneIdA:
+    Type: String
+    Default: use1-az2
+    AllowedValues: [use1-az2, use1-az4]
+  AvailabilityZoneIdB:
+    Type: String
+    Default: use1-az4
+    AllowedValues: [use1-az2, use1-az4]
+  VpcCidr:
+    Type: String
+    Default: 10.60.0.0/16
+  PublicSubnetACidr:
+    Type: String
+    Default: 10.60.0.0/24
+  PublicSubnetBCidr:
+    Type: String
+    Default: 10.60.1.0/24
+  AppSubnetACidr:
+    Type: String
+    Default: 10.60.10.0/24
+  AppSubnetBCidr:
+    Type: String
+    Default: 10.60.11.0/24
+  DatabaseSubnetACidr:
+    Type: String
+    Default: 10.60.20.0/24
+  DatabaseSubnetBCidr:
+    Type: String
+    Default: 10.60.21.0/24
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Description: Reviewed x86_64 Amazon Linux 2023 AMI for this region.
+  WorkerInstanceType:
+    Type: String
+    Default: t3.medium
+    AllowedValues: [t3.small, t3.medium, t3.large]
+    Description: Worker sizing remains provisional until model and extraction memory are measured.
+  DatabaseInstanceClass:
+    Type: String
+    Default: db.t3.micro
+    AllowedValues: [db.t3.micro, db.t3.small, db.t3.medium]
+  PostgresEngineVersion:
+    Type: String
+    Default: '16.15'
+    AllowedPattern: '^16\.[0-9]+$'
+  DatabaseName:
+    Type: String
+    Default: internship_matcher
+    AllowedPattern: '^[A-Za-z][A-Za-z0-9_]{0,62}$'
+  DatabaseMasterUsername:
+    Type: String
+    Default: dbadmin
+    AllowedValues: [dbadmin]
+  DatabaseMasterPasswordSecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  DatabaseMigratorSecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  DatabaseRuntimeSecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  TlsServerName:
+    Type: String
+    Default: internshipmatcher.duckdns.org
+    AllowedPattern: '^[A-Za-z0-9-]+\.duckdns\.org$'
+    Description: DuckDNS hostname for the later, explicitly authorized DNS-01 certificate workflow.
+  DuckDnsTokenSecretArn:
+    Type: String
+    AllowedPattern: '^arn:aws(-[a-z]+)?:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  LabInstanceProfileName:
+    Type: String
+    Default: LabInstanceProfile
+  ApiImageUri:
+    Type: String
+    AllowedPattern: '^([0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com|[A-Za-z0-9./_-]+)@sha256:[a-f0-9]{64}$'
+  BootstrapImageUri:
+    Type: String
+    AllowedPattern: '^([0-9]{12}\.dkr\.ecr\.[a-z0-9-]+\.amazonaws\.com|[A-Za-z0-9./_-]+)@sha256:[a-f0-9]{64}$'
+    Description: Immutable bootstrap image containing the reviewed repo snapshot and private worker scripts.
+  SourceSnapshotSha256:
+    Type: String
+    AllowedPattern: '^[a-fA-F0-9]{64}$'
+  LogRetentionDays:
+    Type: Number
+    Default: 30
+    AllowedValues: [7, 14, 30]
+  QueueAgeAlarmSeconds:
+    Type: Number
+    Default: 900
+    MinValue: 60
+
+Rules:
+  DistinctAvailabilityZones:
+    Assertions:
+      - Assert: !Not [!Equals [!Ref AvailabilityZoneIdA, !Ref AvailabilityZoneIdB]]
+        AssertDescription: The public, app, and database subnets must span two distinct supported AZ IDs.
+
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCidr
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-private-vpc'}, {Key: Project, Value: INF2006}, {Key: Scope, Value: temporary-private-architecture}]
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-igw'}, {Key: Project, Value: INF2006}]
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref Vpc
+      InternetGatewayId: !Ref InternetGateway
+
+  PublicSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref PublicSubnetACidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdA
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-public-a'}, {Key: Project, Value: INF2006}]
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref PublicSubnetBCidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdB
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-public-b'}, {Key: Project, Value: INF2006}]
+  AppSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref AppSubnetACidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdA
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-private-a'}, {Key: Project, Value: INF2006}]
+  AppSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref AppSubnetBCidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdB
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-private-b'}, {Key: Project, Value: INF2006}]
+  DatabaseSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref DatabaseSubnetACidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdA
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-database-a'}, {Key: Project, Value: INF2006}]
+  DatabaseSubnetB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: !Ref DatabaseSubnetBCidr
+      AvailabilityZoneId: !Ref AvailabilityZoneIdB
+      MapPublicIpOnLaunch: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-database-b'}, {Key: Project, Value: INF2006}]
+
+  PublicRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-public-a'}]}
+  PublicRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-public-b'}]}
+  PublicDefaultRouteA:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties: {RouteTableId: !Ref PublicRouteTableA, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref InternetGateway}
+  PublicDefaultRouteB:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties: {RouteTableId: !Ref PublicRouteTableB, DestinationCidrBlock: 0.0.0.0/0, GatewayId: !Ref InternetGateway}
+  PublicAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref PublicRouteTableA, SubnetId: !Ref PublicSubnetA}
+  PublicAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref PublicRouteTableB, SubnetId: !Ref PublicSubnetB}
+  NatEipA:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-nat-a'}, {Key: Project, Value: INF2006}, {Key: Scope, Value: temporary-private-architecture}]
+  NatEipB:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-nat-b'}, {Key: Project, Value: INF2006}, {Key: Scope, Value: temporary-private-architecture}]
+  NatGatewayA:
+    Type: AWS::EC2::NatGateway
+    DependsOn: PublicAssociationA
+    Properties: {SubnetId: !Ref PublicSubnetA, AllocationId: !GetAtt NatEipA.AllocationId, ConnectivityType: public, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-nat-a'}, {Key: Project, Value: INF2006}]}
+  NatGatewayB:
+    Type: AWS::EC2::NatGateway
+    DependsOn: PublicAssociationB
+    Properties: {SubnetId: !Ref PublicSubnetB, AllocationId: !GetAtt NatEipB.AllocationId, ConnectivityType: public, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-nat-b'}, {Key: Project, Value: INF2006}]}
+  AppRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-app-a'}]}
+  AppRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-app-b'}]}
+  AppDefaultRouteA:
+    Type: AWS::EC2::Route
+    Properties: {RouteTableId: !Ref AppRouteTableA, DestinationCidrBlock: 0.0.0.0/0, NatGatewayId: !Ref NatGatewayA}
+  AppDefaultRouteB:
+    Type: AWS::EC2::Route
+    Properties: {RouteTableId: !Ref AppRouteTableB, DestinationCidrBlock: 0.0.0.0/0, NatGatewayId: !Ref NatGatewayB}
+  AppAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref AppRouteTableA, SubnetId: !Ref AppSubnetA}
+  AppAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref AppRouteTableB, SubnetId: !Ref AppSubnetB}
+  DatabaseRouteTableA:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-isolated-db-a'}]}
+  DatabaseRouteTableB:
+    Type: AWS::EC2::RouteTable
+    Properties: {VpcId: !Ref Vpc, Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-isolated-db-b'}]}
+  DatabaseAssociationA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref DatabaseRouteTableA, SubnetId: !Ref DatabaseSubnetA}
+  DatabaseAssociationB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties: {RouteTableId: !Ref DatabaseRouteTableB, SubnetId: !Ref DatabaseSubnetB}
+  S3Endpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref Vpc
+      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      RouteTableIds: [!Ref AppRouteTableA, !Ref AppRouteTableB]
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-s3'}, {Key: Project, Value: INF2006}]
+
+  AppSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private API targets; ALB-only ingress is added in the ingress stack.
+      VpcId: !Ref Vpc
+      SecurityGroupEgress: [{IpProtocol: '-1', CidrIp: 0.0.0.0/0}]
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-app'}, {Key: Project, Value: INF2006}]
+  WorkerSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private worker; PostgreSQL egress plus outbound service access through NAT.
+      VpcId: !Ref Vpc
+      SecurityGroupEgress:
+        - {IpProtocol: tcp, FromPort: 5432, ToPort: 5432, DestinationSecurityGroupId: !Ref DatabaseSecurityGroup}
+        - {IpProtocol: tcp, FromPort: 443, ToPort: 443, CidrIp: 0.0.0.0/0}
+        - {IpProtocol: udp, FromPort: 53, ToPort: 53, CidrIp: 0.0.0.0/0}
+        - {IpProtocol: tcp, FromPort: 53, ToPort: 53, CidrIp: 0.0.0.0/0}
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-worker'}, {Key: Project, Value: INF2006}]
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Private PostgreSQL reachable only by app and worker groups.
+      VpcId: !Ref Vpc
+      SecurityGroupEgress: [{IpProtocol: '-1', CidrIp: 0.0.0.0/0}]
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-database'}, {Key: Project, Value: INF2006}]
+  DatabaseFromWorker:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: {GroupId: !Ref DatabaseSecurityGroup, IpProtocol: tcp, FromPort: 5432, ToPort: 5432, SourceSecurityGroupId: !Ref WorkerSecurityGroup}
+  DatabaseFromApp:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: {GroupId: !Ref DatabaseSecurityGroup, IpProtocol: tcp, FromPort: 5432, ToPort: 5432, SourceSecurityGroupId: !Ref AppSecurityGroup}
+
+  DatabaseSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Two-AZ placement choices; database is Single-AZ.
+      SubnetIds: [!Ref DatabaseSubnetA, !Ref DatabaseSubnetB]
+  Database:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      Engine: postgres
+      EngineVersion: !Ref PostgresEngineVersion
+      DBInstanceClass: !Ref DatabaseInstanceClass
+      AllocatedStorage: 20
+      StorageType: gp2
+      StorageEncrypted: true
+      PubliclyAccessible: false
+      MultiAZ: false
+      AutoMinorVersionUpgrade: false
+      BackupRetentionPeriod: 1
+      CopyTagsToSnapshot: true
+      DBName: !Ref DatabaseName
+      MasterUsername: !Ref DatabaseMasterUsername
+      MasterUserPassword: !Sub '{{resolve:secretsmanager:${DatabaseMasterPasswordSecretArn}:SecretString:password}}'
+      DBSubnetGroupName: !Ref DatabaseSubnetGroup
+      VPCSecurityGroups: [!GetAtt DatabaseSecurityGroup.GroupId]
+      DeletionProtection: false
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-postgres'}, {Key: Project, Value: INF2006}, {Key: Scope, Value: temporary-private-architecture}]
+
+  TemporaryInputBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault: {SSEAlgorithm: AES256}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        IgnorePublicAcls: true
+        BlockPublicPolicy: true
+        RestrictPublicBuckets: true
+      OwnershipControls:
+        Rules: [{ObjectOwnership: BucketOwnerEnforced}]
+      LifecycleConfiguration:
+        Rules:
+          - Id: expire-temporary-inputs
+            Status: Enabled
+            ExpirationInDays: 1
+            AbortIncompleteMultipartUpload: {DaysAfterInitiation: 1}
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-temporary-inputs'}, {Key: Project, Value: INF2006}, {Key: Scope, Value: temporary-private-architecture}]
+  TemporaryInputBucketTlsOnly:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TemporaryInputBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyInsecureTransport
+            Effect: Deny
+            Principal: '*'
+            Action: s3:*
+            Resource:
+              - !GetAtt TemporaryInputBucket.Arn
+              - !Sub '${TemporaryInputBucket.Arn}/*'
+            Condition: {Bool: {'aws:SecureTransport': 'false'}}
+
+  ExtractionDlq:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      VisibilityTimeout: 900
+      SqsManagedSseEnabled: true
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-extraction-dlq'}, {Key: Project, Value: INF2006}]
+  EmbeddingDlq:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      VisibilityTimeout: 900
+      SqsManagedSseEnabled: true
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-embedding-dlq'}, {Key: Project, Value: INF2006}]
+  ExtractionQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 345600
+      VisibilityTimeout: 900
+      ReceiveMessageWaitTimeSeconds: 20
+      SqsManagedSseEnabled: true
+      RedrivePolicy: {deadLetterTargetArn: !GetAtt ExtractionDlq.Arn, maxReceiveCount: 5}
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-extraction'}, {Key: Project, Value: INF2006}]
+  EmbeddingQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 345600
+      VisibilityTimeout: 900
+      ReceiveMessageWaitTimeSeconds: 20
+      SqsManagedSseEnabled: true
+      RedrivePolicy: {deadLetterTargetArn: !GetAtt EmbeddingDlq.Arn, maxReceiveCount: 5}
+      Tags: [{Key: Name, Value: !Sub '${AWS::StackName}-embedding'}, {Key: Project, Value: INF2006}]
+
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: RetainExceptOnCreate
+    UpdateReplacePolicy: Retain
+    Properties: {LogGroupName: !Sub '/inf2006/${AWS::StackName}/worker', RetentionInDays: !Ref LogRetentionDays}
+  WorkerInstanceRecovery:
+    Type: AWS::EC2::Instance
+    DependsOn: [AppDefaultRouteA, S3Endpoint]
+    CreationPolicy:
+      ResourceSignal: {Count: 1, Timeout: PT45M}
+    Properties:
+      ImageId: !Ref AmiId
+      InstanceType: !Ref WorkerInstanceType
+      IamInstanceProfile: !Ref LabInstanceProfileName
+      SubnetId: !Ref AppSubnetA
+      SecurityGroupIds: [!Ref WorkerSecurityGroup]
+      MetadataOptions: {HttpTokens: required, HttpPutResponseHopLimit: 2, HttpEndpoint: enabled}
+      CreditSpecification: {CPUCredits: standard}
+      BlockDeviceMappings:
+        - DeviceName: /dev/xvda
+          Ebs: {VolumeSize: 32, VolumeType: gp3, Encrypted: true, DeleteOnTermination: true}
+      UserData:
+        Fn::Base64:
+          Fn::Sub:
+            - |
+              #!/bin/bash
+              set -euo pipefail
+              set +x
+              exec > >(tee -a /var/log/inf2006-worker-bootstrap.log | logger -t inf2006-worker -s 2>/dev/console) 2>&1
+              BOOTSTRAP_STAGE=system-packages
+              BOOTSTRAP_FAILURE_RECORDED=0
+              record_bootstrap_failure() {
+                local status="$1" line="$2" safe_stage
+                case "$BOOTSTRAP_STAGE" in
+                  system-packages|compose-install|docker-start|bootstrap-image|bootstrap-extract|worker-config|worker-runtime) safe_stage="$BOOTSTRAP_STAGE" ;;
+                  *) safe_stage=unknown ;;
+                esac
+                printf 'worker bootstrap failure stage=%s line=%s exit_status=%s\n' "$safe_stage" "$line" "$status" >&2
+                BOOTSTRAP_FAILURE_RECORDED=1
+              }
+              trap 'status=$?; record_bootstrap_failure "$status" "$LINENO"; exit "$status"' ERR
+              signal_on_exit() {
+                status=$?
+                trap - EXIT
+                if [[ "$status" -ne 0 && "$BOOTSTRAP_FAILURE_RECORDED" != 1 ]]; then
+                  record_bootstrap_failure "$status" unknown
+                fi
+                if [[ -x /opt/aws/bin/cfn-signal ]]; then
+                  /opt/aws/bin/cfn-signal --exit-code "$status" --stack '${AWS::StackName}' --resource WorkerInstanceRecovery --region '${AWS::Region}' || true
+                else
+                  printf 'worker bootstrap signal unavailable stage=%s exit_status=%s\n' "$BOOTSTRAP_STAGE" "$status" >&2
+                fi
+                exit "$status"
+              }
+              trap signal_on_exit EXIT
+              export WORKER_READY_DEADLINE_EPOCH="$(( $(date +%s) + 2400 ))"
+              BOOTSTRAP_STAGE=system-packages
+              dnf install -y aws-cfn-bootstrap awscli-2 docker jq python3 postgresql16
+              # Ensure AL2023 HTTPS curl is available without replacing curl-minimal.
+              if ! command -v curl >/dev/null 2>&1; then
+                dnf install -y curl-minimal
+              fi
+              command -v curl >/dev/null 2>&1
+              curl_version="$(curl --version)"
+              if [[ ! "$curl_version" =~ (^|[[:space:]])https([[:space:]]|$) ]]; then
+                printf 'curl command does not advertise HTTPS support\n' >&2
+                exit 1
+              fi
+              unset curl_version
+              # End AL2023 HTTPS curl check.
+              BOOTSTRAP_STAGE=compose-install
+              install -d -m 0755 /usr/local/lib/docker/cli-plugins
+              compose_tmp="$(mktemp)"
+              curl --fail --silent --show-error --location 'https://github.com/docker/compose/releases/download/v2.39.4/docker-compose-linux-x86_64' --output "$compose_tmp"
+              printf '%s  %s\n' '7af95166a730b87e172d4fc9aefea8725d3c6c7327d59149267b452114ddb7d4' "$compose_tmp" | sha256sum --check --status
+              install -m 0755 "$compose_tmp" /usr/local/lib/docker/cli-plugins/docker-compose
+              rm -f "$compose_tmp"
+              BOOTSTRAP_STAGE=docker-start
+              systemctl enable --now docker
+              install -d -m 0750 /opt/inf2006 /etc/inf2006
+              BOOTSTRAP_STAGE=bootstrap-image
+              registry='${BootstrapRegistry}'
+              aws ecr get-login-password --region '${AWS::Region}' | docker login --username AWS --password-stdin "$registry"
+              docker pull '${BootstrapImageUri}'
+              docker image inspect --format '{{index .Config.Labels "org.opencontainers.image.source-snapshot-sha256"}}' '${BootstrapImageUri}' | grep -Fqx '${SourceSnapshotSha256}'
+              BOOTSTRAP_STAGE=bootstrap-extract
+              container_id="$(docker create '${BootstrapImageUri}')"
+              docker cp "$container_id:/opt/inf2006/." /opt/inf2006/
+              docker rm "$container_id"
+              chmod 0750 /opt/inf2006/src/infra/scripts/*.sh
+              BOOTSTRAP_STAGE=worker-config
+              export AWS_DEFAULT_REGION='${AWS::Region}'
+              export API_IMAGE_URI='${ApiImageUri}'
+              export DB_ENDPOINT='${DbEndpoint}' DB_NAME='${DatabaseName}'
+              export DB_MASTER_SECRET_ARN='${DatabaseMasterPasswordSecretArn}'
+              export DB_MIGRATOR_SECRET_ARN='${DatabaseMigratorSecretArn}' DB_RUNTIME_SECRET_ARN='${DatabaseRuntimeSecretArn}'
+              export TLS_SERVER_NAME='${TlsServerName}' DUCKDNS_TOKEN_SECRET_ARN='${DuckDnsTokenSecretArn}'
+              export PROCESSING_TEMP_BUCKET='${TemporaryInputBucket}' PROCESSING_TEMP_PREFIX='temporary-resume-inputs'
+              export PROCESSING_EXTRACTION_QUEUE_URL='${ExtractionQueue}' PROCESSING_EMBEDDING_QUEUE_URL='${EmbeddingQueue}'
+              export LOG_GROUP='${WorkerLogGroup}' SOURCE_SNAPSHOT_SHA256='${SourceSnapshotSha256}'
+              export WORKER_INSTANCE_ID="$(curl --fail --silent --show-error -X PUT -H 'X-aws-ec2-metadata-token-ttl-seconds: 60' http://169.254.169.254/latest/api/token | xargs -I{} curl --fail --silent --show-error -H 'X-aws-ec2-metadata-token: {}' http://169.254.169.254/latest/meta-data/instance-id)"
+              cat > /etc/inf2006/worker-bootstrap-diagnostics.bash <<'DIAGNOSTICS'
+              set -E
+              trap 'status=$?; case "$BOOTSTRAP_STAGE" in worker-runtime) safe_stage=worker-runtime ;; *) safe_stage=unknown ;; esac; printf "worker bootstrap failure stage=%s line=%s exit_status=%s\\n" "$safe_stage" "$LINENO" "$status" >&2; exit "$status"' ERR
+              DIAGNOSTICS
+              chmod 0600 /etc/inf2006/worker-bootstrap-diagnostics.bash
+              BOOTSTRAP_STAGE=worker-runtime
+              export BOOTSTRAP_STAGE
+              BASH_ENV=/etc/inf2006/worker-bootstrap-diagnostics.bash /bin/bash /opt/inf2006/src/infra/scripts/bootstrap-private-worker.sh
+            - BootstrapRegistry: !Select [0, !Split ['/', !Ref BootstrapImageUri]]
+              DbEndpoint: !GetAtt Database.Endpoint.Address
+      Tags:
+        - {Key: Name, Value: !Sub '${AWS::StackName}-worker'}
+        - {Key: Project, Value: INF2006}
+        - {Key: SourceSnapshotSha256, Value: !Ref SourceSnapshotSha256}
+
+  ExtractionAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Extraction queue message age exceeds the reviewed threshold.
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions: [{Name: QueueName, Value: !GetAtt ExtractionQueue.QueueName}]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: !Ref QueueAgeAlarmSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  EmbeddingAgeAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Embedding queue message age exceeds the reviewed threshold.
+      Namespace: AWS/SQS
+      MetricName: ApproximateAgeOfOldestMessage
+      Dimensions: [{Name: QueueName, Value: !GetAtt EmbeddingQueue.QueueName}]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 5
+      Threshold: !Ref QueueAgeAlarmSeconds
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  ExtractionDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Extraction DLQ contains one or more messages.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions: [{Name: QueueName, Value: !GetAtt ExtractionDlq.QueueName}]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+  EmbeddingDlqAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Embedding DLQ contains one or more messages.
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions: [{Name: QueueName, Value: !GetAtt EmbeddingDlq.QueueName}]
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+Outputs:
+  VpcId: {Value: !Ref Vpc}
+  AppSubnetAId: {Value: !Ref AppSubnetA}
+  AppSubnetBId: {Value: !Ref AppSubnetB}
+  AppSubnetACidr: {Value: !Ref AppSubnetACidr}
+  AppSubnetBCidr: {Value: !Ref AppSubnetBCidr}
+  DatabaseSubnetAId: {Value: !Ref DatabaseSubnetA}
+  DatabaseSubnetBId: {Value: !Ref DatabaseSubnetB}
+  WorkerSecurityGroupId: {Value: !Ref WorkerSecurityGroup}
+  AppSecurityGroupId: {Value: !Ref AppSecurityGroup}
+  DatabaseSecurityGroupId: {Value: !Ref DatabaseSecurityGroup}
+  DatabaseEndpoint: {Value: !GetAtt Database.Endpoint.Address}
+  DatabaseName: {Value: !Ref DatabaseName}
+  DatabaseRuntimeSecretArn: {Value: !Ref DatabaseRuntimeSecretArn}
+  DatabaseMasterSecretArn: {Value: !Ref DatabaseMasterPasswordSecretArn}
+  DatabaseMigratorSecretArn: {Value: !Ref DatabaseMigratorSecretArn}
+  TemporaryInputBucket: {Value: !Ref TemporaryInputBucket}
+  ExtractionQueueUrl: {Value: !Ref ExtractionQueue}
+  EmbeddingQueueUrl: {Value: !Ref EmbeddingQueue}
+  WorkerInstanceId: {Value: !Ref WorkerInstanceRecovery}
+  WorkerLogGroupName: {Value: !Ref WorkerLogGroup}
+  TlsServerName: {Value: !Ref TlsServerName}
+  AvailabilityZoneIdA: {Value: !Ref AvailabilityZoneIdA}
+  AvailabilityZoneIdB: {Value: !Ref AvailabilityZoneIdB}

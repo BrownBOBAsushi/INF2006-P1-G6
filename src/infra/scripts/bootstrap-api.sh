@@ -2,11 +2,15 @@
 set -euo pipefail
 set +x
 
-for name in AWS_DEFAULT_REGION API_IMAGE_URI WEB_IMAGE_URI APP_ORIGIN PUBLIC_HOSTNAME GOOGLE_CLIENT_ID DB_ENDPOINT DB_NAME DB_RUNTIME_SECRET_ARN DB_MASTER_SECRET_ARN DB_MIGRATOR_SECRET_ARN APP_SIGNING_KEY_SECRET_ARN DUCKDNS_TOKEN_SECRET_ARN SOURCE_SNAPSHOT_SHA256 LOG_GROUP; do
+for name in AWS_DEFAULT_REGION API_IMAGE_URI WEB_IMAGE_URI APP_ORIGIN GOOGLE_CLIENT_ID DB_ENDPOINT DB_NAME DB_RUNTIME_SECRET_ARN DB_MASTER_SECRET_ARN DB_MIGRATOR_SECRET_ARN APP_SIGNING_KEY_SECRET_ARN SOURCE_SNAPSHOT_SHA256 LOG_GROUP; do
   [[ -n "${!name:-}" ]] || { printf 'Required setting is missing: %s\n' "$name" >&2; exit 2; }
 done
 [[ "$(id -u)" -eq 0 ]] || { echo 'Run as root.' >&2; exit 2; }
-[[ "$APP_ORIGIN" == "https://$PUBLIC_HOSTNAME" ]] || { echo 'APP_ORIGIN must be the exact HTTPS hostname origin.' >&2; exit 2; }
+INGRESS_MODE="${INGRESS_MODE:-foundation}"
+PUBLIC_HOSTNAME="${PUBLIC_HOSTNAME:-${TLS_SERVER_NAME:-}}"
+TLS_SERVER_NAME="${TLS_SERVER_NAME:-$PUBLIC_HOSTNAME}"
+export INGRESS_MODE PUBLIC_HOSTNAME TLS_SERVER_NAME
+/opt/inf2006/src/infra/scripts/validate-ingress-config.sh
 [[ "$API_IMAGE_URI" == *@sha256:* && "$WEB_IMAGE_URI" == *@sha256:* ]] || { echo 'Application images must be digest-pinned.' >&2; exit 2; }
 [[ "$SOURCE_SNAPSHOT_SHA256" =~ ^[A-Fa-f0-9]{64}$ ]] || { echo 'Source snapshot identifier must be a SHA-256 digest.' >&2; exit 2; }
 docker compose version
@@ -17,11 +21,19 @@ if [[ -n "${BOOTSTRAP_IMAGE_URI:-}" ]]; then
 fi
 
 install -d -m 0750 /opt/inf2006 /etc/inf2006 /var/www/certbot
-install -m 0644 /opt/inf2006/src/infra/compose.cloud.yml /opt/inf2006/compose.cloud.yml
-install -m 0644 /opt/inf2006/src/infra/nginx/inf2006-http.conf /etc/nginx/conf.d/inf2006.conf
-rm -f /etc/nginx/conf.d/default.conf
-nginx -t
-systemctl enable --now nginx docker
+if [[ "$INGRESS_MODE" == foundation ]]; then
+  install -m 0644 /opt/inf2006/src/infra/compose.cloud.yml /opt/inf2006/compose.cloud.yml
+  install -m 0644 /opt/inf2006/src/infra/nginx/inf2006-http.conf /etc/nginx/conf.d/inf2006.conf
+  rm -f /etc/nginx/conf.d/default.conf
+  nginx -t
+  compose_file=/opt/inf2006/compose.cloud.yml
+  systemctl enable --now nginx docker
+else
+  install -m 0644 /opt/inf2006/src/infra/compose.private-ingress.yml /opt/inf2006/compose.private-ingress.yml
+  /opt/inf2006/src/infra/scripts/create-target-tls.sh /etc/inf2006/tls
+  compose_file=/opt/inf2006/compose.private-ingress.yml
+  systemctl enable --now docker
+fi
 
 registry="$(printf '%s' "$API_IMAGE_URI" | cut -d/ -f1)"
 docker_config="$(mktemp -d)"
@@ -99,15 +111,17 @@ chmod 0600 /etc/inf2006/compose.env
 cat > /etc/inf2006/stack.env <<EOF
 AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION
 BOOTSTRAP_IMAGE_URI=${BOOTSTRAP_IMAGE_URI:-}
-PUBLIC_HOSTNAME=$PUBLIC_HOSTNAME
+TLS_SERVER_NAME=$TLS_SERVER_NAME
 APP_ORIGIN=$APP_ORIGIN
-DUCKDNS_TOKEN_SECRET_ARN=$DUCKDNS_TOKEN_SECRET_ARN
 LOG_GROUP=$LOG_GROUP
+INGRESS_MODE=$INGRESS_MODE
 EOF
 chmod 0600 /etc/inf2006/stack.env
+if [[ "$INGRESS_MODE" == foundation ]]; then
+  printf 'PUBLIC_HOSTNAME=%s\nDUCKDNS_TOKEN_SECRET_ARN=%s\n' "$PUBLIC_HOSTNAME" "$DUCKDNS_TOKEN_SECRET_ARN" >> /etc/inf2006/stack.env
+fi
 
-docker compose --env-file /etc/inf2006/compose.env \
-  -f /opt/inf2006/compose.cloud.yml config --quiet
+docker compose --env-file /etc/inf2006/compose.env -f "$compose_file" config --quiet
 
 if [[ ! -s /etc/pki/tls/certs/rds-global-bundle.pem ]]; then
   curl --fail --silent --show-error --location \
@@ -117,6 +131,10 @@ if [[ ! -s /etc/pki/tls/certs/rds-global-bundle.pem ]]; then
   rm -f /etc/pki/tls/certs/rds-global-bundle.pem.tmp
 fi
 
-nginx -t
-systemctl reload nginx
-printf 'Database and digest-pinned images are prepared. Application containers remain stopped until DNS and HTTPS are explicitly activated.\n'
+if [[ "$INGRESS_MODE" == foundation ]]; then
+  nginx -t
+  systemctl reload nginx
+  printf 'Foundation prepared. Use only the approved legacy DNS/HTTP-01 activation path when separately authorized.\n'
+else
+  printf 'Private-ingress app images and per-host target TLS are prepared; containers remain stopped until the internal ALB and Gateway path are ready.\n'
+fi
