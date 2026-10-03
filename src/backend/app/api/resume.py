@@ -22,11 +22,13 @@ from app.auth.dependencies import (
     validate_unsafe_request,
 )
 from app.core.errors import BodyLimitExceeded, api_error
-from app.db.models import ResumeChunk, ResumeProfile, SaveOperation, Session as SessionModel, User
-from app.db.session import SessionLocal, get_db
+from app.db.models import ProcessingTask, ResumeChunk, ResumeProfile, SaveOperation, Session as SessionModel, User
+from app.db.session import get_db
 from app.processing.config import EMBEDDING_VERSION, MAX_PDF_BYTES
 from app.processing.errors import CONTRACT_ERRORS, ProcessingError, RETRYABLE_CODES
 from app.processing.content import content_hash, validate_resume_content, validate_review_draft
+from app.processing.cloud_adapters import make_storage
+from app.processing.tasks import cancel_owner_tasks, enqueue_task
 
 router = APIRouter(prefix="/api")
 log = logging.getLogger(__name__)
@@ -43,6 +45,7 @@ class SaveResumeRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     expected_revision: int = Field(ge=0)
     content: dict
+    extraction_task_id: uuid.UUID | None = None
 
 
 class PrepareResumeResponse(BaseModel):
@@ -56,6 +59,7 @@ class ResumeProfileResponse(BaseModel):
     content: dict
     embedding_version: str
     has_matchable_resume: bool
+    embedding_state: str
 
 
 class SaveResumeResponse(BaseModel):
@@ -76,10 +80,20 @@ class OperationStatusResponse(BaseModel):
     failure_code: str | None
 
 
-def _processing_service():
-    # Import lazily to keep the API module importable for schema and pure tests.
-    from app.main import processing_service
-    return processing_service
+class PrepareTaskResponse(BaseModel):
+    task_id: uuid.UUID
+    state: str
+    revision: int
+
+
+class ProcessingTaskResponse(BaseModel):
+    task_id: uuid.UUID
+    kind: str
+    state: str
+    revision: int
+    failure_code: str | None
+    result: dict | None = None
+    expires_at: datetime | None = None
 
 
 def _raise_processing(exc: ProcessingError, *, details: dict | None = None):
@@ -87,35 +101,17 @@ def _raise_processing(exc: ProcessingError, *, details: dict | None = None):
     raise api_error(exc.status_code, exc.code, exc.message, retryable=exc.retryable, details=details, headers=headers)
 
 
-def _payload_hash(expected_revision: int, content: dict) -> str:
-    payload = {"expected_revision": expected_revision, "content": content, "embedding_version": EMBEDDING_VERSION}
+def _payload_hash(expected_revision: int, content: dict, extraction_task_id: uuid.UUID | None = None) -> str:
+    payload = {"expected_revision": expected_revision, "content": content,
+               "extraction_task_id": str(extraction_task_id) if extraction_task_id else None,
+               "embedding_version": EMBEDDING_VERSION}
     return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()).hexdigest()
 
 
-def _record_failure(db: DBSession, user_id, operation_id: uuid.UUID, code: str) -> None:
-    db.rollback()
-    op = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
-    if op is not None and op.state == "PROCESSING":
-        op.state = "FAILED"
-        op.failure_code = code
-        op.updated_at = datetime.now(timezone.utc)
-        db.commit()
-
-
-def _record_failure_isolated(user_id, operation_id: uuid.UUID, code: str) -> None:
-    """Terminalize a cancelled request with a session independent of its request scope."""
-    db = SessionLocal()
-    try:
-        _record_failure(db, user_id, operation_id, code)
-    except Exception:
-        # Preserve the cancellation signal.  Startup recovery still repairs a
-        # row if the database became unavailable during this final update.
-        try:
-            db.rollback()
-        except Exception:
-            pass
-    finally:
-        db.close()
+def _temp_storage(request: Request | None = None):
+    if request is not None and hasattr(request.app.state, "processing_storage"):
+        return request.app.state.processing_storage
+    return make_storage()
 
 
 def _parse_single_pdf(body: bytes, content_type: str) -> bytes:
@@ -147,19 +143,6 @@ def _parse_single_pdf(body: bytes, content_type: str) -> bytes:
     return files[0]
 
 
-def recover_interrupted_operations() -> None:
-    """Single-worker restart recovery: terminalize rows left by a dead child/API."""
-    db = SessionLocal()
-    try:
-        rows = db.execute(select(SaveOperation).where(SaveOperation.state == "PROCESSING")).scalars().all()
-        for op in rows:
-            op.state, op.failure_code = "FAILED", "PROCESS_INTERRUPTED"
-            op.updated_at = datetime.now(timezone.utc)
-        db.commit()
-    finally:
-        db.close()
-
-
 def _replay_or_raise(op: SaveOperation, payload_hash: str):
     if op.payload_hash != payload_hash:
         raise api_error(409, "IDEMPOTENCY_CONFLICT", "This idempotency key was already used for another request.")
@@ -183,189 +166,25 @@ def _replay_or_raise(op: SaveOperation, payload_hash: str):
     return {"operation_id": str(op.operation_id), "result_revision": op.result_revision, "changed": False}
 
 
+def _privacy_recheck(content: dict) -> tuple[bool, dict]:
+    # Privacy is the only synchronous processing requirement on the save path.
+    # This path never imports or initializes the embedding model.
+    from app.processing.pipeline import recheck_privacy
+
+    return recheck_privacy(content)
+
+
 async def _replay_review_required(body: SaveResumeRequest, operation_id: uuid.UUID):
-    """Re-derive the review draft without storing resume text in the operation row."""
     try:
-        lease = _processing_service().try_acquire()
-    except ProcessingError as exc:
-        _raise_processing(exc)
-    processing_future = None
-    try:
-        loop = asyncio.get_running_loop()
-        processing_future = loop.run_in_executor(
-            None,
-            lambda: lease.run("save", {
-                "content": body.content,
-                "skip_embedding": True,
-                "embedding_version": EMBEDDING_VERSION,
-            }),
-        )
-        result = await asyncio.shield(processing_future)
-    except asyncio.CancelledError:
-        if processing_future is not None:
-            try:
-                await asyncio.shield(processing_future)
-            except BaseException:
-                pass
-        raise
-    except ProcessingError as exc:
-        _raise_processing(exc)
+        _changed, cleaned = await asyncio.to_thread(_privacy_recheck, body.content)
     except Exception:
-        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True)
-    finally:
-        lease.release()
-    cleaned = result.get("cleaned") if isinstance(result, dict) else None
-    if not isinstance(cleaned, dict):
-        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True)
+        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True) from None
     try:
         validate_review_draft(cleaned)
     except Exception:
         raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True) from None
     details = {"cleaned_draft": cleaned}
     raise api_error(422, "REVIEW_REQUIRED", CONTRACT_ERRORS["REVIEW_REQUIRED"][1], details=details)
-
-
-async def _save_after_admission(
-    *,
-    body: SaveResumeRequest,
-    session_token_hash: str,
-    user_id,
-    db: DBSession,
-    operation_id: uuid.UUID,
-    payload_hash: str,
-    requested_content_hash: str,
-    lease,
-):
-    """Run one admitted save while its lease is owned by the caller's finally block."""
-    stage = "operation_insert"
-    op = SaveOperation(user_id=user_id, operation_id=operation_id, payload_hash=payload_hash,
-                       state="PROCESSING", expected_revision=body.expected_revision,
-                       expires_at=datetime.now(timezone.utc) + SAVE_OPERATION_RETENTION)
-    try:
-        db.add(op)
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        concurrent = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
-        if concurrent is None:
-            raise api_error(500, "INTERNAL_ERROR", "The save could not be started.", retryable=True)
-        return _replay_or_raise(concurrent, payload_hash)
-    except Exception as exc:
-        db.rollback()
-        log.warning("resume_save_failed stage=%s exception_class=%s", stage, type(exc).__name__)
-        raise api_error(500, "INTERNAL_ERROR", "The save could not be started.", retryable=True)
-
-    try:
-        stage = "existing_profile_read"
-        existing_profile = db.get(ResumeProfile, user_id)
-        existing_content_hash = existing_profile.content_hash if existing_profile is not None else None
-        existing_embedding_version = existing_profile.embedding_version if existing_profile is not None else None
-        # The child must never inherit the request transaction or an expired
-        # ORM object that could reopen one during the await.
-        db.rollback()
-    except Exception as exc:
-        # The operation row is already durable. Keep its lifecycle terminal
-        # when the request session fails before the child can start.
-        log.warning("resume_save_failed stage=%s exception_class=%s", stage, type(exc).__name__)
-        _record_failure(db, user_id, operation_id, "INTERNAL_ERROR")
-        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True)
-    skip_embedding = bool(
-        existing_content_hash == requested_content_hash
-        and existing_embedding_version == EMBEDDING_VERSION
-    )
-    processing_future = None
-    try:
-        loop = asyncio.get_running_loop()
-        processing_future = loop.run_in_executor(
-            None,
-            lambda: lease.run("save", {
-                "content": body.content,
-                "skip_embedding": skip_embedding,
-                "embedding_version": EMBEDDING_VERSION,
-            }),
-        )
-        result = await asyncio.shield(processing_future)
-    except asyncio.CancelledError:
-        # Shielding keeps the executor call alive.  Wait for the child to
-        # finish before the caller releases the lease, then terminalize the
-        # operation through a fresh session because the request session may close.
-        if processing_future is not None:
-            try:
-                await asyncio.shield(processing_future)
-            except BaseException:
-                pass
-        _record_failure_isolated(user_id, operation_id, "PROCESS_INTERRUPTED")
-        raise
-    except ProcessingError as exc:
-        _record_failure(db, user_id, operation_id, exc.code)
-        _raise_processing(exc)
-    except Exception as exc:
-        log.warning("resume_save_failed stage=processing_child exception_class=%s", type(exc).__name__)
-        _record_failure(db, user_id, operation_id, "INTERNAL_ERROR")
-        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True)
-
-    if result.get("review_required"):
-        _record_failure(db, user_id, operation_id, "REVIEW_REQUIRED")
-        raise api_error(422, "REVIEW_REQUIRED", "Privacy cleanup changed your resume. Please review and confirm again.",
-                        details={"cleaned_draft": result.get("cleaned")})
-    try:
-        stage = "validate_processing_result"
-        validate_resume_content(body.content)
-        vectors = result.get("vectors")
-        chunks = result.get("chunks") or []
-        if len(chunks) != len(vectors):
-            raise ValueError("chunk_vector_count")
-        stage = "lock_user"
-        db.rollback()
-        locked_user = db.execute(
-            select(User).where(User.user_id == user_id).with_for_update().execution_options(populate_existing=True)
-        ).scalar_one()
-        if locked_user.resume_revision != body.expected_revision:
-            op = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
-            op.state, op.failure_code = "FAILED", "REVISION_CONFLICT"
-            db.commit()
-            raise api_error(409, "REVISION_CONFLICT", "Resume has changed since you last saw it.",
-                            details={"current_revision": locked_user.resume_revision})
-        profile = db.get(ResumeProfile, locked_user.user_id)
-        stage = "prepare_profile"
-        changed = profile is None or profile.content_hash != requested_content_hash or profile.embedding_version != result["version"]
-        if result.get("no_op") and changed:
-            raise ValueError("no_op_profile_changed")
-        new_revision = locked_user.resume_revision + 1 if changed else locked_user.resume_revision
-        if changed:
-            db.execute(delete(ResumeChunk).where(ResumeChunk.user_id == locked_user.user_id))
-            if profile is None:
-                profile = ResumeProfile(user_id=locked_user.user_id, revision=new_revision, content=body.content,
-                                        content_hash=requested_content_hash, embedding_version=result["version"])
-                db.add(profile)
-                # ResumeChunk.user_id references resume_profiles.user_id.  The
-                # explicit flush keeps this FK ordering deterministic even
-                # when the ORM has no relationship configured for these rows.
-                stage = "flush_profile"
-                db.flush()
-            else:
-                profile.revision, profile.content, profile.content_hash = new_revision, body.content, requested_content_hash
-                profile.embedding_version, profile.updated_at = result["version"], datetime.now(timezone.utc)
-            locked_user.resume_revision = new_revision
-            stage = "insert_chunks"
-            for chunk, vector in zip(chunks, vectors):
-                db.add(ResumeChunk(user_id=locked_user.user_id, profile_revision=new_revision,
-                                   section=chunk["section"], entry_index=chunk["entry_index"],
-                                   chunk_index=chunk["chunk_index"], text=chunk["text"],
-                                   embedding=[float(x) for x in vector], embedding_version=result["version"]))
-        stage = "commit_result"
-        op = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
-        op.state, op.result_revision, op.failure_code = "SUCCEEDED", new_revision, None
-        db.commit()
-    except HTTPException:
-        raise
-    except Exception as exc:
-        db.rollback()
-        log.warning("resume_save_failed stage=%s exception_class=%s", stage, type(exc).__name__)
-        _record_failure(db, user_id, operation_id, "INTERNAL_ERROR")
-        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True)
-    touch_session_activity_by_token(db, session_token_hash)
-    return {"operation_id": str(operation_id), "result_revision": new_revision, "changed": changed}
 
 
 @router.get("/resume", response_model=ResumeProfileResponse)
@@ -384,47 +203,155 @@ def get_resume(
             ResumeChunk.embedding_version == EMBEDDING_VERSION,
         ).limit(1)
     ).first() is not None
+    embedding_task = db.scalar(select(ProcessingTask).where(
+        ProcessingTask.owner_id == user.user_id,
+        ProcessingTask.kind == "EMBEDDING",
+        ProcessingTask.revision == profile.revision,
+    ).order_by(ProcessingTask.created_at.desc()).limit(1))
+    if has_matchable_resume:
+        embedding_state = "READY"
+    elif embedding_task is not None and embedding_task.state in {"PENDING", "PROCESSING", "RETRY_WAIT"}:
+        embedding_state = "PENDING"
+    elif embedding_task is not None and embedding_task.state == "FAILED":
+        embedding_state = "FAILED"
+    else:
+        embedding_state = "NOT_READY"
     response = {
         "revision": profile.revision,
         "content": profile.content,
         "embedding_version": profile.embedding_version,
         "has_matchable_resume": has_matchable_resume,
+        "embedding_state": embedding_state,
     }
     touch_session_activity(db, session_row)
     return response
 
 
-@router.post("/resume/prepare", response_model=PrepareResumeResponse)
+@router.post("/resume/prepare", response_model=PrepareTaskResponse, status_code=202)
 async def prepare_resume(
     request: Request,
     session_and_user: tuple[SessionModel, User] = Depends(get_current_session_and_user),
     db: DBSession = Depends(get_db),
 ):
-    session_row, _user = session_and_user
+    session_row, user = session_and_user
     validate_unsafe_request(request, session_row)
+    user_id = user.user_id
     session_token_hash = session_row.token_hash
-    # Authentication opened a read transaction. Close it before admission,
-    # upload buffering, and the child call; activity is refreshed afterwards.
     db.rollback()
-    try:
-        lease = _processing_service().try_acquire()
-    except ProcessingError as exc:
-        _raise_processing(exc)
+    storage = _temp_storage(request)
+    payload_ref = None
     try:
         raw = await request.body()
         data = _parse_single_pdf(raw, request.headers.get("content-type", ""))
         if len(data) > MAX_PDF_BYTES:
             raise ProcessingError("FILE_TOO_LARGE", "byte_limit")
-        loop = asyncio.get_running_loop()
-        result = await loop.run_in_executor(None, lambda: lease.run("prepare", {"pdf": data}))
+        payload_ref = await asyncio.to_thread(storage.store, data)
+        del data, raw
+        locked_user = db.execute(
+            select(User).where(User.user_id == user_id).with_for_update().execution_options(populate_existing=True)
+        ).scalar_one()
+        task = enqueue_task(db, owner_id=user_id, kind="EXTRACTION", task_key=payload_ref,
+                            revision=locked_user.resume_revision, payload_ref=payload_ref)
+        db.commit()
     except BodyLimitExceeded:
+        db.rollback()
         raise api_error(413, "BODY_TOO_LARGE", "The request body is too large.")
     except ProcessingError as exc:
+        db.rollback()
+        await asyncio.to_thread(storage.delete, payload_ref)
         _raise_processing(exc)
-    finally:
-        lease.release()
+    except Exception:
+        db.rollback()
+        await asyncio.to_thread(storage.delete, payload_ref)
+        raise api_error(500, "INTERNAL_ERROR", "The upload could not be queued.", retryable=True) from None
     touch_session_activity_by_token(db, session_token_hash)
-    return result
+    return {"task_id": task.task_id, "state": task.state, "revision": task.revision}
+
+
+def _task_response(task: ProcessingTask) -> dict:
+    now = datetime.now(timezone.utc)
+    result = task.result_data if task.state == "SUCCEEDED" and task.expires_at and task.expires_at > now else None
+    return {"task_id": task.task_id, "kind": task.kind, "state": task.state, "revision": task.revision,
+            "failure_code": task.failure_code, "result": result,
+            "expires_at": task.expires_at if result is not None else None}
+
+
+@router.get("/resume/tasks/active", response_model=ProcessingTaskResponse | None)
+def get_active_extraction(
+    session_and_user: tuple[SessionModel, User] = Depends(get_current_session_and_user),
+    db: DBSession = Depends(get_db),
+):
+    _session, user = session_and_user
+    task = db.scalar(select(ProcessingTask).where(
+        ProcessingTask.owner_id == user.user_id,
+        ProcessingTask.kind == "EXTRACTION",
+        ProcessingTask.revision == user.resume_revision,
+        ProcessingTask.state.in_({"PENDING", "PROCESSING", "RETRY_WAIT", "SUCCEEDED"}),
+        (ProcessingTask.state != "SUCCEEDED") | (ProcessingTask.expires_at > datetime.now(timezone.utc)),
+    ).order_by(ProcessingTask.created_at.desc()).limit(1))
+    return _task_response(task) if task is not None else None
+
+
+@router.get("/resume/tasks/{task_id}", response_model=ProcessingTaskResponse)
+def get_processing_task(
+    task_id: str,
+    session_and_user: tuple[SessionModel, User] = Depends(get_current_session_and_user),
+    db: DBSession = Depends(get_db),
+):
+    _session, user = session_and_user
+    try:
+        parsed = uuid.UUID(task_id)
+    except ValueError:
+        raise api_error(404, "TASK_NOT_FOUND", "This processing task is no longer available.") from None
+    task = db.scalar(select(ProcessingTask).where(
+        ProcessingTask.task_id == parsed, ProcessingTask.owner_id == user.user_id,
+    ))
+    if task is None or (task.kind == "EXTRACTION" and task.state == "SUCCEEDED"
+                         and (task.expires_at is None or task.expires_at <= datetime.now(timezone.utc))):
+        raise api_error(404, "TASK_NOT_FOUND", "This processing task is no longer available.")
+    return _task_response(task)
+
+
+@router.delete("/resume/tasks/{task_id}")
+def discard_extraction_task(
+    task_id: str,
+    request: Request,
+    session_and_user: tuple[SessionModel, User] = Depends(get_current_session_and_user),
+    db: DBSession = Depends(get_db),
+):
+    """Discard a user's temporary extraction input or reviewed draft."""
+    session_row, user = session_and_user
+    validate_unsafe_request(request, session_row)
+    try:
+        parsed = uuid.UUID(task_id)
+    except ValueError:
+        raise api_error(404, "TASK_NOT_FOUND", "This processing task is no longer available.") from None
+    storage = _temp_storage(request)
+    db.flush()
+    locked_user = db.execute(select(User).where(User.user_id == user.user_id).with_for_update()
+                             .execution_options(populate_existing=True)).scalar_one()
+    task = db.scalar(select(ProcessingTask).where(
+        ProcessingTask.task_id == parsed,
+        ProcessingTask.owner_id == user.user_id,
+        ProcessingTask.kind == "EXTRACTION",
+    ).with_for_update().execution_options(populate_existing=True))
+    if task is None:
+        raise api_error(404, "TASK_NOT_FOUND", "This processing task is no longer available.")
+    from app.processing.tasks import _cancel_outbox
+    payload_ref = task.payload_ref
+    task.state = "CANCELLED"
+    task.failure_code = "CANCELLED_BY_OWNER"
+    task.payload_ref = None
+    task.result_data = None
+    task.expires_at = None
+    task.lease_token = None
+    task.lease_expires_at = None
+    task.updated_at = datetime.now(timezone.utc)
+    _cancel_outbox(db, task.task_id)
+    db.commit()
+    storage.delete(payload_ref)
+    touch_session_activity(db, session_row)
+    return {"task_id": str(parsed), "state": "CANCELLED", "revision": locked_user.resume_revision}
 
 
 @router.put("/resume", response_model=SaveResumeResponse)
@@ -447,15 +374,12 @@ async def save_resume(
         validate_resume_content(body.content)
     except ProcessingError as exc:
         _raise_processing(exc)
-    payload_hash = _payload_hash(body.expected_revision, body.content)
-    requested_content_hash = content_hash(body.content)
-    user_id = user.user_id
-    session_token_hash = session_row.token_hash
+    payload_hash = _payload_hash(body.expected_revision, body.content, body.extraction_task_id)
+    requested_hash = content_hash(body.content)
     existing = db.get(SaveOperation, {"user_id": user.user_id, "operation_id": operation_id})
     if existing is not None:
         if (existing.state == "FAILED" and existing.failure_code == "REVIEW_REQUIRED"
-                and existing.payload_hash == payload_hash
-                and existing.expires_at > datetime.now(timezone.utc)):
+                and existing.payload_hash == payload_hash and existing.expires_at > datetime.now(timezone.utc)):
             db.rollback()
             return await _replay_review_required(body, operation_id)
         return _replay_or_raise(existing, payload_hash)
@@ -463,30 +387,111 @@ async def save_resume(
         raise api_error(409, "REVISION_CONFLICT", "Resume has changed since you last saw it.",
                         details={"current_revision": user.resume_revision})
 
-    # Admission precedes the durable operation row so a busy request can be
-    # retried with the same key without creating a phantom operation.
-    # No ORM attributes are needed after this point except the captured scalar
-    # identifiers. Keep the processing interval outside any DB transaction.
+    # Recheck privacy before any permanent profile write. The API may load the
+    # local privacy analyzer, but this path never loads the embedding model.
     db.rollback()
     try:
-        service = _processing_service()
-        lease = service.try_acquire()
-    except ProcessingError as exc:
-        _raise_processing(exc)
-    try:
-        return await _save_after_admission(
-            body=body,
-            session_token_hash=session_token_hash,
-            user_id=user_id,
-            db=db,
-            operation_id=operation_id,
-            payload_hash=payload_hash,
-            requested_content_hash=requested_content_hash,
-            lease=lease,
-        )
-    finally:
-        lease.release()
+        changed_by_cleanup, cleaned = await asyncio.to_thread(_privacy_recheck, body.content)
+    except Exception as exc:
+        log.warning("resume_privacy_recheck_failed exception_class=%s", type(exc).__name__)
+        raise api_error(503, "SERVICE_UNAVAILABLE", "Resume privacy checks are temporarily unavailable.", retryable=True) from None
+    if changed_by_cleanup:
+        try:
+            validate_review_draft(cleaned)
+        except Exception:
+            raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True) from None
+        db.add(SaveOperation(user_id=user.user_id, operation_id=operation_id, payload_hash=payload_hash,
+                             state="FAILED", expected_revision=body.expected_revision,
+                             failure_code="REVIEW_REQUIRED",
+                             expires_at=datetime.now(timezone.utc) + SAVE_OPERATION_RETENTION))
+        try:
+            db.commit()
+        except IntegrityError:
+            db.rollback()
+            concurrent = db.get(SaveOperation, {"user_id": user.user_id, "operation_id": operation_id})
+            if concurrent is not None:
+                if concurrent.payload_hash != payload_hash:
+                    raise api_error(409, "IDEMPOTENCY_CONFLICT", "This idempotency key was already used for another request.")
+                if concurrent.state == "FAILED" and concurrent.failure_code == "REVIEW_REQUIRED":
+                    return await _replay_review_required(body, operation_id)
+                return _replay_or_raise(concurrent, payload_hash)
+        raise api_error(422, "REVIEW_REQUIRED", CONTRACT_ERRORS["REVIEW_REQUIRED"][1],
+                        details={"cleaned_draft": cleaned})
 
+    user_id, session_token_hash = user.user_id, session_row.token_hash
+    db.rollback()
+    try:
+        locked_user = db.execute(select(User).where(User.user_id == user_id).with_for_update()
+                                 .execution_options(populate_existing=True)).scalar_one()
+        concurrent = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
+        if concurrent is not None:
+            db.rollback()
+            if (concurrent.state == "FAILED" and concurrent.failure_code == "REVIEW_REQUIRED"
+                    and concurrent.payload_hash == payload_hash):
+                return await _replay_review_required(body, operation_id)
+            return _replay_or_raise(concurrent, payload_hash)
+        if locked_user.resume_revision != body.expected_revision:
+            raise api_error(409, "REVISION_CONFLICT", "Resume has changed since you last saw it.",
+                            details={"current_revision": locked_user.resume_revision})
+        if body.extraction_task_id is not None:
+            extraction = db.scalar(select(ProcessingTask).where(
+                ProcessingTask.task_id == body.extraction_task_id,
+                ProcessingTask.owner_id == user_id,
+                ProcessingTask.kind == "EXTRACTION",
+                ProcessingTask.state == "SUCCEEDED",
+                ProcessingTask.revision == body.expected_revision,
+                ProcessingTask.expires_at > datetime.now(timezone.utc),
+            ))
+            if extraction is None:
+                raise api_error(409, "TASK_NOT_FOUND", "The reviewed extraction draft has expired or changed.")
+
+        profile = db.get(ResumeProfile, user_id)
+        changed = (profile is None or profile.content_hash != requested_hash
+                   or profile.embedding_version != EMBEDDING_VERSION)
+        new_revision = locked_user.resume_revision + 1 if changed else locked_user.resume_revision
+        if changed:
+            db.execute(delete(ResumeChunk).where(ResumeChunk.user_id == user_id))
+            if profile is None:
+                profile = ResumeProfile(user_id=user_id, revision=new_revision, content=body.content,
+                                        content_hash=requested_hash, embedding_version=EMBEDDING_VERSION)
+                db.add(profile)
+                db.flush()
+            else:
+                profile.revision, profile.content = new_revision, body.content
+                profile.content_hash, profile.embedding_version = requested_hash, EMBEDDING_VERSION
+                profile.updated_at = datetime.now(timezone.utc)
+            locked_user.resume_revision = new_revision
+            enqueue_task(db, owner_id=user_id, kind="EMBEDDING",
+                         task_key=f"save:{operation_id}", revision=new_revision)
+        else:
+            failed_embedding = db.scalar(select(ProcessingTask).where(
+                ProcessingTask.owner_id == user_id, ProcessingTask.kind == "EMBEDDING",
+                ProcessingTask.revision == new_revision, ProcessingTask.state == "FAILED",
+            ).order_by(ProcessingTask.created_at.desc()).limit(1))
+            if failed_embedding is not None:
+                enqueue_task(db, owner_id=user_id, kind="EMBEDDING",
+                             task_key=f"retry:{operation_id}", revision=new_revision)
+
+        db.add(SaveOperation(user_id=user_id, operation_id=operation_id, payload_hash=payload_hash,
+                             state="SUCCEEDED", expected_revision=body.expected_revision,
+                             result_revision=new_revision,
+                             expires_at=datetime.now(timezone.utc) + SAVE_OPERATION_RETENTION))
+        db.commit()
+    except HTTPException:
+        db.rollback()
+        raise
+    except IntegrityError:
+        db.rollback()
+        concurrent = db.get(SaveOperation, {"user_id": user_id, "operation_id": operation_id})
+        if concurrent is not None:
+            return _replay_or_raise(concurrent, payload_hash)
+        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True) from None
+    except Exception as exc:
+        db.rollback()
+        log.warning("resume_save_failed exception_class=%s", type(exc).__name__)
+        raise api_error(500, "INTERNAL_ERROR", "The resume could not be saved.", retryable=True) from None
+    touch_session_activity_by_token(db, session_token_hash)
+    return {"operation_id": str(operation_id), "result_revision": new_revision, "changed": changed}
 
 
 @router.delete("/resume", response_model=DeleteResumeResponse)
@@ -505,15 +510,23 @@ def delete_resume(
         raise api_error(409, "REVISION_CONFLICT", "Resume has changed since you last saw it.",
                         details={"current_revision": locked_user.resume_revision})
     profile = db.get(ResumeProfile, user.user_id)
-    if profile is None:
-        db.commit()
-        touch_session_activity(db, session_row)
-        return {"resume_revision": locked_user.resume_revision, "has_resume": False}
-    db.delete(profile)
-    locked_user.resume_revision += 1
+    temp_refs = list(db.scalars(select(ProcessingTask.payload_ref).where(
+        ProcessingTask.owner_id == user.user_id,
+        ProcessingTask.kind == "EXTRACTION",
+        ProcessingTask.payload_ref.is_not(None),
+    )))
+    cancelled = cancel_owner_tasks(db, owner_id=user.user_id)
+    if profile is not None:
+        db.delete(profile)
+    if profile is not None or cancelled > 0:
+        locked_user.resume_revision += 1
+    revision = locked_user.resume_revision
     db.commit()
+    storage = _temp_storage(request)
+    for ref in temp_refs:
+        storage.delete(ref)
     touch_session_activity(db, session_row)
-    return {"resume_revision": locked_user.resume_revision, "has_resume": False}
+    return {"resume_revision": revision, "has_resume": False}
 
 
 @router.get("/resume/operations/{operation_id}", response_model=OperationStatusResponse)

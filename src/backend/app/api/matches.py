@@ -19,7 +19,7 @@ from app.api.jobs import (
 from app.auth.dependencies import get_current_session_and_user, touch_session_activity
 from app.catalogue.models import Job, JobRequirement
 from app.core.errors import api_error
-from app.db.models import ResumeChunk, ResumeProfile, Session as SessionModel, User
+from app.db.models import ProcessingTask, ResumeChunk, ResumeProfile, Session as SessionModel, User
 from app.db.session import get_db
 from app.matching.skill_gap import analyse_skill_gap
 from app.matching.sql import closest_passages_sql, rank_jobs_sql
@@ -75,6 +75,15 @@ def _matching_resume(db: DBSession, user: User, requested_revision: int | None) 
         )
     ).scalar_one())
     if chunk_count == 0:
+        task = db.scalar(select(ProcessingTask).where(
+            ProcessingTask.owner_id == user.user_id,
+            ProcessingTask.kind == "EMBEDDING",
+            ProcessingTask.revision == profile.revision,
+        ).order_by(ProcessingTask.created_at.desc()).limit(1))
+        if task is not None and task.state in {"PENDING", "PROCESSING", "RETRY_WAIT"}:
+            raise api_error(503, "EMBEDDING_PENDING", "Your resume is saved and matching is still being prepared.", retryable=True)
+        if task is not None and task.state == "FAILED":
+            raise api_error(503, "EMBEDDING_FAILED", "Your resume is saved, but matching could not be prepared.")
         raise api_error(422, "INSUFFICIENT_RESUME_INFORMATION", "Add a project or experience entry to get recommendations.")
     return profile, int(profile.revision)
 

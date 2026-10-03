@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 from sqlalchemy import text
 
-from app.db.models import ResumeProfile, SaveOperation
+from app.db.models import ProcessingTask, ResumeProfile, SaveOperation
 from app.processing.config import EMBEDDING_VERSION
 
 
@@ -133,18 +133,7 @@ def test_operation_status_returns_existing_operation(client, db_engine):
 
 
 def test_save_is_idempotent_and_rejects_reuse_with_changed_payload(client, db_engine, monkeypatch):
-    class Lease:
-        def run(self, _op, _payload):
-            return {"review_required": False, "version": EMBEDDING_VERSION, "chunks": [], "vectors": []}
-
-        def release(self):
-            return None
-
-    class Service:
-        def try_acquire(self):
-            return Lease()
-
-    monkeypatch.setattr("app.main.processing_service", Service())
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
     cookies, _user_id, csrf = _login(client)
     content = {"skills": ["Python"], "projects": [], "experience": [], "education": []}
     key = str(uuid.uuid4())
@@ -152,6 +141,7 @@ def test_save_is_idempotent_and_rejects_reuse_with_changed_payload(client, db_en
     first = client.put("/api/resume", json={"expected_revision": 0, "content": content}, headers=headers, cookies=cookies)
     assert first.status_code == 200
     assert first.json()["changed"] is True
+    assert first.json()["result_revision"] == 1
     replay = client.put("/api/resume", json={"expected_revision": 0, "content": content}, headers=headers, cookies=cookies)
     assert replay.status_code == 200
     assert replay.json()["operation_id"] == key

@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
-    BigInteger, CheckConstraint, ForeignKey, Integer, String,
+    BigInteger, CheckConstraint, ForeignKey, Integer, JSON, String,
     Text, UniqueConstraint, func,DateTime
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -136,5 +136,86 @@ class SaveOperation(Base):
         CheckConstraint(
             "state IN ('PROCESSING','SUCCEEDED','FAILED')",
             name="ck_save_operations_state",
+        ),
+    )
+
+
+class ProcessingTask(Base):
+    """Durable identity and fenced lease for one extraction or embedding task."""
+
+    __tablename__ = "processing_tasks"
+
+    task_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    kind: Mapped[str] = mapped_column(Text, nullable=False)
+    task_key: Mapped[str] = mapped_column(Text, nullable=False)
+    revision: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    payload_ref: Mapped[str | None] = mapped_column(Text, nullable=True)
+    result_data: Mapped[dict | None] = mapped_column(JSON().with_variant(JSONB, "postgresql"), nullable=True)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    state: Mapped[str] = mapped_column(Text, nullable=False, server_default="PENDING")
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default="3")
+    available_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    lease_token: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    failure_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint("owner_id", "kind", "task_key", name="uq_processing_tasks_identity"),
+        CheckConstraint("kind IN ('EXTRACTION','EMBEDDING')", name="ck_processing_tasks_kind"),
+        CheckConstraint(
+            "state IN ('PENDING','PROCESSING','RETRY_WAIT','SUCCEEDED','FAILED','CANCELLED')",
+            name="ck_processing_tasks_state",
+        ),
+        CheckConstraint("revision >= 0", name="ck_processing_tasks_revision_nonneg"),
+        CheckConstraint("attempts >= 0 AND max_attempts > 0 AND attempts <= max_attempts",
+                        name="ck_processing_tasks_attempt_bounds"),
+        CheckConstraint(
+            "(state = 'PROCESSING' AND lease_token IS NOT NULL AND lease_expires_at IS NOT NULL) OR "
+            "(state <> 'PROCESSING' AND lease_token IS NULL AND lease_expires_at IS NULL)",
+            name="ck_processing_tasks_lease_state",
+        ),
+    )
+
+
+class OutboxEvent(Base):
+    """One retryable publication record per stable task identity."""
+
+    __tablename__ = "processing_outbox"
+
+    event_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    task_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("processing_tasks.task_id", ondelete="CASCADE"), nullable=False
+    )
+    state: Mapped[str] = mapped_column(Text, nullable=False, server_default="PENDING")
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
+    available_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    lease_token: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), nullable=True)
+    lease_expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    __table_args__ = (
+        UniqueConstraint("task_id", name="uq_processing_outbox_task"),
+        CheckConstraint("state IN ('PENDING','CLAIMED','SENT','CANCELLED')", name="ck_processing_outbox_state"),
+        CheckConstraint("attempts >= 0", name="ck_processing_outbox_attempts_nonneg"),
+        CheckConstraint(
+            "(state = 'CLAIMED' AND lease_token IS NOT NULL AND lease_expires_at IS NOT NULL) OR "
+            "(state <> 'CLAIMED' AND lease_token IS NULL AND lease_expires_at IS NULL)",
+            name="ck_processing_outbox_lease_state",
         ),
     )

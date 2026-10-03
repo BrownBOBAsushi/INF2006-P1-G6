@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 import logging
 import os
+import threading
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.exceptions import RequestValidationError
@@ -10,13 +11,14 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.auth.router import router as auth_router
 from app.api.me import router as me_router
-from app.api.resume import recover_interrupted_operations, router as resume_router
+from app.api.resume import router as resume_router
 from app.api.jobs import router as jobs_router
 from app.api.matches import router as matches_router
 from app.core.config import settings
 from app.core.errors import BodyLimitExceeded, error_body
 from app.db.session import configure_transaction_timeouts
-from app.processing.slot import ProcessingService
+from app.processing.cloud_adapters import make_storage, make_task_queues, processing_mode
+from app.processing.outbox_publisher import OutboxPublisher
 
 log = logging.getLogger(__name__)
 
@@ -25,26 +27,41 @@ if os.environ.get("TEST_AUTH_BYPASS") == "true" and not settings.is_dev:
         "TEST_AUTH_BYPASS is enabled but the APP_ENV is not 'development'. Refusing to start."
     )
 
-processing_service = ProcessingService()
-recovery_failed = False
-
-
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    global recovery_failed
-    try:
-        recover_interrupted_operations()
-    except Exception as exc:
-        recovery_failed = True
-        log.error("processing_recovery_failed exception_class=%s", type(exc).__name__)
-    try:
-        processing_service.start()
-    except Exception as exc:  # model/cache availability is reported by readiness
-        log.error("processing_service_start_failed exception_class=%s", type(exc).__name__)
+    # Local mode stays AWS-free. In AWS mode every API instance runs the same
+    # DB-leased outbox publisher; SKIP LOCKED and lease tokens coordinate them.
+    if processing_mode() == "local":
+        yield
+        return
+
+    _app.state.processing_storage = make_storage()
+    publisher = OutboxPublisher(make_task_queues())
+    stopped = threading.Event()
+
+    def publish_loop():
+        while not stopped.is_set():
+            try:
+                publisher.publish_once()
+            except Exception as exc:
+                log.warning("sqs_outbox_publisher_failed exception_class=%s", type(exc).__name__)
+            stopped.wait(2)
+
+    thread = threading.Thread(target=publish_loop, name="processing-outbox-publisher", daemon=True)
+    thread.start()
     try:
         yield
     finally:
-        processing_service.stop()
+        stopped.set()
+        thread.join(timeout=30)
+        clients = {getattr(queue, "client", None) for queue in publisher.queues.values()}
+        clients.add(getattr(_app.state.processing_storage, "client", None))
+        for client in clients:
+            if client is not None:
+                try:
+                    client.close()
+                except Exception:
+                    pass
 
 
 app = FastAPI(lifespan=lifespan)
@@ -187,6 +204,7 @@ engine = create_engine(os.environ["DATABASE_URL"])
 configure_transaction_timeouts(engine)
 REQUIRED_TABLES = {
     "users", "sessions", "resume_profiles", "resume_chunks", "save_operations",
+    "processing_tasks", "processing_outbox",
     "jobs", "job_requirements", "requirement_embeddings", "app_state",
 }
 EXPECTED_EMBEDDING_DIM = 384
@@ -199,8 +217,6 @@ def live():
 
 @app.get("/health/ready")
 def ready():
-    if recovery_failed or not processing_service.is_ready():
-        return Response(status_code=503)
     try:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))

@@ -5,6 +5,7 @@
 # One-time model downloads (network): python -m spacy download en_core_web_sm ; PYTHONPATH=src/backend python -m app.processing.embeddings --download
 # spaCy model en_core_web_sm 3.8.0 is listed below as a direct URL so the whole environment is pinned.
 alembic==1.20.0
+boto3==1.43.99
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.15.1

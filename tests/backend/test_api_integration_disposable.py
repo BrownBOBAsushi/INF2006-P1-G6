@@ -34,11 +34,13 @@ from sqlalchemy.orm import sessionmaker
 
 from app.auth import security
 from app.api.resume import _payload_hash
-from app.db.models import ResumeChunk, ResumeProfile, SaveOperation, Session as SessionModel, User
+from app.db.models import OutboxEvent, ProcessingTask, ResumeChunk, ResumeProfile, SaveOperation, Session as SessionModel, User
 from app.db.session import configure_transaction_timeouts, get_db
 from app.catalogue.models import AppState, Job, JobRequirement, RequirementEmbedding
 from app.main import app
 from app.processing.config import EMBEDDING_VERSION
+from app.processing.local_worker import LocalWorker
+from app.processing.local_storage import LocalTempStorage
 
 
 @pytest.fixture
@@ -89,61 +91,6 @@ def authenticated_client(db_session):
     client.close()
 
 
-class _FakeLease:
-    def __init__(self, *, bad_vectors=False, transaction_probe=None, cleaned=None,
-                 chunks=None, vectors=None):
-        self.released = False
-        self.bad_vectors = bad_vectors
-        self.transaction_probe = transaction_probe
-        self.cleaned = cleaned
-        self.chunks = chunks if chunks is not None else []
-        self.vectors = vectors if vectors is not None else []
-        self.transaction_active_during_run = None
-
-    def run(self, operation, payload):
-        if self.transaction_probe is not None:
-            self.transaction_active_during_run = self.transaction_probe()
-        if operation == "prepare":
-            return {"draft": {"skills": [], "projects": [], "experience": [], "education": []},
-                    "unassigned_text": "", "warnings": []}
-        if self.bad_vectors:
-            return {"review_required": False, "version": EMBEDDING_VERSION,
-                    "chunks": [{"section": "PROJECT", "entry_index": 0, "chunk_index": 0, "text": "x"}],
-                    "vectors": []}
-        if payload.get("skip_embedding"):
-            if self.cleaned is not None:
-                return {"review_required": True, "cleaned": self.cleaned}
-            return {"review_required": False, "no_op": True, "version": EMBEDDING_VERSION,
-                    "chunks": [], "vectors": []}
-        return {"review_required": False, "version": EMBEDDING_VERSION,
-                "chunks": self.chunks, "vectors": self.vectors}
-
-    def release(self):
-        self.released = True
-
-
-class _FakeService:
-    def __init__(self, *, bad_vectors=False, transaction_probe=None, cleaned=None,
-                 chunks=None, vectors=None):
-        self.bad_vectors = bad_vectors
-        self.transaction_probe = transaction_probe
-        self.cleaned = cleaned
-        self.chunks = chunks
-        self.vectors = vectors
-        self.leases = []
-
-    def try_acquire(self):
-        lease = _FakeLease(
-            bad_vectors=self.bad_vectors,
-            transaction_probe=self.transaction_probe,
-            cleaned=self.cleaned,
-            chunks=self.chunks,
-            vectors=self.vectors,
-        )
-        self.leases.append(lease)
-        return lease
-
-
 def _unsafe_headers(session):
     return {"Origin": "http://localhost:8080", "X-CSRF-Token": session.csrf_token}
 
@@ -182,15 +129,13 @@ def test_jobs_search_paging_and_revision_guard(authenticated_client):
 
 def test_save_replay_noop_revision_and_operation_ownership(authenticated_client, monkeypatch):
     client, db, user, session, marker = authenticated_client
-    service = _FakeService(transaction_probe=db.in_transaction)
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
     content = {"skills": ["Python"], "projects": [], "experience": [], "education": []}
     headers = _unsafe_headers(session)
     key = str(uuid.uuid4())
     first = client.put("/api/resume", json={"expected_revision": 0, "content": content},
                        headers={**headers, "Idempotency-Key": key})
     assert first.status_code == 200 and first.json()["changed"] is True
-    assert service.leases[0].transaction_active_during_run is False
     replay = client.put("/api/resume", json={"expected_revision": 0, "content": content},
                         headers={**headers, "Idempotency-Key": key})
     assert replay.status_code == 200
@@ -217,7 +162,7 @@ def test_save_replay_noop_revision_and_operation_ownership(authenticated_client,
     assert status.status_code == 404
 
 
-def test_save_flushes_profile_before_persisting_pipeline_chunks(authenticated_client, monkeypatch):
+def test_save_commits_approved_content_before_embedding_is_ready(authenticated_client, monkeypatch):
     client, db, user, session, _marker = authenticated_client
     content = {
         "skills": ["Python"],
@@ -225,15 +170,7 @@ def test_save_flushes_profile_before_persisting_pipeline_chunks(authenticated_cl
         "experience": [],
         "education": [],
     }
-    chunks = [{
-        "section": "PROJECT",
-        "entry_index": 0,
-        "chunk_index": 0,
-        "text": "Built API",
-    }]
-    vectors = [[1.0] + [0.0] * 383]
-    service = _FakeService(chunks=chunks, vectors=vectors)
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
 
     operation_id = str(uuid.uuid4())
     response = client.put(
@@ -251,35 +188,35 @@ def test_save_flushes_profile_before_persisting_pipeline_chunks(authenticated_cl
     profile = db.get(ResumeProfile, user.user_id)
     assert profile is not None and profile.revision == 1
     persisted = db.query(ResumeChunk).filter(ResumeChunk.user_id == user.user_id).all()
-    assert len(persisted) == 1
-    assert persisted[0].profile_revision == 1
-    assert persisted[0].text == "Built API"
-    assert service.leases[0].released is True
+    assert persisted == []
+    task = db.query(ProcessingTask).filter_by(owner_id=user.user_id, kind="EMBEDDING").one()
+    outbox = db.query(OutboxEvent).filter_by(task_id=task.task_id).one()
+    assert task.state == "PENDING" and outbox.state == "PENDING"
+    operation = db.get(SaveOperation, {"user_id": user.user_id, "operation_id": uuid.UUID(operation_id)})
+    assert operation.state == "SUCCEEDED"
 
 
-def test_save_atomic_failure_preserves_previous_profile(authenticated_client, monkeypatch):
+def test_save_succeeds_without_waiting_for_embedding_worker(authenticated_client, monkeypatch):
     client, db, user, session, marker = authenticated_client
     old = {"skills": ["SQL"], "projects": [], "experience": [], "education": []}
     db.add(ResumeProfile(user_id=user.user_id, revision=0, content=old, content_hash="old" * 16,
                          embedding_version=EMBEDDING_VERSION))
     db.commit()
-    service = _FakeService(bad_vectors=True)
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
     new = {"skills": ["Python"], "projects": [], "experience": [], "education": []}
     key = str(uuid.uuid4())
     response = client.put("/api/resume", json={"expected_revision": 0, "content": new},
                           headers={**_unsafe_headers(session), "Idempotency-Key": key})
-    assert response.status_code == 500
+    assert response.status_code == 200
     profile = db.get(ResumeProfile, user.user_id)
     op = db.get(SaveOperation, {"user_id": user.user_id, "operation_id": uuid.UUID(key)})
-    assert profile.content == old and op.state == "FAILED"
-    assert service.leases[0].released is True
+    assert profile.content == new and profile.revision == 1 and op.state == "SUCCEEDED"
+    assert db.query(ProcessingTask).filter_by(owner_id=user.user_id, kind="EMBEDDING").count() == 1
 
 
-def test_save_releases_lease_when_operation_insert_commit_fails(authenticated_client, monkeypatch, caplog):
+def test_save_commit_failure_leaves_no_partial_profile_or_operation(authenticated_client, monkeypatch, caplog):
     client, db, _user, session, _marker = authenticated_client
-    service = _FakeService()
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
 
     class FailingCommitSession:
         def __init__(self, delegate):
@@ -309,15 +246,13 @@ def test_save_releases_lease_when_operation_insert_commit_fails(authenticated_cl
 
     app.dependency_overrides[get_db] = restore_db
     assert response.status_code == 500
-    assert service.leases[0].released is True
-    assert "resume_save_failed stage=operation_insert exception_class=RuntimeError" in caplog.text
+    assert "resume_save_failed exception_class=RuntimeError" in caplog.text
     assert "synthetic operation insert failure" not in caplog.text
 
 
 def test_prepare_requires_csrf_and_capped_upload_has_no_store(authenticated_client, monkeypatch):
     client, _db, _user, session, _marker = authenticated_client
-    service = _FakeService()
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
     missing = client.post("/api/resume/prepare", files={"file": ("resume.pdf", b"pdf")},
                           headers={"Origin": "http://localhost:8080"})
     assert missing.status_code == 403 and missing.json()["error"]["code"] == "CSRF_INVALID"
@@ -326,13 +261,11 @@ def test_prepare_requires_csrf_and_capped_upload_has_no_store(authenticated_clie
         "Content-Length": str(6 * 1024 * 1024 + 1),
     })
     assert oversized.status_code == 413 and oversized.headers["cache-control"] == "no-store"
-    assert service.leases == []
 
 
-def test_prepare_processing_runs_without_request_transaction(authenticated_client, monkeypatch):
+def test_prepare_persists_upload_task_and_outbox(authenticated_client, monkeypatch, tmp_path):
     client, db, _user, session, _marker = authenticated_client
-    service = _FakeService(transaction_probe=db.in_transaction)
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setenv("PROCESSING_TEMP_DIR", str(tmp_path))
     boundary = "codex-boundary"
     body = (
         f"--{boundary}\r\n"
@@ -344,8 +277,171 @@ def test_prepare_processing_runs_without_request_transaction(authenticated_clien
     response = client.post("/api/resume/prepare", content=body, headers={
         **_unsafe_headers(session), "Content-Type": f"multipart/form-data; boundary={boundary}",
     })
-    assert response.status_code == 200
-    assert service.leases[0].transaction_active_during_run is False
+    assert response.status_code == 202
+    body_json = response.json()
+    task = db.get(ProcessingTask, uuid.UUID(body_json["task_id"]))
+    event = db.query(OutboxEvent).filter_by(task_id=task.task_id).one()
+    assert task.state == "PENDING" and event.state == "PENDING"
+    assert task.payload_ref is not None and (tmp_path / f"{uuid.UUID(task.payload_ref).hex}.pdf").exists()
+
+
+def test_discard_or_profileless_delete_cleans_temporary_work(authenticated_client, monkeypatch, tmp_path):
+    client, db, user, session, _marker = authenticated_client
+    monkeypatch.setenv("PROCESSING_TEMP_DIR", str(tmp_path))
+    boundary = "discard-boundary"
+    body = (f"--{boundary}\r\n"
+            'Content-Disposition: form-data; name="file"; filename="resume.pdf"\r\n'
+            "Content-Type: application/pdf\r\n\r\n%PDF-1.4\r\n"
+            f"--{boundary}--\r\n").encode()
+    accepted = client.post("/api/resume/prepare", content=body, headers={
+        **_unsafe_headers(session), "Content-Type": f"multipart/form-data; boundary={boundary}",
+    })
+    task_id = uuid.UUID(accepted.json()["task_id"])
+    task = db.get(ProcessingTask, task_id)
+    assert task.payload_ref is not None
+    path = LocalTempStorage(tmp_path).path_for(task.payload_ref)
+    assert path.exists()
+    missing_csrf = client.delete(f"/api/resume/tasks/{task_id}", headers={"Origin": "http://localhost:8080"})
+    assert missing_csrf.status_code == 403
+    discarded = client.delete(f"/api/resume/tasks/{task_id}", headers=_unsafe_headers(session))
+    assert discarded.status_code == 200 and discarded.json()["state"] == "CANCELLED"
+    assert not path.exists()
+    db.expire_all()
+    task = db.get(ProcessingTask, task_id)
+    assert task.state == "CANCELLED" and task.result_data is None and task.payload_ref is None
+
+    # Deleting while no permanent profile exists still advances the revision and
+    # fences any other pending extraction work for that account.
+    second = client.post("/api/resume/prepare", content=body, headers={
+        **_unsafe_headers(session), "Content-Type": f"multipart/form-data; boundary={boundary}",
+    })
+    second_id = uuid.UUID(second.json()["task_id"])
+    second_task = db.get(ProcessingTask, second_id)
+    assert second_task.payload_ref is not None
+    second_path = LocalTempStorage(tmp_path).path_for(second_task.payload_ref)
+    assert second_path.exists()
+    deleted = client.request("DELETE", "/api/resume", json={"expected_revision": 0},
+                             headers=_unsafe_headers(session))
+    assert deleted.status_code == 200 and deleted.json() == {"resume_revision": 1, "has_resume": False}
+    db.expire_all()
+    task = db.get(ProcessingTask, second_id)
+    assert task.state == "CANCELLED" and task.payload_ref is None
+    assert not second_path.exists()
+
+
+def test_local_async_journey_extract_save_embed_delete_and_session_reuse(
+    authenticated_client, monkeypatch, tmp_path,
+):
+    client, db, user, session, _marker = authenticated_client
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda content: (False, content))
+    monkeypatch.setenv("PROCESSING_TEMP_DIR", str(tmp_path))
+    Session = sessionmaker(bind=db.get_bind(), autoflush=False, autocommit=False)
+
+    # Production get_db() creates one SQLAlchemy Session per request. Keep the
+    # fixture's separate `db` session for setup/assertions, but preserve that
+    # request boundary while workers commit changes concurrently.
+    def override_request_db():
+        request_db = Session()
+        try:
+            yield request_db
+        finally:
+            request_db.close()
+
+    monkeypatch.setitem(app.dependency_overrides, get_db, override_request_db)
+    boundary = "local-async-boundary"
+    upload = (
+        f"--{boundary}\r\n"
+        'Content-Disposition: form-data; name="file"; filename="resume.pdf"\r\n'
+        "Content-Type: application/pdf\r\n\r\n"
+        "%PDF-1.4\r\nsynthetic resume\r\n"
+        f"--{boundary}--\r\n"
+    ).encode()
+    accepted = client.post("/api/resume/prepare", content=upload, headers={
+        **_unsafe_headers(session), "Content-Type": f"multipart/form-data; boundary={boundary}",
+    })
+    assert accepted.status_code == 202
+    task_id = uuid.UUID(accepted.json()["task_id"])
+    task = db.get(ProcessingTask, task_id)
+    assert task.payload_ref is not None
+    pdf_path = LocalTempStorage(tmp_path).path_for(task.payload_ref)
+    assert pdf_path.exists()
+
+    extract_result = {
+        "draft": {"skills": ["Python"], "projects": [{
+            "title": "API", "description": "Built an API", "technologies": ["Python"],
+        }], "experience": [], "education": []},
+        "unassigned_text": "", "warnings": [],
+    }
+    extraction = LocalWorker("EXTRACTION", handlers={"prepare": lambda _payload: extract_result},
+                             storage=LocalTempStorage(tmp_path),
+                             session_factory=Session)
+    assert extraction.dispatch_outbox() == 1
+    assert extraction.run_one() is True
+    assert not pdf_path.exists()
+    draft = client.get(f"/api/resume/tasks/{task_id}")
+    assert draft.status_code == 200 and draft.json()["result"] == extract_result
+
+    # The same persistent cookie works from another app client and independent DB session.
+    second_client = TestClient(app)
+    second_client.cookies.set(security.session_cookie_name(), client.cookies.get(security.session_cookie_name()))
+    try:
+        assert second_client.get(f"/api/resume/tasks/{task_id}").status_code == 200
+    finally:
+        second_client.close()
+
+    other = User(user_id=uuid.uuid4(), google_sub=f"{_marker}:other", resume_revision=0)
+    other_raw = secrets.token_urlsafe(32)
+    other_session = SessionModel(token_hash=hashlib.sha256(other_raw.encode()).hexdigest(), user_id=other.user_id,
+                                 csrf_token=f"csrf-{uuid.uuid4()}",
+                                 expires_at=datetime.now(timezone.utc) + timedelta(hours=1))
+    db.add(other)
+    db.flush()
+    db.add(other_session)
+    db.commit()
+    other_client = TestClient(app)
+    other_client.cookies.set(security.session_cookie_name(), other_raw)
+    try:
+        assert other_client.get(f"/api/resume/tasks/{task_id}").status_code == 404
+    finally:
+        other_client.close()
+
+    save = client.put("/api/resume", json={
+        "expected_revision": 0, "content": extract_result["draft"], "extraction_task_id": str(task_id),
+    }, headers={**_unsafe_headers(session), "Idempotency-Key": str(uuid.uuid4())})
+    assert save.status_code == 200 and save.json()["result_revision"] == 1
+    assert db.get(ResumeProfile, user.user_id).content == extract_result["draft"]
+    embedding_task = db.query(ProcessingTask).filter_by(owner_id=user.user_id, kind="EMBEDDING").one()
+    assert embedding_task.state == "PENDING"
+    assert client.get("/api/resume").json()["embedding_state"] == "PENDING"
+
+    embed_result = {"chunks": [{"section": "PROJECT", "entry_index": 0, "chunk_index": 0,
+                                 "text": "Built an API"}],
+                    "vectors": [[1.0] + [0.0] * 383], "version": EMBEDDING_VERSION}
+    embedding = LocalWorker("EMBEDDING", handlers={"embed": lambda _payload: embed_result},
+                            session_factory=Session)
+    assert embedding.dispatch_outbox() == 1
+    assert embedding.run_one() is True
+    assert client.get("/api/resume").json()["embedding_state"] == "READY"
+
+    deleted = client.request("DELETE", "/api/resume", json={"expected_revision": 1},
+                             headers=_unsafe_headers(session))
+    assert deleted.status_code == 200 and deleted.json() == {"resume_revision": 2, "has_resume": False}
+    task_status = client.get(f"/api/resume/tasks/{task_id}")
+    assert task_status.status_code == 200
+    assert task_status.json() == {
+        "task_id": str(task_id), "kind": "EXTRACTION", "state": "CANCELLED",
+        "revision": 0, "failure_code": "CANCELLED_BY_OWNER", "result": None,
+        "expires_at": None,
+    }
+    active_tasks = client.get("/api/resume/tasks/active")
+    assert active_tasks.status_code == 200 and active_tasks.json() is None
+    db.expire_all()
+    assert db.get(ResumeProfile, user.user_id) is None
+    retained_task = db.get(ProcessingTask, task_id)
+    assert retained_task.state == "CANCELLED"
+    assert retained_task.result_data is None and retained_task.expires_at is None
+    assert retained_task.payload_ref is None
+    assert db.query(ResumeChunk).filter_by(user_id=user.user_id).count() == 0
 
 
 def test_review_required_replay_rederives_draft_and_maps_service_unavailable(
@@ -368,8 +464,7 @@ def test_review_required_replay_rederives_draft_and_maps_service_unavailable(
         failure_code="SERVICE_UNAVAILABLE", expires_at=now + timedelta(hours=1),
     ))
     db.commit()
-    service = _FakeService(cleaned=cleaned, transaction_probe=db.in_transaction)
-    monkeypatch.setattr("app.main.processing_service", service)
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda _content: (True, cleaned))
     headers = _unsafe_headers(session)
     mismatch = client.put("/api/resume", json={"expected_revision": 0,
                                                "content": {"skills": ["Other"], "projects": [],
@@ -382,7 +477,6 @@ def test_review_required_replay_rederives_draft_and_maps_service_unavailable(
     assert replay.status_code == 422
     assert replay.json()["error"]["code"] == "REVIEW_REQUIRED"
     assert replay.json()["error"]["details"]["cleaned_draft"] == cleaned
-    assert service.leases[0].transaction_active_during_run is False
 
     malformed_key = uuid.uuid4()
     db.add(SaveOperation(
@@ -391,7 +485,7 @@ def test_review_required_replay_rederives_draft_and_maps_service_unavailable(
         failure_code="REVIEW_REQUIRED", expires_at=now + timedelta(hours=1),
     ))
     db.commit()
-    service.cleaned = None
+    monkeypatch.setattr("app.api.resume._privacy_recheck", lambda _content: (True, None))
     malformed = client.put("/api/resume", json={"expected_revision": 0, "content": content},
                            headers={**headers, "Idempotency-Key": str(malformed_key)})
     assert malformed.status_code == 500

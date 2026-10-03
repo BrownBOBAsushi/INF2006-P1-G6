@@ -66,53 +66,54 @@ def serve(conn, handlers: dict[str, Handler]) -> None:
         payload = None                                        # drop references to resume data as soon as possible
 
 
-def build_production_handlers() -> dict[str, Handler]:
-    """Load the privacy analyzer and the embedding model once (slow: several seconds), then warm both up."""
-    from app.processing import pipeline
-    from app.processing.content import content_hash, validate_resume_content
-    from app.processing.embeddings import EmbeddingModel
-    from app.processing.privacy import get_redactor
+def build_production_handlers(kind: str) -> dict[str, Handler]:
+    """Load only the model needed by this worker pool."""
+    if kind == "EXTRACTION":
+        from app.processing import pipeline
+        from app.processing.privacy import get_redactor
 
-    redactor = get_redactor()
-    model = EmbeddingModel()                                  # local cache only; raises if the pinned weights are missing
-    redactor.redact_lines(["warm up"])
-    model.embed(["warm up"])
+        redactor = get_redactor()
+        redactor.redact_lines(["warm up"])
 
-    def prepare(payload: dict) -> dict:
-        pdf = payload.get("pdf")
-        if not isinstance(pdf, (bytes, bytearray)):
-            raise ProcessingError("INVALID_CONTENT", "pdf_payload")
-        result = pipeline.prepare_resume(bytes(pdf), redactor)
-        return {"draft": result.draft, "unassigned_text": result.unassigned_text, "warnings": result.warnings}
+        def prepare(payload: dict) -> dict:
+            pdf = payload.get("pdf")
+            if not isinstance(pdf, (bytes, bytearray)):
+                raise ProcessingError("INVALID_CONTENT", "pdf_payload")
+            result = pipeline.prepare_resume(bytes(pdf), redactor)
+            return {"draft": result.draft, "unassigned_text": result.unassigned_text,
+                    "warnings": result.warnings}
 
-    def save(payload: dict) -> dict:
-        content = payload.get("content")
-        validate_resume_content(content)
-        changed, cleaned = pipeline.recheck_privacy(content, redactor)
-        if changed:
-            return {"review_required": True, "cleaned": cleaned}
-        if payload.get("skip_embedding"):
-            version = payload.get("embedding_version")
-            if not isinstance(version, str) or not version:
-                raise ProcessingError("INTERNAL_ERROR", "embedding_version")
-            return {"review_required": False, "no_op": True, "version": version,
-                    "chunks": [], "vectors": [], "content_hash": content_hash(content)}
-        emb = pipeline.embed_resume(content, model)
-        return {"review_required": False, "version": emb.version, "chunks": emb.chunks, "vectors": emb.vectors,
-                "content_hash": content_hash(content)}
+        return {"prepare": prepare}
 
-    return {"prepare": prepare, "save": save}
+    if kind == "EMBEDDING":
+        from app.processing import pipeline
+        from app.processing.content import validate_resume_content
+        from app.processing.embeddings import EmbeddingModel
+
+        model = EmbeddingModel()  # local cache only; missing pinned weights fail this worker pool only
+        model.embed(["warm up"])
+
+        def embed(payload: dict) -> dict:
+            content = payload.get("content")
+            validate_resume_content(content)
+            result = pipeline.embed_resume(content, model)
+            return {"version": result.version, "chunks": result.chunks, "vectors": result.vectors}
+
+        return {"embed": embed}
+
+    raise ValueError("worker kind must be EXTRACTION or EMBEDDING")
 
 
-def production_main(conn) -> None:
+def production_main(conn, kind: str) -> None:
     """Spawn target of the production child."""
     restrict_child()
     try:
-        handlers = build_production_handlers()
+        handlers = build_production_handlers(kind)
     except BaseException as exc:                              # noqa: BLE001
         try:
             conn.send(("fatal", type(exc).__name__))
-        finally:
-            return
+        except BaseException:
+            pass
+        return
     conn.send(("ready", {"operations": sorted(handlers)}))
     serve(conn, handlers)

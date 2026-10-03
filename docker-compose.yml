@@ -26,12 +26,53 @@ services:
         condition: service_healthy
     networks:
       - backend_net
+    environment:
+      PROCESSING_TEMP_DIR: /var/lib/internship-matcher/temporary
+      PROCESSING_TEMP_TTL_SECONDS: ${PROCESSING_TEMP_TTL_SECONDS:-3600}
+    volumes:
+      - processing_temp_data:/var/lib/internship-matcher/temporary
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=5)\""]
       interval: 10s
       timeout: 8s
       retries: 12
       start_period: 90s
+
+  extraction-worker:
+    build:
+      context: ./src/backend
+    restart: unless-stopped
+    env_file:
+      - ./src/.env
+    environment:
+      PROCESSING_TEMP_DIR: /var/lib/internship-matcher/temporary
+      PROCESSING_TEMP_TTL_SECONDS: ${PROCESSING_TEMP_TTL_SECONDS:-3600}
+    command: ["python", "-m", "app.processing.local_worker", "--kind", "EXTRACTION"]
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - processing_temp_data:/var/lib/internship-matcher/temporary
+    networks:
+      - backend_net
+
+  embedding-worker:
+    build:
+      context: ./src/backend
+    restart: unless-stopped
+    env_file:
+      - ./src/.env
+    environment:
+      PROCESSING_TEMP_DIR: /var/lib/internship-matcher/temporary
+      PROCESSING_TEMP_TTL_SECONDS: ${PROCESSING_TEMP_TTL_SECONDS:-3600}
+    command: ["python", "-m", "app.processing.local_worker", "--kind", "EMBEDDING"]
+    depends_on:
+      api:
+        condition: service_healthy
+    volumes:
+      - processing_temp_data:/var/lib/internship-matcher/temporary
+    networks:
+      - backend_net
 
   web:
     build:
@@ -49,6 +90,7 @@ services:
 
 volumes:
   db_data:
+  processing_temp_data:
 
 networks:
   backend_net:
