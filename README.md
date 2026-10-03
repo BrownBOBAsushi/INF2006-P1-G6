@@ -1,73 +1,92 @@
-# INF2006-P1-G6
+# Internship Matcher (INF2006 Team Project, Group P1-G5)
 
-## Internship Matcher — implementation handoff
+Students browsing internships struggle to tell which listings actually fit their skills, and keyword search misses
+equivalent wording. Internship Matcher lets a student sign in with Google, upload a résumé PDF, review and approve a
+privacy-redacted extraction, and then see internships ranked by **requirement-level semantic similarity**: every job
+requirement is compared with the student's approved résumé content, and each recommendation shows which résumé
+passage supports which requirement. The service runs on AWS behind a private, load-balanced, queue-backed
+architecture.
 
-The team is building a local-first internship browsing app with resume-based semantic recommendations.
-The local frontend/backend integration is implemented for localhost; cloud deployment remains pending.
+**Team:** Jiaxin (backend: auth, database, API), Chuying (backend: résumé processing, embeddings, matching,
+evaluation), Xue E (frontend: auth, catalogue, job details), Nasya (frontend: résumé review, recommendations),
+Zhihao (system design, cloud deployment, review). Contributions: [TEAM_CONTRIBUTIONS.md](TEAM_CONTRIBUTIONS.md).
 
-Read in order:
+## Architecture
 
-1. [MVP PRD](docs/handoff/MVP_PRD.md) — scope and acceptance criteria.
-2. [Architecture and decisions](docs/handoff/ARCHITECTURE.md) — editable diagram, reasoning and deployment boundary.
-3. [Database/API contract](docs/handoff/DATA_API_CONTRACT.md) — schemas, endpoints, matching and safe retries.
-4. [Implementation guide](docs/handoff/IMPLEMENTATION_GUIDE.md) — suggested ownership, three-week sequence and evidence gates.
+![Deployed AWS architecture](evidence/architecture.png)
 
-[Design checkpoint](docs/DESIGN_CHECKPOINT.md) preserves the discussion history; the handoff consolidates its decisions.
-The optional [JSearch research script](docs/JSEARCH_RESEARCH.md) is not the MVP. Do not commit credentials, real resumes or unlicensed provider data.
+Editable source: [evidence/architecture.svg](evidence/architecture.svg). Browser → API Gateway HTTP API → VPC Link →
+internal HTTPS ALB → two private web/API EC2 instances (Auto Scaling group, two AZs) → private RDS PostgreSQL/pgvector;
+résumé extraction and embedding run asynchronously on a separate worker via SQS (with dead-letter queues) and a
+temporary S3 bucket. Read-only configuration capture of the deployed stacks (2026-10-03):
+[evidence/cloud-capture-2026-10-03/](evidence/cloud-capture-2026-10-03/).
 
-## Team and current state
+## Quick start (local, offline-capable)
 
-Jiaxin and Chuying: backend. Xue E and Nasya: frontend. Zhihao: moderation, design and review. Proposed detailed ownership and environment preparation: [team setup](docs/handoff/TEAM_SETUP.md).
-
-Implemented local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM and Docker Compose. Resume extraction and embedding run in separate local worker services through a PostgreSQL-backed task/outbox adapter; see [local async processing](docs/LOCAL_ASYNC_PROCESSING.md) and [the local integration runbook](docs/LOCAL_INTEGRATION.md) for startup, synthetic import and honest acceptance gates.
-
-![Existing local architecture baseline — not the proposed cloud deployment](evidence/architecture.svg)
-
-The SVG is the existing local Compose design and is retained as the local baseline. The current proposed AWS target is [cloud-target-final-2026-10-02.md](docs/diagrams/cloud-target-final-2026-10-02.md), with [SVG](docs/diagrams/cloud-target-final-2026-10-02.svg) and [PNG](docs/diagrams/cloud-target-final-2026-10-02.png); it has not been deployed or verified. Older cloud documents are marked superseded. A temporary synchronous foundation was deployed and scoped checks were reported by the user, then its teardown was reported by the user; see the [dated run record](evidence/cloud-foundation-run-2026-09-27.md). Overall application acceptance remains incomplete.
-
-## Submission scaffold
-
-| Path | Current status |
-|---|---|
-| project_manifest.yaml | Required keys present; official group ID/student IDs and actual results pending |
-| src/ | Implemented local backend/frontend, infrastructure planning, and placeholder .env.example |
-| data/ | Provenance instructions and data dictionary; dataset pending |
-| analytics/ | Synthetic MiniLM evaluation implementation exists; label provenance and assessment evidence remain provisional |
-| evidence/ | Local baselines, scoped user-reported cloud partial passes, provisional data/AI results, remaining open acceptance work, and foundation validation records |
-| tests/ | Backend/frontend/fixture/load suites exist; run status is recorded per evidence artifact |
-| TEAM_CONTRIBUTIONS.md | Planned roles, no fabricated completed contributions |
-| AI_USE_DECLARATION.md | Documentation assistance declared; update during implementation |
-| report.pdf | Not yet produced; working outline at docs/REPORT_DRAFT.md |
-| video_link.txt | Optional; omitted until a real link exists |
-
-Before final packaging, replace all pending results, export the 8–12 page report.pdf, and verify manifest paths against real artefacts. This scaffold is not submission-ready. No cloud resources created; no credentials required to read these documents. Do not include local scratch scripts in the final package without review.
-
-Copy-paste coding-agent prompts: [teammate prompts](docs/handoff/TEAM_PROMPTS.md).
-
-## Frontend and local runtime
-
-The React/TypeScript shell has an explicit synthetic preview for frontend checks;
-normal runtime uses the real API. Use Node 24.21.0 and npm 11.19.0:
+Prerequisites: Docker with Compose v2, Python 3.11, Node 24 / npm 11. Model weights are downloaded once on first build.
 
 ```sh
-cd src/frontend
-npm install
-npm run typecheck
-npm test
-npm run build
-npm run dev:mock
+cp src/.env.example src/.env          # fill placeholder values locally; never commit src/.env
+docker compose --env-file src/.env up -d --build
+curl -fsS http://localhost:8080/health/ready
 ```
 
-The production-style Compose entry point is http://localhost:8080. It serves the
-built React application and proxies same-origin `/api` requests to FastAPI. Real
-Google login and the explicit synthetic catalogue import are documented in the
-[local integration runbook](docs/LOCAL_INTEGRATION.md).
+The app is at http://localhost:8080. Google sign-in needs your own OAuth Web client ID in `src/.env`; loading the
+synthetic catalogue is described in [docs/LOCAL_INTEGRATION.md](docs/LOCAL_INTEGRATION.md).
 
-`npm run dev` uses the real API proxy at 127.0.0.1:8000. Configure only the public
-Google client ID in src/frontend/.env.local. Production builds exclude fixtures.
-The complete local MVP gate remains pending until Docker, isolated database/model,
-and real Google checks run on an enabled host.
+Tests and evaluation (all offline; results recorded in [evidence/local-tests-2026-10-03.md](evidence/local-tests-2026-10-03.md)):
 
-See [frontend integration and ownership](src/frontend/README.md),
-[actual commands/results](src/frontend/MILESTONE_VALIDATION.md) and
-[dependency notices](src/frontend/THIRD_PARTY_NOTICES.md).
+```sh
+python3 -m unittest discover -s tests/infra -p 'test_*.py'
+docker compose -f docker-compose.dev.yml --profile test build backend-tests
+docker compose -f docker-compose.dev.yml --profile test run --rm backend-tests
+(cd src/frontend && npm ci && npm run typecheck && npm test && npm run build)
+python -m venv analytics/.venv && analytics/.venv/bin/pip install -r analytics/requirements.txt
+analytics/.venv/bin/python analytics/evaluate.py --fixtures data/evaluation
+```
+
+Cloud deployment (requires an AWS account; billable, ~0.26 USD/hour while running): see
+[docs/PRIVATE_CLOUD_ROLLOUT.md](docs/PRIVATE_CLOUD_ROLLOUT.md) and the templates in
+[src/infra/cloudformation/](src/infra/cloudformation/). A marker does not need cloud access: configuration and dated
+evidence are in `evidence/`.
+
+## Technologies
+
+React 19 + TypeScript (Vite), Nginx, FastAPI (Python 3.11), PostgreSQL 16 + pgvector, SQLAlchemy/Alembic,
+pdfplumber, Microsoft Presidio, sentence-transformers `all-MiniLM-L6-v2`, Docker Compose; AWS API Gateway (HTTP
+API + VPC Link), Application Load Balancer, EC2 Auto Scaling, RDS, SQS, S3, Secrets Manager, ECR, CloudWatch,
+Systems Manager, CloudFormation; Google Identity Services.
+
+## Where things are
+
+| Path | Contents |
+|---|---|
+| [project_manifest.yaml](project_manifest.yaml) | Machine-readable summary and evidence paths |
+| `src/` | `backend/` (FastAPI, workers, migrations), `frontend/` (React), `infra/` (CloudFormation, Nginx, bootstrap scripts), `.env.example` |
+| `data/` | Synthetic catalogue and evaluation fixtures, [DATA_DICTIONARY.md](data/DATA_DICTIONARY.md), [README](data/README.md) (provenance) |
+| `analytics/` | Evaluation script, pinned requirements, [README](analytics/README.md) |
+| `evidence/` | Test records (`test-*.md`), [monitoring.md](evidence/monitoring.md), [threat-control-map.md](evidence/threat-control-map.md), cloud capture, diagrams |
+| `tests/` | Backend, frontend, infrastructure, pipeline, analytics and load tests |
+| [AI_USE_DECLARATION.md](AI_USE_DECLARATION.md) | AI tools used, where, and how outputs were verified |
+
+## Known limitations
+
+- **Single database instance.** RDS is Single-AZ with 1-day automated backups; there is no standby, and a restore
+  has not been tested. The web/API tier is redundant (2 instances, 2 AZs); the worker is a single instance.
+- **Shared lab IAM role.** The Learner Lab forbids custom IAM roles, so all instances use `LabRole`; least privilege
+  is enforced through security groups, private subnets and restricted database roles instead.
+- **No alarm notifications.** CloudWatch alarms change state but have no SNS action.
+- **Evaluation labels are provisional.** 210 of 300 relevance labels are AI-drafted; 90 were supplied by a team
+  member. Metrics come from small synthetic fixtures and do not establish quality on real résumés.
+- **Extraction errors.** PII detection can misclassify text (e.g. "Cloud Computing" tagged as a person); the student
+  reviews and corrects the draft before saving.
+- **Real job catalogue not redistributed.** The deployed catalogue (247 listings) was collected from LinkedIn and
+  JSearch for the demonstration; it is excluded from this package because redistribution rights are not
+  established. The package ships synthetic data only (see [data/README.md](data/README.md)).
+- **Four stale pipeline tests** fail after the asynchronous refactor (diagnosed in
+  [evidence/local-tests-2026-10-03.md](evidence/local-tests-2026-10-03.md)).
+- Response security headers (HSTS, CSP) are not set; the ALB does not validate the target certificate.
+
+Historical design and handoff documents remain in `docs/` (for example [docs/handoff/](docs/handoff/)); where they
+conflict with the deployed state, the evidence files and this README take precedence. The previous local Compose
+diagram is kept as [evidence/architecture-local-baseline.svg](evidence/architecture-local-baseline.svg).

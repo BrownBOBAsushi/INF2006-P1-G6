@@ -1,14 +1,17 @@
 # Private async cloud rollout preparation
 
 **Status as of 2026-10-03: the private target is deployed, with partial
-operator-reported acceptance.** The private-base retry reached
+acceptance evidence from direct CUA browser observations and operator-reported
+checks.** The private-base retry reached
 `UPDATE_COMPLETE`; ingress and app reached `CREATE_COMPLETE`. Worker health,
 certificate, browser, queue, monitoring, and controlled single-target
 continuity observations are recorded in
 [`evidence/cloud-acceptance-2026-10-03.md`](../evidence/cloud-acceptance-2026-10-03.md).
-Those results came from operator-executed CLI and browser checks; this document
-update did not query AWS or repeat them. Full coursework acceptance remains
-open. The older synchronous foundation (`src/infra/cloudformation/main.yaml`,
+The direct CUA observations cover browser behavior described in that record;
+deployment, worker, certificate, queue, monitoring, and continuity details are
+operator-reported. This document update did not query AWS or repeat the
+operator's CLI checks. Full coursework acceptance remains open. The older
+synchronous foundation (`src/infra/cloudformation/main.yaml`,
 `deploy-foundation.py`, and `compose.cloud.yml`) remains a separate historical
 path. The sequence and placeholder commands below are retained as rollout
 guidance, not as a transcript of the reported deployment. No secrets, image

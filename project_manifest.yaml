@@ -1,60 +1,78 @@
-# Submission scaffold: infrastructure checks and scoped user-reported cloud tests exist; full application acceptance remains incomplete. Empty values must be filled before submission.
+# Required schema: INF2006 Team Project brief Section 8. Paths are relative to the ZIP root.
+# TEAM INPUT REQUIRED before packaging: team.members[].student_id, project.repository_commit.
 project:
-  group_id: "Gxxx" # Confirm official group identifier; repository name alone is not evidence.
+  group_id: "P1-G5" # confirmed by the team operator 2026-10-03
   title: "Internship Matcher"
-  problem_statement: "Help students browse internships and find relevant opportunities using approved resume content and requirement-level semantic similarity."
+  problem_statement: "Students struggle to judge which internship listings fit their skills. Internship Matcher lets a student sign in with Google, upload a résumé PDF, review and approve a privacy-redacted extraction, and receive internships ranked by requirement-level semantic similarity with the matching evidence shown for each requirement."
   cloud_provider: "AWS"
-  repository_commit: ""
+  repository_commit: "" # TEAM INPUT: final commit hash of the submitted tree
 team:
   members:
     - name: "Jiaxin"
-      student_id: ""
-      role: "Backend: authentication, database, API integration (proposed split)"
+      student_id: "" # TEAM INPUT
+      role: "Backend: authentication, database, API integration"
     - name: "Chuying"
-      student_id: ""
-      role: "Backend: resume processing, embeddings, matching (proposed split)"
+      student_id: "" # TEAM INPUT
+      role: "Backend: résumé processing, embeddings, matching, evaluation"
     - name: "Xue E"
-      student_id: ""
-      role: "Frontend: authentication, catalogue, job details (proposed split)"
+      student_id: "" # TEAM INPUT
+      role: "Frontend: authentication, catalogue, job details"
     - name: "Nasya"
-      student_id: ""
-      role: "Frontend: resume review and recommendations (proposed split)"
+      student_id: "" # TEAM INPUT
+      role: "Frontend: résumé review and recommendations"
     - name: "Zhihao"
-      student_id: ""
-      role: "Moderator, system design and reviewer"
+      student_id: "" # TEAM INPUT
+      role: "System design, cloud deployment, review"
 architecture:
-  diagram: "evidence/architecture.svg" # Existing local baseline only; proposed cloud target: docs/diagrams/cloud-target-final-2026-10-02.md
-  service_model: "IaaS; private AWS target operator-reported deployed; acceptance partial"
-  deployment_model: "Implemented local Docker Compose; private AWS target operator-reported deployed 2026-10-03 with partial acceptance only"
-  components: # Implemented local components only; excludes proposed AWS resources.
-    - "React/TypeScript frontend and Nginx proxy"
-    - "FastAPI/Python API and PostgreSQL/pgvector"
-    - "Local resume processing and MiniLM matching"
+  diagram: "evidence/architecture.png" # editable source: evidence/architecture.svg
+  service_model: "IaaS compute (EC2 instances running team-managed Docker containers, Nginx and FastAPI) with managed PaaS services: RDS PostgreSQL (DBaaS), SQS, S3, API Gateway HTTP API, Application Load Balancer, Secrets Manager, ECR, CloudWatch, Systems Manager. Google Identity Services is an external SaaS identity provider."
+  deployment_model: "Public cloud (AWS us-east-1, Learner Lab account), single region, two Availability Zones for the web/API tier; deployed with CloudFormation stacks inf2006-private-base-retry1, inf2006-private-ingress and inf2006-private-app (state captured 2026-10-03). Local Docker Compose is the offline reproduction path."
+  components:
+    - "HttpApi: API Gateway HTTP API, public HTTPS entry point, private integration over VpcLink"
+    - "InternalAlb: internal HTTPS Application Load Balancer with AppHttpsTargetGroup health checks"
+    - "AppAutoScalingGroup: 2 x EC2 t3.small in private subnets across two AZs (Nginx web + FastAPI api containers)"
+    - "WorkerInstanceRecovery: EC2 t3.medium running extraction (pdfplumber, Presidio) and embedding (all-MiniLM-L6-v2) workers"
+    - "Database: RDS PostgreSQL 16 with pgvector, private, encrypted, Single-AZ"
+    - "ExtractionQueue/EmbeddingQueue with ExtractionDlq/EmbeddingDlq: Amazon SQS"
+    - "TemporaryInputBucket: S3 temporary PDF input, 1-day expiry, via S3Endpoint"
+    - "Secrets Manager, ECR, CloudWatch Logs/Alarms, Systems Manager Session Manager, NatGatewayA/B"
+    - "React/TypeScript single-page frontend served by Nginx"
 evidence:
   functional_test: "evidence/test-functional.md"
   security_test: "evidence/test-security.md"
   data_ai_test: "evidence/test-data-ai.md"
   scale_resilience_test: "evidence/test-resilience.md"
   monitoring: "evidence/monitoring.md"
-  infrastructure_preparation: "evidence/cloud-foundation-preparation-2026-09-27.md; scoped temporary foundation run and user-reported teardown: evidence/cloud-foundation-run-2026-09-27.md"
-  infra_static_tests: "46 passed on 2026-09-27: python3 -m unittest discover -s tests/infra -p 'test_*.py'; CloudFormation template validation recorded separately; Docker rehearsal not executed here"
+  cloud_configuration_capture: "evidence/cloud-capture-2026-10-03/"
+  cloud_acceptance_record: "evidence/cloud-acceptance-2026-10-03.md"
+  local_automated_tests: "evidence/local-tests-2026-10-03.md"
+  earlier_foundation_run: "evidence/cloud-foundation-run-2026-09-27.md"
 data_ai:
   dataset: "data/README.md"
-  method: "Planned MiniLM requirement-level cosine matching with PostgreSQL/pgvector"
-  evaluation: "Run 2026-09-20 on synthetic fixtures (data/evaluation); provisional because labels are AI-drafted and pending human review; see evidence/test-data-ai.md"
+  method: "Requirement-level semantic matching: each job requirement is embedded with sentence-transformers/all-MiniLM-L6-v2 (pinned revision) and compared by cosine similarity with chunks of the student's approved, privacy-redacted résumé stored in PostgreSQL/pgvector; a job's score is the mean over its required requirements of each requirement's best cosine similarity to any résumé chunk, and each match shows the closest supporting résumé passage. Compared with keyword/BM25 and pooled-chunk embedding baselines."
+  evaluation: "Precision@5 (strict/lenient) and NDCG@5 on 10 synthetic profiles x 30 synthetic jobs with a development/held-out split. Held-out MiniLM requirement-level 0.640 / 0.760 / 0.922 vs BM25 0.640 / 0.720 / 0.910 (2026-09-20; reproduced identically 2026-10-03). Labels: 90 team-member-supplied, 210 AI-drafted; results are provisional. See evidence/test-data-ai.md."
   reproducible_command: "python analytics/evaluate.py --fixtures data/evaluation"
 security:
   threat_control_map: "evidence/threat-control-map.md"
-  secrets_handling: "Planned local environment variables; examples contain placeholders only; implementation unverified"
+  secrets_handling: "Runtime secrets (database credentials, session signing key, DNS token) are stored in AWS Secrets Manager, fetched at instance boot into root-only (0600) environment files, and never placed in images, CloudFormation parameters, logs or the repository. src/.env.example contains placeholders only; local .env files are git-ignored."
 run:
-  prerequisites: [] # Add verified exact prerequisites after bootstrap.
-  commands: [] # Do not claim planned commands are runnable.
+  prerequisites:
+    - "Docker Engine with Docker Compose v2"
+    - "Python 3.11 (analytics and infrastructure tests)"
+    - "Node.js 24 and npm 11 (frontend tests and build)"
+    - "Optional for full sign-in: a Google OAuth Web client ID configured for http://localhost:8080"
+    - "Optional for cloud redeployment: an AWS account with the services listed in docs/PRIVATE_CLOUD_ROLLOUT.md (estimated ~0.26 USD/hour while running; see evidence/cloud-capture-2026-10-03/10-resource-inventory-and-cost.txt)"
+  commands:
+    - "cp src/.env.example src/.env  # then fill placeholder values locally"
+    - "docker compose --env-file src/.env up -d --build  # app at http://localhost:8080"
+    - "docker compose -f docker-compose.dev.yml --profile test build backend-tests && docker compose -f docker-compose.dev.yml --profile test run --rm backend-tests"
+    - "python3 -m unittest discover -s tests/infra -p 'test_*.py'"
+    - "cd src/frontend && npm ci && npm run typecheck && npm test && npm run build"
+    - "python -m venv analytics/.venv && analytics/.venv/bin/pip install -r analytics/requirements.txt && analytics/.venv/bin/python analytics/evaluate.py --fixtures data/evaluation"
 declarations:
   ai_use: "AI_USE_DECLARATION.md"
   contributions: "TEAM_CONTRIBUTIONS.md"
 status:
-  stage: "submission_scaffold_with_scoped_synchronous_foundation_run"
-  application_runnable: false
-  cloud_deployed: false
-  tests_executed: false # Overall application acceptance is incomplete; scoped infra and user-reported cloud checks are recorded.
-  final_report: "pending; draft outline is docs/REPORT_DRAFT.md"
+  cloud_deployed: true # deployed 2026-10-03; configuration captured in evidence/cloud-capture-2026-10-03/
+  tests_executed: true # see the four test records and evidence/local-tests-2026-10-03.md (4 stale pipeline tests fail; diagnosed there)
+  final_report: "report.pdf"

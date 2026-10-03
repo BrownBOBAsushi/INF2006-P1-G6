@@ -90,3 +90,24 @@ result, teammate approval, cloud deployment or human review is claimed.
 See [session recovery validation](src/frontend/SESSION_RECOVERY_VALIDATION.md)
 for commands, failures resolved, changed files and remaining integration dependencies.
 No upstream implementation was copied and no real resume/credential data was used.
+
+## Requirements audit, evidence capture and documentation — 2026-10-03
+
+Claude Code (Anthropic, Claude Opus 5.5), operated by Zhihao, audited the repository against the original brief
+(`INF2006_Team_Project_Brief_2026.pdf`) and then:
+
+- ran read-only AWS CLI commands (describe/get/list only; no resource changes, no secret values retrieved) and
+  unauthenticated HTTP probes, saving redacted output in `evidence/cloud-capture-2026-10-03/` via
+  `src/infra/scripts/capture-cloud-evidence.py` and `capture-logs-insights.py`;
+- ran the local test suites and the evaluation reproduction (`evidence/local-tests-2026-10-03.md`), rebuilding the
+  stale local backend test image;
+- drew the deployed architecture diagram (`evidence/architecture.svg/.png`) from the CloudFormation templates;
+- rewrote `README.md`, `project_manifest.yaml`, `data/README.md`, `evidence/README.md`, the four test records,
+  `evidence/monitoring.md` and `evidence/threat-control-map.md`, and pre-filled git-derived facts in
+  `TEAM_CONTRIBUTIONS.md`; replaced a real AWS account ID in `tests/infra/test_deploy_foundation.py` with a placeholder.
+
+Verification: every claim in these documents was checked against source files, captured command output or the
+recorded observations they cite; the infrastructure test file still passes (14 tests). Browser observations
+labelled [Observed] were made earlier on 2026-10-03 by OpenAI Codex operating the browser; results labelled
+[Operator-reported] come from the team member's own AWS/browser actions. The team must still review these
+documents, confirm the contribution rows and write their own reflections.
