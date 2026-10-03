@@ -1,6 +1,6 @@
 # INF2006 project brief requirements checklist
 
-**Working date:** 2026-09-27
+**Working date:** 2026-10-03
 **Scope:** Project brief Sections 1–10 and Appendix A. Section 11 is non-mandatory suggested planning guidance and is intentionally omitted from this tracker.
 
 **Source:** local `INF2006_Team_Project_Brief_2026.pdf` (Sections 1–10 and Appendix A), in `/Users/desmondchyezhihao/SIT/Y2/T1/INF2006-Cloud Computing/Project/`.
@@ -14,7 +14,7 @@
 - `[Proposed]` is a target design/team action, not a completion claim; `[Open]` is unresolved or still needs evidence.
 - Existing `[x]` marks in Sections 1–4 are a 2026-09-23 recorded snapshot, not a fresh rerun or final acceptance. For new work, leave `[ ]` until the current evidence has been reviewed; only then change it to `[x]`.
 
-Current boundary (2026-09-27): a temporary synchronous foundation was deployed and scoped checks were reported by the user; the user later reported teardown. See the [cloud run record](../evidence/cloud-foundation-run-2026-09-27.md) and [preparation evidence](../evidence/cloud-foundation-preparation-2026-09-27.md). The proposed split asynchronous target remains undeployed. The manifest says `tests_executed: false` for overall application acceptance; functional, security, resilience, and monitoring records contain scoped partial passes, while full acceptance remains open. Coursework decision owners and the S5.1 architecture gate remain open. The 2026-09-23 journey is useful local evidence but does not replace full cloud acceptance evidence. Submission data must contain no real user/resume data beyond the expressly required team names and student IDs in team metadata.
+Current boundary (2026-10-03): the operator reports that the separate private target has been deployed: the base retry reached `UPDATE_COMPLETE`, and ingress and app reached `CREATE_COMPLETE`. Partial worker, certificate, browser, catalogue, queue, monitoring, and controlled target-continuity observations are recorded in the [2026-10-03 cloud acceptance record](../evidence/cloud-acceptance-2026-10-03.md). These are operator-executed CLI/browser results supplied to this documentation update, not independently collected here. They do not close the brief's functional, security, resilience, or operations acceptance requirements. The older temporary synchronous foundation and its user-reported teardown remain recorded in the [2026-09-27 run record](../evidence/cloud-foundation-run-2026-09-27.md) and [preparation evidence](../evidence/cloud-foundation-preparation-2026-09-27.md). The manifest still says `tests_executed: false` for overall application acceptance. Coursework decision owners and the S5.1 architecture gate remain open. The 2026-09-23 journey is useful local evidence but does not replace full cloud acceptance evidence. Submission data must contain no real user/resume data beyond the expressly required team names and student IDs in team metadata.
 
 ## Section 1 — problem and solution fit
 
@@ -28,8 +28,8 @@ Example application domains are illustrative only and are not a compulsory requi
 
 - [x] `[Evidence recorded]` Intended outcomes and local architecture/trade-offs are in [historical local architecture](handoff/ARCHITECTURE.md); proposed cloud service choices are in [cloud architecture](CLOUD_ARCHITECTURE.md).
 - [x] `[Evidence recorded]` Current local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, Docker Compose, PDF privacy cleanup, and MiniLM. See [README](../README.md).
-- [ ] `[Proposed]` Working cloud revision (2026-09-27): public EC2 web/API, private worker EC2, private Single-AZ RDS PostgreSQL/pgvector, S3 for candidates and the latest explicitly saved PDF, SQS extraction/embedding queues and DLQs, CloudFormation, and CloudWatch. See [proposed architecture](CLOUD_ARCHITECTURE.md) and [editable diagram](diagrams/cloud-architecture.md). The temporary synchronous foundation run is documented in [the infra runbook](../src/infra/README.md) and dated run record; overall cloud acceptance remains open.
-- [ ] `[Open]` Implement and evidence the cloud service, monitoring, scaling or recovery behaviour, and reliability controls.
+- [ ] `[Operator-reported deployment; partial acceptance 2026-10-03]` Current target: public API Gateway HTTP API and VPC Link to an internal HTTPS ALB, private API Auto Scaling Group, separate private worker, private Single-AZ RDS PostgreSQL/pgvector, temporary-processing-input-only S3, separate SQS extraction/embedding queues and DLQs, ECR, Secrets Manager, Systems Manager and CloudWatch. Permanent PDF retention/download is out of scope. See the [authoritative target](diagrams/cloud-target-final-2026-10-02.md) and [dated acceptance record](../evidence/cloud-acceptance-2026-10-03.md). Extraction and embedding worker services and queues are reported present; the record does not document a complete API-to-outbox-to-SQS-to-worker job lifecycle. End-to-end async integration and full acceptance remain open.
+- [ ] `[Open; partial deployed-state evidence recorded 2026-10-03]` Complete and evidence the cloud service, monitoring, scaling or recovery behaviour, and reliability controls. The current record includes a controlled single-target withdrawal, not automatic failure recovery.
 - [x] `[Evidence recorded]` Target design includes persistent storage, private database networking, bounded logs, least-privilege intent, and encrypted off-VM backups: [infra notes](../src/infra/README.md).
 - [ ] `[Open]` Confirm cloud storage/database implementation and schema evidence using synthetic/sample data only; no production credentials or personal data belong in the submission.
 - [x] `[Implemented locally; Evidence recorded]` Meaningful ML is evaluated on synthetic fixtures with metrics, baselines, provenance, examples, and limitations in [data/AI evidence](../evidence/test-data-ai.md).
@@ -41,9 +41,9 @@ Example application domains are illustrative only and are not a compulsory requi
 
 ## Section 3 — secure cloud service and integrity
 
-- [ ] `[Open]` Deliver a secure, scalable cloud service with a user-facing web application or API and a data-driven capability; local app/ML evidence does not prove cloud delivery.
+- [ ] `[Open; deployment reported 2026-10-03]` Complete acceptance of the deployed secure cloud service, user-facing web/API, and data-driven capability. The operator-reported deployment and partial browser checks are in the [dated cloud record](../evidence/cloud-acceptance-2026-10-03.md); local app/ML evidence alone does not prove full cloud acceptance.
 - [x] `[Evidence recorded]` AWS is the recommended provider in the brief; Azure or GCP are acceptable alternatives when the chosen provider and required evidence are supplied.
-- [x] `[Implemented locally]` User-facing web/API and semantic matching exist locally; cloud deployment remains pending.
+- [x] `[Implemented locally]` User-facing web/API and semantic matching exist locally; the separate private cloud deployment is now operator-reported, with full acceptance still pending.
 - [x] `[Evidence recorded]` AI assistance is declared and the repository directs the team to record source revisions, licences, notices, retained modifications, and data permission. See [AI declaration](../AI_USE_DECLARATION.md) and [frontend notices](../src/frontend/THIRD_PARTY_NOTICES.md).
 - [ ] `[Open]` Complete the licence/source audit, substantive team-modification explanation, and final integrity-policy record.
 
@@ -57,13 +57,13 @@ Example application domains are illustrative only and are not a compulsory requi
 
 ### 4.2 Cloud compute and IaaS/PaaS/SaaS boundary
 
-- [ ] `[Proposed]` Explain the target boundary: AWS EC2/VM is IaaS; the team manages the guest/container runtime, Nginx, and FastAPI; RDS PostgreSQL is DBaaS; Google identity is an external SaaS dependency. The temporary synchronous foundation used private Single-AZ RDS PostgreSQL and is recorded separately; the proposed split target is not deployed and full acceptance remains open.
-- [ ] `[Open]` Deploy or demonstrate the chosen cloud compute path, document configuration, and capture boundary evidence.
+- [ ] `[Open]` Explain the deployed target boundary: AWS EC2/VM is IaaS; the team manages the guest/container runtime, Nginx, and FastAPI; RDS PostgreSQL is DBaaS; Google identity is an external SaaS dependency. The temporary synchronous foundation used private Single-AZ RDS PostgreSQL and is recorded separately. The split target deployment is operator-reported; full acceptance remains open.
+- [ ] `[Open; deployment reported 2026-10-03]` Reconcile the deployed cloud compute configuration with the report and capture reviewed redacted boundary evidence; the new cloud record is operator-reported and partial.
 
 ### 4.3 Persistent cloud storage or database
 
 - [x] `[Implemented locally]` PostgreSQL/pgvector persistence and schema/API contract are documented; restart persistence was browser-observed locally.
-- [ ] `[Open]` Provide persistent **cloud** storage/database evidence, schema, synthetic/sample data, restricted ports, and no production credentials or personal data.
+- [ ] `[Open; resources reported deployed 2026-10-03]` Complete persistent **cloud** storage/database evidence, schema, persistence/recovery behavior, restricted ports, and synthetic/sample data. The [dated record](../evidence/cloud-acceptance-2026-10-03.md) reports deployed resources and a point-in-time empty temporary bucket, but does not prove lifecycle behavior or database restore.
 - [ ] `[Open]` Ask the professor how self-hosted PostgreSQL is interpreted; do not infer that managed RDS is mandatory. The rotating-member $50 learner-lab question is also pending.
 
 ### 4.4 Interpretable analytics or ML
@@ -75,19 +75,19 @@ Example application domains are illustrative only and are not a compulsory requi
 ### 4.5 Scaling or resilience mechanism and test evidence
 
 - [x] `[Implemented locally]` Design includes one bounded processing slot, child deadlines, controlled busy responses, restart handling, and safe retries; local restart persistence is recorded in the journey.
-- [ ] `[Open]` Produce compulsory mechanism/recovery evidence and a dated operational test. Valid health-check/recovery evidence is sufficient; autoscaling is not required.
+- [ ] `[Open; partial continuity test recorded 2026-10-03]` Produce the required mechanism/recovery evidence and a dated operational test. The reported single-target withdrawal required operator action; automatic crash recovery and database restore remain unverified. Valid health-check/recovery evidence is sufficient; autoscaling is not required.
 - [ ] `[Proposed]` Backup/restore is a chosen safeguard, not an individual brief mandate if another implemented mechanism satisfies the requirement; it remains planned in the current architecture.
 
 ### 4.6 Authentication, authorisation, least privilege, and threats
 
 - [x] `[Implemented locally]` Authentication, CSRF handling, and session-scoped ownership implementation exist; two-user isolation test evidence is still pending.
-- [ ] `[Open]` Complete cloud auth/authz, least-privilege, secrets-handling, restricted network/data-access, and named-threat validation with sanitised evidence; the existing user-reported security checks are partial.
+- [ ] `[Open; partial browser evidence recorded 2026-10-03]` Complete cloud auth/authz, least-privilege, secrets-handling, restricted network/data-access, and named-threat validation with sanitised evidence. The reported two-account browser observation does not replace direct cross-account API, CSRF, cookie, or permission tests.
 - [ ] `[Proposed]` Team hardening actions to assess: restricted database runtime role, non-root containers, and OS-level sandbox for the PDF child. These strengthen the design; they are not extra literal brief mandates.
 
 ### 4.7 Logs, monitoring, and operations
 
 - [ ] `[Proposed]` Target design calls for request IDs, sanitised logs, health signals, bounded retention, and no raw resume content, cookies, or keys in output.
-- [ ] `[Open]` Complete operational evidence, including saved sanitised output and interpretation. User-reported alarm observations are recorded in [monitoring](../evidence/monitoring.md), but notification delivery and raw exports remain unverified.
+- [ ] `[Open; partial operator observations recorded 2026-10-03]` Complete operational evidence, including reviewed sanitized output and interpretation. The [cloud acceptance record](../evidence/cloud-acceptance-2026-10-03.md) records queue/DLQ observations and alarm gaps; alarm triggering, notification delivery, complete recent queue metrics, and raw exports remain unverified.
 
 ## Section 5 — required design and evaluation
 
@@ -97,16 +97,16 @@ Example application domains are illustrative only and are not a compulsory requi
 - [ ] **S5.1-A02** Explain both service-model and deployment-model choices, with at least two considered alternatives and why they were not selected.
 - [ ] **S5.1-A03** State assumptions, constraints, expected workload, and cost-control measures using synthetic or anonymised data only. Do not invent a mandatory 100-user capacity or autoscaling requirement.
 - [ ] **S5.1-A04** Align the final diagram, README, report, manifest, deployed configuration, and redacted evidence. The brief uses `evidence/architecture.png` as an example; PNG/SVG or another suitable format is a packaging choice. Choose the actual packaged path and align every reference while retaining an editable source if desired.
-- [ ] **S5.1-A05** Capture dated, redacted cloud configuration and deployment evidence. No cloud deployment is currently claimed.
+- [ ] **S5.1-A05** Capture dated, redacted cloud configuration and deployment evidence. The [2026-10-03 record](../evidence/cloud-acceptance-2026-10-03.md) summarizes operator-reported deployment results with identifiers and public URLs omitted; reviewed reproducible CLI/configuration exports remain to be retained.
 
 ### 5.2 Test plan and results
 
 For each test below record: objective; setup, versions, fixtures and environment; command or repeatable steps; expected result; actual result; date; artefact path; failed-test diagnosis; and a sensible improvement plan. A failed test can still be reported honestly; it must not be rewritten as a pass.
 
-- [ ] **S5.2-F** Functional workflow test: cover the meaningful web/API workflow and input validation. `evidence/test-functional.md` records a user-reported partial cloud run; full workflow/input-validation coverage remains open.
-- [ ] **S5.2-S** Security control test: select a named threat and test its relevant authentication/authorisation, ownership, CSRF, secrets, network, or data controls; map other controls separately where they are not in this test. `evidence/test-security.md` records user-reported partial checks; direct authenticated cross-user API ownership and other controls remain open.
-- [ ] **S5.2-D** Data/AI validation test: report the identified dataset, method, interpretable output, metrics, examples and limits. `evidence/test-data-ai.md` records a 2026-09-20 run, but labels remain provisional and require final review.
-- [ ] **S5.2-R** Scalability, resilience or recovery test: show the implemented mechanism and measured/observed result. `evidence/test-resilience.md` records a user-reported manual API recovery and alarm observation; stop/start, snapshot restore, load and disaster-recovery evidence remain open.
+- [ ] **S5.2-F** Functional workflow test: cover the meaningful web/API workflow and input validation. `evidence/test-functional.md` and the [2026-10-03 cloud record](../evidence/cloud-acceptance-2026-10-03.md) contain partial user/operator-reported checks; formal multipart boundary, server-side validation, and complete workflow coverage remain open.
+- [ ] **S5.2-S** Security control test: select a named threat and test its relevant authentication/authorisation, ownership, CSRF, secrets, network, or data controls; map other controls separately where they are not in this test. `evidence/test-security.md` and the new cloud record contain partial checks; direct authenticated cross-user API ownership, CSRF, cookie, and negative TLS tests remain open.
+- [ ] **S5.2-D** Data/AI validation test: report the identified dataset, method, interpretable output, metrics, examples and limits. `evidence/test-data-ai.md` records a 2026-09-20 run with provisional labels; the [2026-10-03 cloud record](../evidence/cloud-acceptance-2026-10-03.md) adds operator-reported catalogue counts and an unchanged dry run, not a replacement evaluation.
+- [ ] **S5.2-R** Scalability, resilience or recovery test: show the implemented mechanism and measured/observed result. `evidence/test-resilience.md` records prior user-reported recovery/alarm observations; the [2026-10-03 cloud record](../evidence/cloud-acceptance-2026-10-03.md) adds a controlled one-target withdrawal. Automatic replacement, snapshot restore, load, and disaster recovery remain open.
 - [ ] **S5.2-Q** Confirm the test environment and cloud evidence expectation with the professor. The brief requires cloud deployment; it does not require 100-user testing or autoscaling, and it does not prescribe one test environment.
 
 ### 5.3 Data and AI/ML expectations

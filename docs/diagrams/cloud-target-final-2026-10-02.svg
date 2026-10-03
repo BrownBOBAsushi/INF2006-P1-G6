@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1320" viewBox="0 0 1800 1320" role="img" aria-labelledby="title desc">
+  <title id="title">Final proposed cloud target architecture</title>
+  <desc id="desc">A proposed AWS target architecture for a synthetic-data demonstration. It is not deployed or verified. Browser traffic reaches a multi-AZ load balancer and web/API EC2 Auto Scaling group. Private workers process temporary uploads from S3 and communicate through SQS with a private single-AZ PostgreSQL and pgvector database. Operations and recovery controls are shown separately.</desc>
+  <defs>
+    <style>
+      text { font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; fill: #172b4d; }
+      .title { font-size: 32px; font-weight: 750; letter-spacing: -.4px; }
+      .subtitle { font-size: 16px; fill: #52657d; }
+      .section { font-size: 17px; font-weight: 700; }
+      .card-title { font-size: 16px; font-weight: 700; }
+      .body { font-size: 13px; fill: #41556f; }
+      .small { font-size: 11px; fill: #52657d; }
+      .tiny { font-size: 10px; fill: #52657d; }
+      .tag { font-size: 11px; font-weight: 700; letter-spacing: .35px; }
+      .flow { font-size: 12px; font-weight: 700; fill: #173b66; }
+      .white { fill: #fff; }
+      .muted { fill: #63758b; }
+      .orange { fill: #b45309; }
+      .blue { fill: #175ea8; }
+      .green { fill: #18794e; }
+      .red { fill: #9a3412; }
+      .region { fill: #f8fafc; stroke: #7b8ba0; stroke-width: 2; }
+      .zone { fill: #f1f7fd; stroke: #9bb8d3; stroke-width: 1.5; }
+      .subnet-public { fill: #fff7ed; stroke: #f4bd7b; stroke-width: 1.4; }
+      .subnet-private { fill: #eff6ff; stroke: #8db6df; stroke-width: 1.4; }
+      .card { fill: #fff; stroke: #bdc9d6; stroke-width: 1.4; }
+      .card-orange { fill: #fff8ef; stroke: #e9953d; stroke-width: 1.6; }
+      .card-blue { fill: #f5faff; stroke: #4b91cc; stroke-width: 1.6; }
+      .card-green { fill: #f1fbf6; stroke: #4aa879; stroke-width: 1.6; }
+      .card-purple { fill: #f8f5ff; stroke: #9174c7; stroke-width: 1.6; }
+      .flowline { fill: none; stroke: #2469a8; stroke-width: 2.6; marker-end: url(#arrow); }
+      .flowdash { fill: none; stroke: #2469a8; stroke-width: 2.3; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+      .opsline { fill: none; stroke: #687b91; stroke-width: 1.4; stroke-dasharray: 4 4; marker-end: url(#arrow-gray); }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#2469a8"/></marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#687b91"/></marker>
+  </defs>
+
+  <rect width="1800" height="1320" fill="#f5f8fc"/>
+  <text x="38" y="48" class="title">Final proposed cloud target architecture</text>
+  <text x="40" y="76" class="subtitle">Synthetic-data demonstration · AWS target shape · proposed recovery and operations controls</text>
+  <rect x="40" y="94" width="1720" height="74" rx="12" fill="#fff4e5" stroke="#df7d18" stroke-width="2.4"/>
+  <rect x="58" y="111" width="262" height="39" rx="8" fill="#c45b08"/>
+  <text x="189" y="136" text-anchor="middle" class="tag white">FINAL PROPOSED TARGET</text>
+  <text x="344" y="124" class="card-title orange">NOT DEPLOYED / NOT VERIFIED</text>
+  <text x="344" y="147" class="body">Current recorded foundation: one public EC2 web/API host and RDS. This drawing describes the later target only.</text>
+  <text x="1718" y="136" text-anchor="end" class="small">No real resumes or user data</text>
+
+  <!-- Main architecture field -->
+  <rect x="38" y="192" width="296" height="684" rx="16" class="card"/>
+  <text x="58" y="222" class="section">Client</text>
+  <rect x="58" y="245" width="256" height="104" rx="12" class="card-blue"/>
+  <text x="78" y="273" class="card-title blue">Browser</text>
+  <text x="78" y="296" class="body">Google GIS sign-in</text>
+  <text x="78" y="316" class="body">HTTPS submit · poll · review · save</text>
+  <text x="78" y="336" class="small">TLS domain and certificate need validation</text>
+  <rect x="58" y="373" width="256" height="118" rx="12" fill="#f8fafc" stroke="#d1dbe5"/>
+  <text x="76" y="400" class="tag muted">PUBLIC ENTRY</text>
+  <text x="76" y="425" class="body">Inbound web traffic reaches the</text>
+  <text x="76" y="445" class="body">load balancer only.</text>
+  <text x="76" y="473" class="small">EC2 instances have no public IP.</text>
+  <rect x="58" y="515" width="256" height="323" rx="12" fill="#f8fafc" stroke="#d1dbe5"/>
+  <text x="76" y="544" class="tag muted">NUMBERED DATA FLOW</text>
+  <circle cx="91" cy="580" r="13" fill="#175ea8"/><text x="91" y="584" text-anchor="middle" class="tag white">1</text>
+  <text x="114" y="577" class="body">Browser → ALB → web/API</text><text x="114" y="596" class="small">HTTPS; API returns task status for polling.</text>
+  <circle cx="91" cy="630" r="13" fill="#175ea8"/><text x="91" y="634" text-anchor="middle" class="tag white">2</text>
+  <text x="114" y="627" class="body">API uploads to temporary S3</text><text x="114" y="646" class="small">Task/outbox commit follows the upload.</text>
+  <circle cx="91" cy="680" r="13" fill="#175ea8"/><text x="91" y="684" text-anchor="middle" class="tag white">3</text>
+  <text x="114" y="677" class="body">Outbox → SQS → private worker</text><text x="114" y="696" class="small">Publisher loop runs on an app instance.</text>
+  <circle cx="91" cy="730" r="13" fill="#175ea8"/><text x="91" y="734" text-anchor="middle" class="tag white">4</text>
+  <text x="114" y="727" class="body">Worker reads S3; writes to RDS</text><text x="114" y="746" class="small">Approved DB content feeds embeddings.</text>
+  <circle cx="91" cy="780" r="13" fill="#175ea8"/><text x="91" y="784" text-anchor="middle" class="tag white">5</text>
+  <text x="114" y="777" class="body">Browser polls · reviews · saves</text><text x="114" y="796" class="small">Only approved content gets vectors.</text>
+  <text x="76" y="824" class="tiny">Numbered paths show the logical workflow.</text>
+
+  <!-- VPC and subnets -->
+  <rect x="354" y="192" width="908" height="684" rx="18" class="region"/>
+  <text x="376" y="223" class="section">AWS Region · one VPC</text>
+  <text x="1238" y="223" text-anchor="end" class="small">AZ placement and capacity remain subject to lab validation</text>
+  <rect x="374" y="241" width="414" height="613" rx="14" class="zone"/>
+  <text x="394" y="268" class="tag blue">AVAILABILITY ZONE A</text>
+  <rect x="808" y="241" width="434" height="613" rx="14" class="zone"/>
+  <text x="828" y="268" class="tag blue">AVAILABILITY ZONE B</text>
+
+  <rect x="394" y="284" width="374" height="111" rx="11" class="subnet-public"/>
+  <text x="410" y="307" class="small orange">PUBLIC SUBNET A</text>
+  <rect x="826" y="284" width="394" height="111" rx="11" class="subnet-public"/>
+  <text x="842" y="307" class="small orange">PUBLIC SUBNET B</text>
+  <rect x="488" y="325" width="630" height="54" rx="12" class="card-orange"/>
+  <text x="803" y="348" text-anchor="middle" class="card-title orange">Application Load Balancer · public · spans both AZs</text>
+  <text x="803" y="367" text-anchor="middle" class="small">HTTPS listener · security group accepts inbound web traffic</text>
+
+  <rect x="394" y="415" width="374" height="177" rx="11" class="subnet-private"/>
+  <text x="410" y="439" class="small blue">PRIVATE APP SUBNET A</text>
+  <rect x="826" y="415" width="394" height="177" rx="11" class="subnet-private"/>
+  <text x="842" y="439" class="small blue">PRIVATE APP SUBNET B</text>
+  <rect x="416" y="453" width="330" height="115" rx="11" class="card-blue"/>
+  <text x="434" y="480" class="card-title blue">Web/API EC2 · ASG</text>
+  <text x="434" y="503" class="body">Web frontend + API instance A</text>
+  <text x="434" y="524" class="body">Outbox publisher loop · DB coordinated</text>
+  <text x="434" y="549" class="small">No public IP · ALB security group only</text>
+  <rect x="848" y="453" width="350" height="115" rx="11" class="card-blue"/>
+  <text x="866" y="480" class="card-title blue">Web/API EC2 · ASG</text>
+  <text x="866" y="503" class="body">Web frontend + API instance B</text>
+  <text x="866" y="524" class="body">Outbox publisher loop · DB coordinated</text>
+  <text x="866" y="549" class="small">No public IP · ALB security group only</text>
+
+  <rect x="394" y="612" width="374" height="222" rx="11" class="subnet-private"/>
+  <text x="410" y="636" class="small blue">PRIVATE WORKER SUBNET · AZ A</text>
+  <rect x="416" y="651" width="330" height="121" rx="11" class="card-green"/>
+  <text x="434" y="678" class="card-title green">Private worker EC2 pool · starts at 1</text>
+  <text x="434" y="701" class="body">Extraction + cleanup process</text>
+  <text x="434" y="722" class="body">Embedding process (CPU)</text>
+  <text x="434" y="750" class="small">Single-AZ placement; no worker HA claim</text>
+  <text x="410" y="804" class="tiny">Polls SQS · S3 via gateway endpoint · outbound NAT</text>
+
+  <rect x="826" y="612" width="394" height="222" rx="11" class="subnet-private"/>
+  <text x="842" y="636" class="small blue">PRIVATE DATA SUBNET · AZ B</text>
+  <rect x="848" y="651" width="350" height="121" rx="11" class="card-purple"/>
+  <text x="866" y="678" class="card-title" fill="#6546a5">RDS PostgreSQL + pgvector</text>
+  <text x="866" y="701" class="body">Private · Single-AZ · one DB instance</text>
+  <text x="866" y="722" class="body">Only app / worker security groups connect</text>
+  <text x="866" y="750" class="small">Subnet group across 2 AZs ≠ standby DB</text>
+  <text x="842" y="804" class="tiny">Snapshot restore creates separate recovery DB</text>
+
+  <!-- Flow arrows, deliberately limited and numbered -->
+  <path d="M314 296 C365 296 400 296 487 342" class="flowline"/>
+  <circle cx="359" cy="291" r="13" fill="#175ea8"/><text x="359" y="295" text-anchor="middle" class="tag white">1</text>
+  <path d="M650 379 C630 405 592 425 581 453" class="flowline"/>
+  <path d="M956 379 C977 405 1010 425 1023 453" class="flowline"/>
+  <path d="M1023 568 L1023 651" class="flowline"/>
+  <path d="M746 710 C784 710 814 710 846 710" class="flowline"/>
+
+  <!-- Regional managed services -->
+  <rect x="1282" y="192" width="480" height="684" rx="16" class="card"/>
+  <text x="1304" y="223" class="section">AWS services &amp; network notes</text>
+  <rect x="1304" y="245" width="436" height="166" rx="12" class="card-blue"/>
+  <text x="1324" y="275" class="card-title blue">VPC egress notes (not placement)</text>
+  <text x="1324" y="302" class="body">NAT gateway in each public subnet</text>
+  <text x="1324" y="325" class="body">S3 gateway endpoint on private route tables</text>
+  <text x="1324" y="348" class="small">App instances also need validated service access</text>
+  <text x="1324" y="382" class="tiny">No public IP on EC2 · no inbound except from ALB SG</text>
+
+  <rect x="1304" y="432" width="436" height="156" rx="12" class="card-orange"/>
+  <text x="1324" y="461" class="card-title orange">SQS · extraction + embedding</text>
+  <text x="1324" y="485" class="body">Each queue has its own DLQ</text>
+  <text x="1324" y="506" class="small">Worker polls both queues · DB count is authoritative</text>
+  <rect x="1324" y="530" width="180" height="30" rx="7" fill="#fff" stroke="#e6a04f"/>
+  <text x="1414" y="550" text-anchor="middle" class="small">Extraction queue + DLQ</text>
+  <rect x="1518" y="530" width="200" height="30" rx="7" fill="#fff" stroke="#e6a04f"/>
+  <text x="1618" y="550" text-anchor="middle" class="small">Embedding queue + DLQ</text>
+
+  <rect x="1304" y="612" width="436" height="144" rx="12" class="card-green"/>
+  <text x="1324" y="642" class="card-title green">Private S3 · temporary uploads only</text>
+  <text x="1324" y="668" class="body">Extraction input only · no retained/download PDF</text>
+  <text x="1324" y="690" class="body">Delete after terminal extraction or expiry</text>
+  <text x="1324" y="712" class="body">Lifecycle cleanup is a backstop; exact retention TBD</text>
+  <text x="1324" y="743" class="small">Gateway endpoint · API upload / worker read</text>
+
+  <rect x="1304" y="770" width="436" height="79" rx="12" fill="#f8fafc" stroke="#d1dbe5"/>
+  <text x="1324" y="793" class="tag muted">IDENTITY CONSTRAINT</text>
+  <text x="1324" y="815" class="body">Shared LabRole: no per-component IAM claim.</text>
+  <text x="1324" y="835" class="small">Validate the actual permissions.</text>
+
+  <!-- Cross-boundary service connectors are layered last so endpoints remain visible. -->
+  <path d="M1198 510 L1320 510" class="flowline"/>
+  <text x="1248" y="499" text-anchor="middle" class="tiny blue">publisher</text>
+  <path d="M1320 555 C1282 566 1272 600 1258 600 L786 600 C766 600 755 625 746 651" class="flowdash"/>
+
+  <!-- Operations and recovery strip -->
+  <rect x="38" y="900" width="1724" height="247" rx="16" fill="#eef3f8" stroke="#aebdcb" stroke-width="1.6"/>
+  <text x="60" y="932" class="section">Operations and recovery plane</text>
+  <text x="1738" y="932" text-anchor="end" class="small">Control paths are separate from application data flow</text>
+  <rect x="60" y="954" width="310" height="115" rx="11" class="card"/>
+  <text x="80" y="982" class="card-title">ECR</text>
+  <text x="80" y="1006" class="body">Pinned application and model images</text>
+  <text x="80" y="1030" class="small">Pinned versions; compatibility check required</text>
+  <rect x="390" y="954" width="310" height="115" rx="11" class="card"/>
+  <text x="410" y="982" class="card-title">Secrets Manager</text>
+  <text x="410" y="1006" class="body">Runtime configuration and secrets</text>
+  <text x="410" y="1030" class="small">Delivery mechanism and access need validation</text>
+  <rect x="720" y="954" width="310" height="115" rx="11" class="card"/>
+  <text x="740" y="982" class="card-title">Systems Manager</text>
+  <text x="740" y="1006" class="body">Administrative access · no SSH</text>
+  <text x="740" y="1030" class="small">Requires instance profile and lab permissions</text>
+  <rect x="1050" y="954" width="310" height="115" rx="11" class="card"/>
+  <text x="1070" y="982" class="card-title">CloudWatch</text>
+  <text x="1070" y="1006" class="body">Metrics · logs · alarms</text>
+  <text x="1070" y="1030" class="small">Alarm set and thresholds remain to validate</text>
+  <rect x="1380" y="954" width="360" height="115" rx="11" class="card-purple"/>
+  <text x="1400" y="982" class="card-title" fill="#6546a5">Recovery path</text>
+  <text x="1400" y="1006" class="body">Snapshot → separate DB (restore test planned)</text>
+  <text x="1400" y="1030" class="small">Recovery DB is not a replica or standby</text>
+  <path d="M215 954 C215 923 441 915 563 900" class="opsline"/>
+  <path d="M545 954 C545 925 670 920 742 900" class="opsline"/>
+  <path d="M875 954 C875 925 930 920 1006 900" class="opsline"/>
+  <path d="M1205 954 C1205 925 1160 918 1130 900" class="opsline"/>
+  <path d="M1560 954 C1560 925 1160 920 1080 834" class="opsline"/>
+
+  <rect x="60" y="1084" width="1680" height="43" rx="9" fill="#fff" stroke="#cad5e0"/>
+  <text x="80" y="1111" class="small"><tspan font-weight="700">Validation gates:</tspan> TLS/domain and Google origin · lab-supported ASG/ALB/NAT/ECR/RDS capacity · LabRole permissions · exact S3 retention · worker queue policy · CloudWatch alarms · restore rehearsal.</text>
+
+  <text x="40" y="1190" class="tiny">Flow notes: extraction writes a reviewable draft only. After user approval, embedding reads approved database content, checks the current revision, and writes vectors to pgvector.</text>
+  <text x="40" y="1210" class="tiny">Proposal boundary: no permanent file feature, CDN, cache, Lambda, container orchestration, or additional standalone publisher service is included.</text>
+  <text x="40" y="1230" class="tiny">This final target supersedes older retained-PDF/download proposals; the older architecture documents are not yet reconciled.</text>
+  <text x="1760" y="1290" text-anchor="end" class="tiny">Architecture target · 2026-10-02</text>
+</svg>

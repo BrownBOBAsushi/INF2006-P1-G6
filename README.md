@@ -19,11 +19,11 @@ The optional [JSearch research script](docs/JSEARCH_RESEARCH.md) is not the MVP.
 
 Jiaxin and Chuying: backend. Xue E and Nasya: frontend. Zhihao: moderation, design and review. Proposed detailed ownership and environment preparation: [team setup](docs/handoff/TEAM_SETUP.md).
 
-Implemented local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM and Docker Compose. Use [the local integration runbook](docs/LOCAL_INTEGRATION.md) for startup, synthetic import and honest acceptance gates.
+Implemented local stack: React/TypeScript, FastAPI/Python, PostgreSQL/pgvector, pdfplumber, Presidio, Sentence Transformers/MiniLM and Docker Compose. Resume extraction and embedding run in separate local worker services through a PostgreSQL-backed task/outbox adapter; see [local async processing](docs/LOCAL_ASYNC_PROCESSING.md) and [the local integration runbook](docs/LOCAL_INTEGRATION.md) for startup, synthetic import and honest acceptance gates.
 
 ![Existing local architecture baseline — not the proposed cloud deployment](evidence/architecture.svg)
 
-The SVG is the existing local Compose design and is retained as the local baseline. The proposed split AWS target, with status and trust boundaries, is in the [editable cloud architecture](docs/diagrams/cloud-architecture.md) and [architecture decisions](docs/CLOUD_ARCHITECTURE.md); that target has not been deployed. A temporary synchronous foundation was deployed and scoped checks were reported by the user, then its teardown was reported by the user; see the [dated run record](evidence/cloud-foundation-run-2026-09-27.md). The [preparation record](evidence/cloud-foundation-preparation-2026-09-27.md) documents infrastructure checks, including a current run of 46 tests and CloudFormation template validation. Overall application acceptance remains incomplete.
+The SVG is the existing local Compose design and is retained as the local baseline. The current proposed AWS target is [cloud-target-final-2026-10-02.md](docs/diagrams/cloud-target-final-2026-10-02.md), with [SVG](docs/diagrams/cloud-target-final-2026-10-02.svg) and [PNG](docs/diagrams/cloud-target-final-2026-10-02.png); it has not been deployed or verified. Older cloud documents are marked superseded. A temporary synchronous foundation was deployed and scoped checks were reported by the user, then its teardown was reported by the user; see the [dated run record](evidence/cloud-foundation-run-2026-09-27.md). Overall application acceptance remains incomplete.
 
 ## Submission scaffold
 

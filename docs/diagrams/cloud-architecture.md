@@ -1,6 +1,8 @@
 # Proposed cloud architecture (editable source)
 
-**Status:** Proposed planning architecture, not deployed or verified. The PNG [`cloud-architecture-draft.png`](cloud-architecture-draft.png) is an inaccurate prior draft, retained but superseded by this Mermaid source.
+> **Superseded proposal.** Use [cloud-target-final-2026-10-02.md](cloud-target-final-2026-10-02.md) and its SVG/PNG as the authoritative proposed target. This Mermaid document is retained as historical context; its permanent-PDF and single-public-host flows are not current requirements. The target is not deployed or verified.
+
+**Historical status:** Proposed planning architecture, not deployed or verified. The PNG [`cloud-architecture-draft.png`](cloud-architecture-draft.png) is an inaccurate prior draft, retained for history.
 
 ## Logical workflow
 

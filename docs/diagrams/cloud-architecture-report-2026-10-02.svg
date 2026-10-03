@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1800" viewBox="0 0 1600 1800" role="img" aria-labelledby="title desc">
+  <title id="title">Appendix B: Cloud Architecture Diagram</title>
+  <desc id="desc">Proposed, not-yet-deployed cloud target with a multi-AZ public load balancer and private web/API Auto Scaling group, one private worker placement, private single-AZ PostgreSQL and pgvector, temporary-only private S3, two SQS queues and dead-letter queues, and compact operations services.</desc>
+  <defs>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #111827; }
+      .title { font-size: 39px; font-weight: 700; fill: #101935; }
+      .subtitle { font-size: 19px; fill: #374151; }
+      .label { font-size: 19px; font-weight: 700; }
+      .body { font-size: 16px; }
+      .small { font-size: 14px; }
+      .tiny { font-size: 12px; }
+      .zone { fill: #fbfdff; fill-opacity: .8; stroke: #2994ff; stroke-width: 2.2; stroke-dasharray: 9 7; }
+      .public { fill: #f6fff7; fill-opacity: .72; stroke: #3f8e58; stroke-width: 2.3; stroke-dasharray: 10 7; }
+      .private { fill: #fbf8ff; fill-opacity: .72; stroke: #8b45e8; stroke-width: 2.3; stroke-dasharray: 10 7; }
+      .vpc { fill: none; stroke: #8338ec; stroke-width: 3.4; }
+      .servicegroup { fill: #fffaf2; fill-opacity: .6; stroke: #f28c00; stroke-width: 2.6; }
+      .sync { fill: none; stroke: #111827; stroke-width: 2.8; marker-end: url(#arrow-black); }
+      .syncboth { fill: none; stroke: #111827; stroke-width: 2.5; marker-start: url(#arrow-black-start); marker-end: url(#arrow-black); }
+      .async { fill: none; stroke: #e11d48; stroke-width: 3; stroke-dasharray: 12 8; marker-end: url(#arrow-red); }
+      .management { fill: none; stroke: #6b7280; stroke-width: 2.2; stroke-dasharray: 3 7; marker-end: url(#arrow-gray); }
+      .iconline { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+      .iconthin { fill: none; stroke: #fff; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+      .icontext { fill: #fff; font-size: 22px; font-weight: 700; }
+      .flow-number { fill: #fff; font-size: 16px; font-weight: 700; }
+    </style>
+    <marker id="arrow-black" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#111827"/></marker>
+    <marker id="arrow-black-start" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#111827"/></marker>
+    <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e11d48"/></marker>
+    <marker id="arrow-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#6b7280"/></marker>
+  </defs>
+
+  <rect width="1600" height="1800" fill="#fff"/>
+  <text x="52" y="68" class="title">Appendix B: Cloud Architecture Diagram</text>
+  <text x="54" y="105" class="subtitle">Proposed target architecture • not yet deployed</text>
+
+  <!-- Main network boundaries -->
+  <rect x="46" y="180" width="1025" height="1280" class="vpc"/>
+  <rect x="68" y="198" width="134" height="50" fill="#8338ec"/>
+  <path d="M84 224h18l8-10 8 18 9-13 8 5h23" class="iconthin"/>
+  <text x="220" y="231" class="label" fill="#6320bf">VPC</text>
+  <text x="280" y="230" class="small" fill="#4b5563">private application and data network</text>
+  <text x="560" y="257" text-anchor="middle" class="small" font-weight="700" fill="#8a4b05">Web/API Auto Scaling Group · across AZs</text>
+
+  <rect x="85" y="270" width="462" height="990" class="zone"/>
+  <rect x="565" y="270" width="482" height="990" class="zone"/>
+  <text x="112" y="306" class="label" fill="#1262a8">Availability Zone A</text>
+  <text x="592" y="306" class="label" fill="#1262a8">Availability Zone B</text>
+
+  <!-- Subnet boundaries -->
+  <rect x="108" y="345" width="414" height="278" class="public"/>
+  <text x="130" y="377" class="label" fill="#27653a">Public subnet A</text>
+  <rect x="589" y="345" width="434" height="278" class="public"/>
+  <text x="611" y="377" class="label" fill="#27653a">Public subnet B</text>
+
+  <rect x="108" y="667" width="414" height="238" class="private"/>
+  <text x="130" y="699" class="label" fill="#6320bf">Private app subnet A</text>
+  <rect x="589" y="667" width="434" height="238" class="private"/>
+  <text x="611" y="699" class="label" fill="#6320bf">Private app subnet B</text>
+
+  <rect x="108" y="1002" width="414" height="238" class="private"/>
+  <text x="130" y="1034" class="label" fill="#6320bf">Private worker subnet · AZ A</text>
+  <rect x="589" y="1002" width="434" height="238" class="private"/>
+  <text x="611" y="1034" class="label" fill="#6320bf">Private data subnet · AZ B</text>
+
+  <!-- Regional service grouping -->
+  <rect x="1132" y="440" width="420" height="440" class="servicegroup"/>
+  <text x="1155" y="475" class="label" fill="#a85b00">AWS regional services</text>
+
+  <!-- Flows, behind nodes; principal paths use orthogonal/shared buses -->
+  <!-- Browser / Internet Gateway / ALB -->
+  <path d="M1180 363 H1090 V221 H929" class="sync"/>
+  <path d="M873 248 V312 H548 V489" class="sync"/>
+  <!-- ALB to each private API instance -->
+  <path d="M420 590 V642 H315 V724" class="sync"/>
+  <path d="M730 590 V642 H805 V724" class="sync"/>
+  <!-- Two API instances to a shared RDS bus -->
+  <path d="M315 905 V950 H800" fill="none" stroke="#111827" stroke-width="2.8"/>
+  <path d="M805 905 V950" fill="none" stroke="#111827" stroke-width="2.8"/>
+  <path d="M800 950 V1060" class="sync"/>
+  <!-- Worker status and vector writes -->
+  <path d="M520 1119 H590" class="sync"/>
+  <!-- App upload bus to S3 gateway endpoint -->
+  <path d="M315 905 V985 H1038 V1304 H748" class="sync"/>
+  <path d="M805 905 V985 H1038" fill="none" stroke="#111827" stroke-width="2.8"/>
+  <!-- Worker reads candidate input through the same private endpoint -->
+  <path d="M315 1240 V1290 H518" class="syncboth"/>
+  <!-- Endpoint to regional S3 (logical object access over gateway endpoint) -->
+  <path d="M748 1344 H1088 V554 H1180" class="syncboth"/>
+  <!-- Outbox publisher and queue polling -->
+  <path d="M930 838 H1115 V748 H1180" class="async"/>
+  <path d="M1180 825 H1115 V1270 H315 V1240" class="async"/>
+  <!-- NAT route to Internet Gateway in each AZ -->
+
+  <!-- Internet Gateway icon and label -->
+  <rect x="817" y="190" width="112" height="58" fill="#7336d0"/>
+  <path d="M850 231v-21h45v21M872 204v33m-10-10 10 10 10-10" class="iconthin"/>
+  <rect x="808" y="251" width="134" height="23" fill="#fff"/>
+  <text x="875" y="268" text-anchor="middle" class="small" font-weight="700">Internet Gateway</text>
+  <text x="875" y="288" text-anchor="middle" class="tiny">public route</text>
+
+  <!-- Public ALB service group -->
+  <rect x="229" y="480" width="615" height="112" class="servicegroup"/>
+  <rect x="257" y="498" width="76" height="76" fill="#ed7d00"/>
+  <path d="M276 517h39v10h-39zm0 18h39v10h-39zm0 18h39v10h-39zM270 522v28m51-28v28" class="iconthin"/>
+  <text x="355" y="525" class="label" fill="#9a4f00">Application Load Balancer</text>
+  <text x="355" y="552" class="body">Public · HTTPS · spans both AZs</text>
+  <text x="355" y="576" class="small">Inbound web traffic enters through the ALB</text>
+
+  <!-- NAT gateway icons in public subnets -->
+  <rect x="127" y="405" width="54" height="54" fill="#39734d"/>
+  <path d="M137 421h34m-34 20h34m-25-25v30m16-30v30" class="iconthin"/>
+  <text x="190" y="426" class="small" font-weight="700">NAT gateway</text>
+  <text x="190" y="447" class="tiny">to IGW · subnet A</text>
+  <rect x="908" y="405" width="54" height="54" fill="#39734d"/>
+  <path d="M918 421h34m-34 20h34m-25-25v30m16-30v30" class="iconthin"/>
+  <text x="970" y="426" class="small" font-weight="700">NAT gateway</text>
+  <text x="970" y="447" class="tiny">to IGW · subnet B</text>
+
+  <!-- App EC2 nodes -->
+  <rect x="135" y="736" width="84" height="84" fill="#276aa6"/>
+  <rect x="151" y="754" width="52" height="34" rx="2" class="iconthin"/>
+  <path d="M157 762h40m-40 9h40m-40 9h40M164 791v7m25-7v7m-31 0h37" class="iconthin"/>
+  <text x="177" y="813" text-anchor="middle" class="icontext" font-size="14">EC2</text>
+  <text x="239" y="757" class="label">Web/API EC2</text>
+  <text x="239" y="784" class="body">ASG instance · AZ A</text>
+  <text x="239" y="811" class="small">No public IP</text>
+  <text x="239" y="838" class="tiny">Outbox loop · DB coordinated</text>
+
+  <rect x="615" y="736" width="84" height="84" fill="#276aa6"/>
+  <rect x="631" y="754" width="52" height="34" rx="2" class="iconthin"/>
+  <path d="M637 762h40m-40 9h40m-40 9h40M644 791v7m25-7v7m-31 0h37" class="iconthin"/>
+  <text x="657" y="813" text-anchor="middle" class="icontext" font-size="14">EC2</text>
+  <text x="719" y="757" class="label">Web/API EC2</text>
+  <text x="719" y="784" class="body">ASG instance · AZ B</text>
+  <text x="719" y="811" class="small">No public IP</text>
+  <text x="719" y="838" class="tiny">Outbox loop · DB coordinated</text>
+
+  <!-- Worker and RDS nodes -->
+  <rect x="135" y="1074" width="84" height="84" fill="#19734b"/>
+  <path d="M155 1102l6-12 7 8 12-12 3 10 14 0-9 9 6 11-14-4-7 10-3-13-15-7z" class="iconthin"/>
+  <text x="177" y="1152" text-anchor="middle" class="icontext" font-size="14">EC2</text>
+  <text x="239" y="1089" class="label">Private worker EC2</text>
+  <text x="239" y="1117" class="body">Starts at 1 · AZ A</text>
+  <text x="239" y="1145" class="small">Extraction + cleanup</text>
+  <text x="239" y="1172" class="small">CPU embeddings</text>
+  <text x="239" y="1210" class="tiny">One AZ · no HA claim</text>
+
+  <rect x="615" y="1074" width="84" height="84" fill="#7042cf"/>
+  <ellipse cx="657" cy="1093" rx="24" ry="8" class="iconthin"/>
+  <path d="M633 1093v36c0 5 11 9 24 9s24-4 24-9v-36m-48 12c0 5 11 9 24 9s24-4 24-9m-48 12c0 5 11 9 24 9s24-4 24-9" class="iconthin"/>
+  <text x="657" y="1151" text-anchor="middle" class="icontext" font-size="14">RDS</text>
+  <text x="719" y="1088" class="label">PostgreSQL</text>
+  <text x="719" y="1116" class="body">Private · Single-AZ · AZ B</text>
+  <text x="719" y="1144" class="small">pgvector · app/worker SGs only</text>
+  <text x="719" y="1172" class="small">No standby database</text>
+  <text x="719" y="1210" class="tiny">Subnet group spans 2 AZs; no standby</text>
+
+  <!-- S3 gateway endpoint: regional VPC route-table association -->
+  <rect x="500" y="1290" width="248" height="92" fill="#7138d0"/>
+  <path d="M530 1314h42v42h-42zM536 1322h30m-30 9h30m-30 9h20" class="iconthin"/>
+  <text x="588" y="1325" class="label white">S3 gateway</text>
+  <text x="588" y="1351" class="small white">endpoint</text>
+  <text x="500" y="1405" class="tiny" fill="#4b5563">Private route tables · API upload / worker read</text>
+  <text x="332" y="936" class="small" font-weight="700">API SQL / task-state access</text>
+  <text x="793" y="966" class="tiny" font-weight="700">S3 upload bus</text>
+
+  <!-- External client and AWS services -->
+  <rect x="1180" y="300" width="76" height="76" fill="#1473a5"/>
+  <rect x="1194" y="317" width="48" height="39" rx="2" class="iconthin"/>
+  <path d="M1194 327h48m-39-5h1m6 0h1m-8 16h12m-12 7h31" class="iconthin"/>
+  <text x="1275" y="326" class="label">Browser</text>
+  <text x="1275" y="352" class="body">Google GIS</text>
+  <text x="1275" y="377" class="small">HTTPS · submit / poll / review / save</text>
+
+  <!-- S3 icon and text -->
+  <rect x="1155" y="495" width="76" height="76" fill="#e67e00"/>
+  <path d="M1173 516q20-10 40 0l-4 38q-16 8-32 0zM1173 516l4 38m36-38-4 38m-29-24q16 8 31 0" class="iconthin"/>
+  <text x="1248" y="513" class="label">Private S3</text>
+  <text x="1248" y="540" class="body">Temporary extraction input</text>
+  <text x="1248" y="565" class="small">No retained/download PDF</text>
+  <text x="1155" y="615" class="small">Delete after terminal extraction or expiry.</text>
+  <text x="1155" y="638" class="small">Lifecycle cleanup is a backstop; retention TBD.</text>
+
+  <!-- SQS and DLQs -->
+  <rect x="1155" y="685" width="76" height="76" fill="#d9534f"/>
+  <rect x="1170" y="702" width="45" height="11" class="iconthin"/>
+  <rect x="1170" y="720" width="45" height="11" class="iconthin"/>
+  <rect x="1170" y="738" width="45" height="11" class="iconthin"/>
+  <text x="1248" y="704" class="label">Amazon SQS</text>
+  <text x="1248" y="730" class="body">Extraction + embedding queues</text>
+  <text x="1248" y="756" class="small">Each queue has its own DLQ</text>
+  <text x="1155" y="803" class="small">API outbox publishes; workers poll.</text>
+  <text x="1155" y="827" class="small">Receive count is a safety net.</text>
+
+  <!-- Ops services: compact AWS-style squares, line pictograms are illustrative -->
+  <text x="1155" y="923" class="label" fill="#374151">Operations and support</text>
+  <rect x="1155" y="945" width="397" height="238" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.6" stroke-dasharray="5 5"/>
+  <rect x="1170" y="957" width="44" height="44" fill="#d87900"/>
+  <path d="M1180 967h24v24h-24zM1180 975h24m-16-8v24m8-24v24" class="iconthin"/>
+  <text x="1228" y="976" class="body" font-weight="700">ECR · pinned app/model images</text>
+  <text x="1228" y="995" class="tiny">Version and CPU compatibility check required</text>
+  <rect x="1170" y="1011" width="44" height="44" fill="#c12d70"/>
+  <circle cx="1192" cy="1033" r="13" class="iconthin"/><path d="M1192 1024v10l6 4" class="iconthin"/>
+  <text x="1228" y="1030" class="body" font-weight="700">Secrets Manager · runtime configuration</text>
+  <rect x="1170" y="1065" width="44" height="44" fill="#4469ba"/>
+  <path d="M1178 1074h28v25h-28zm5 6 6 5-6 5m10 0h8" class="iconthin"/>
+  <text x="1228" y="1083" class="body" font-weight="700">Systems Manager · admin access, no SSH</text>
+  <rect x="1170" y="1119" width="44" height="44" fill="#258b68"/>
+  <path d="M1177 1152v-21l8 9 7-16 5 28h9" class="iconthin"/>
+  <text x="1228" y="1137" class="body" font-weight="700">CloudWatch · metrics, logs, alarms</text>
+  <text x="1228" y="1159" class="tiny">Shared LabRole; validate actual permissions.</text>
+  <text x="1228" y="1177" class="tiny">Confirm lab capacity before implementation.</text>
+
+  <!-- Snapshot recovery is explicitly outside the runtime architecture -->
+  <rect x="1132" y="1250" width="420" height="170" fill="#faf7ff" stroke="#7042cf" stroke-width="2"/>
+  <text x="1155" y="1285" class="label" fill="#5425a8">Backup and recovery</text>
+  <rect x="1155" y="1303" width="57" height="57" fill="#7042cf"/>
+  <ellipse cx="1183" cy="1319" rx="17" ry="6" class="iconthin"/><path d="M1166 1319v22c0 4 8 7 17 7s17-3 17-7v-22m-34 8c0 4 8 7 17 7s17-3 17-7" class="iconthin"/>
+  <text x="1228" y="1324" class="body" font-weight="700">Snapshot → separate recovery DB</text>
+  <text x="1228" y="1352" class="small">Restore test planned · not a replica</text>
+
+  <!-- Numbered flow labels -->
+  <circle cx="1063" cy="336" r="16" fill="#111827"/><text x="1063" y="342" text-anchor="middle" class="flow-number">1</text>
+  <circle cx="1053" cy="954" r="16" fill="#111827"/><text x="1053" y="960" text-anchor="middle" class="flow-number">2</text>
+  <circle cx="1131" cy="790" r="16" fill="#e11d48"/><text x="1131" y="796" text-anchor="middle" class="flow-number">3</text>
+  <circle cx="555" cy="1120" r="16" fill="#111827"/><text x="555" y="1126" text-anchor="middle" class="flow-number">4</text>
+  <text x="1010" y="810" class="tiny" fill="#be123c" font-weight="700">API outbox publisher</text>
+
+  <!-- Compact legend -->
+  <rect x="54" y="1510" width="1492" height="235" fill="#fff" stroke="#64748b" stroke-width="1.8"/>
+  <text x="78" y="1546" class="label">Legend</text>
+  <rect x="80" y="1570" width="62" height="36" class="vpc"/><text x="156" y="1595" class="body">VPC</text>
+  <rect x="265" y="1570" width="62" height="36" class="zone"/><text x="341" y="1595" class="body">Availability Zone</text>
+  <rect x="535" y="1570" width="62" height="36" class="public"/><text x="611" y="1595" class="body">Public subnet</text>
+  <rect x="790" y="1570" width="62" height="36" class="private"/><text x="866" y="1595" class="body">Private subnet</text>
+  <rect x="1045" y="1570" width="62" height="36" class="servicegroup"/><text x="1121" y="1595" class="body">Service grouping</text>
+  <path d="M80 1640h95" class="sync"/><text x="195" y="1646" class="body">1 Browser→IGW→ALB · 2 API↔S3 · 4 API/worker↔RDS</text>
+  <path d="M735 1640h95" class="async"/><text x="850" y="1646" class="body">3 · asynchronous queue / worker flow</text>
+  <text x="80" y="1696" class="body" font-weight="700">Management plane:</text><text x="240" y="1696" class="body">ECR · Secrets Manager · SSM · CloudWatch · backup / recovery</text>
+  <text x="80" y="1722" class="small" fill="#4b5563">Synthetic-data demonstration · domain, TLS, IAM, capacity, and retention require validation.</text>
+
+  <text x="1545" y="1774" text-anchor="end" class="tiny" fill="#6b7280">Report figure · 2026-10-02</text>
+</svg>

@@ -23,9 +23,9 @@ team:
       student_id: ""
       role: "Moderator, system design and reviewer"
 architecture:
-  diagram: "evidence/architecture.svg" # Existing local baseline only; proposed cloud target: docs/diagrams/cloud-architecture.md
-  service_model: "Planned IaaS; not deployed"
-  deployment_model: "Implemented local Docker Compose; proposed split AWS target is not deployed"
+  diagram: "evidence/architecture.svg" # Existing local baseline only; proposed cloud target: docs/diagrams/cloud-target-final-2026-10-02.md
+  service_model: "IaaS; private AWS target operator-reported deployed; acceptance partial"
+  deployment_model: "Implemented local Docker Compose; private AWS target operator-reported deployed 2026-10-03 with partial acceptance only"
   components: # Implemented local components only; excludes proposed AWS resources.
     - "React/TypeScript frontend and Nginx proxy"
     - "FastAPI/Python API and PostgreSQL/pgvector"

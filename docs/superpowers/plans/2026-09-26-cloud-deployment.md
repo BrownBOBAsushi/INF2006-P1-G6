@@ -1,5 +1,7 @@
 # Cloud Deployment Implementation Plan
 
+> **Historical plan, superseded in part by the 2026-10-02 target.** Follow [the durable task foundation plan](2026-10-02-durable-task-foundation.md) and [the authoritative proposed target](../diagrams/cloud-target-final-2026-10-02.md). The retained-PDF/download flow and single public application host in this plan are not current scope. Keep this document for its older task sequencing and evidence notes.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Implement and verify the team's proposed AWS deployment and durable resume-processing workflow, while keeping every cloud and assessment claim tied to current evidence.

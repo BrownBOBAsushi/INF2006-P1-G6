@@ -1,6 +1,8 @@
 # Cloud architecture discussion log
 
-**Status:** Proposed architecture, revised 2026-09-27; the split asynchronous target below is not deployed. The service choices and flow below record current planning decisions. Unresolved settings are called out explicitly and must be settled and tested before implementation claims are made. The latest explicitly saved PDF is retained for owner-only download; this is proposed cloud behavior and the current UI/PRD promise must be updated in the same implementation rollout. Coursework cloud records and test data remain synthetic only. A temporary synchronous foundation run and subsequent user-reported teardown are recorded in [the dated run evidence](../evidence/cloud-foundation-run-2026-09-27.md); full cloud acceptance remains open.
+> **Superseded proposal.** The authoritative proposed target is [cloud-target-final-2026-10-02.md](diagrams/cloud-target-final-2026-10-02.md). This discussion is retained as historical context; its retained-PDF/download and single-public-host proposals are not current requirements. The target is not deployed or verified.
+
+**Historical status (2026-09-27):** Proposed architecture; the split asynchronous target described below was not deployed. Coursework cloud records and test data remain synthetic only. A temporary synchronous foundation run and subsequent user-reported teardown are recorded in [the dated run evidence](../evidence/cloud-foundation-run-2026-09-27.md); full cloud acceptance remains open.
 
 ## Current local baseline and evidence
 
