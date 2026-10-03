@@ -42,9 +42,9 @@ def make_artifact_fixture(directory: Path, client_id: str) -> None:
     (directory / "source-snapshot.json").write_text(json.dumps(manifest) + "\n")
     digest_values = ("0" * 64, "1" * 64, "2" * 64)
     values = {
-        "API_IMAGE_URI": "849625971640.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-api@sha256:" + digest_values[0],
-        "WEB_IMAGE_URI": "849625971640.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-web@sha256:" + digest_values[1],
-        "BOOTSTRAP_IMAGE_URI": "849625971640.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-bootstrap@sha256:" + digest_values[2],
+        "API_IMAGE_URI": "123456789012.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-api@sha256:" + digest_values[0],
+        "WEB_IMAGE_URI": "123456789012.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-web@sha256:" + digest_values[1],
+        "BOOTSTRAP_IMAGE_URI": "123456789012.dkr.ecr.us-east-1.amazonaws.com/inf2006/cloud-bootstrap@sha256:" + digest_values[2],
         "SOURCE_SNAPSHOT_SHA256": source_sha,
         "REPOSITORY_COMMIT": commit,
     }
@@ -144,9 +144,9 @@ elif args[0] == "compose" and "run" in args:
         def fake_json(args, **kwargs):
             calls.append(args)
             if args[:2] == ["sts", "get-caller-identity"]:
-                return {"Account": "849625971640"}
+                return {"Account": "123456789012"}
             if args[:2] == ["secretsmanager", "describe-secret"]:
-                return {"ARN": "arn:aws:secretsmanager:us-east-1:849625971640:secret:known"}
+                return {"ARN": "arn:aws:secretsmanager:us-east-1:123456789012:secret:known"}
             if args[:2] == ["ec2", "describe-instances"]:
                 return {}
             return {}
@@ -163,7 +163,7 @@ elif args[0] == "compose" and "run" in args:
             secrets, ami, account = runner.discover_inputs(config, artifacts)
         self.assertEqual(5, len(secrets))
         self.assertEqual("ami-0123456789abcdef0", ami)
-        self.assertEqual("849625971640", account)
+        self.assertEqual("123456789012", account)
         self.assertFalse(any("get-secret-value" in call for call in calls))
 
 
@@ -178,7 +178,7 @@ class DeploymentGuardTests(unittest.TestCase):
         self.artifacts = runner.load_artifacts(artifact_dir, self.config["google_client_id"])
         self.expected = runner.expected_parameters(
             self.config, self.artifacts, "ami-0123456789abcdef0",
-            {name: "arn:aws:secretsmanager:us-east-1:849625971640:secret:" + name for name in runner.SECRET_PARAMS},
+            {name: "arn:aws:secretsmanager:us-east-1:123456789012:secret:" + name for name in runner.SECRET_PARAMS},
         )
 
     def test_existing_parameter_mismatch_refuses_change(self):
@@ -259,7 +259,7 @@ class CliTests(unittest.TestCase):
             config["artifact_dir"] = str(artifacts_dir)
             config_path = temp / "config.json"
             config_path.write_text(json.dumps(config))
-            with mock.patch.object(runner, "discover_inputs", return_value=({}, "ami-0123456789abcdef0", "849625971640")), \
+            with mock.patch.object(runner, "discover_inputs", return_value=({}, "ami-0123456789abcdef0", "123456789012")), \
                  mock.patch.object(runner, "stack_status", return_value=None), \
                  mock.patch.object(runner, "verify_log_group"), \
                  mock.patch.object(runner, "apply_deployment") as apply, \
