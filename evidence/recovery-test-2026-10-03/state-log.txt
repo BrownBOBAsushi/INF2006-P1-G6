@@ -1,0 +1,153 @@
+# Controlled instance-termination recovery test (raw monitor output)
+# UTC, 2026-10-03. Public probe every ~3 s; target/ASG state every ~15 s. Instance IDs and API id redacted.
+# Probe code 000 = no response within 5 s.
+
+16:03:44 TARGETS <instance-1> healthy <instance-2> healthy 
+16:03:44 ASG <instance-1> InService Healthy <instance-2> InService Healthy 
+16:04:01 TARGETS <instance-1> healthy <instance-2> healthy 
+16:04:01 ASG <instance-1> InService Healthy <instance-2> InService Healthy 
+TERMINATE at 16:04:18
+16:04:19 TARGETS <instance-1> healthy <instance-2> healthy 
+16:04:19 ASG <instance-1> InService Healthy <instance-2> InService Healthy 
+16:04:36 TARGETS <instance-1> healthy 
+16:04:36 ASG <instance-1> InService Healthy <instance-2> InService Healthy 
+16:04:54 TARGETS <instance-1> healthy 
+16:04:54 ASG <instance-1> InService Healthy <instance-2> InService Unhealthy 
+16:05:11 TARGETS <instance-3> initial <instance-1> healthy 
+16:05:11 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:05:29 TARGETS <instance-3> initial <instance-1> healthy 
+16:05:29 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:05:47 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:05:47 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:06:05 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:06:05 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:06:20 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:06:20 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:06:37 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:06:37 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:06:55 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:06:55 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:07:13 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:07:13 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:07:30 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:07:30 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:07:48 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:07:48 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:08:05 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:08:05 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:08:20 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:08:20 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:08:38 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:08:38 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:08:53 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:08:53 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:09:11 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:09:11 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:09:28 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:09:28 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:09:46 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:09:46 ASG <instance-1> InService Healthy <instance-2> Terminating Unhealthy <instance-3> InService Healthy 
+16:10:03 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:10:03 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:10:21 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:10:21 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:10:38 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:10:38 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:10:56 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:10:56 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:11:13 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:11:13 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:11:31 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:11:31 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:11:48 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:11:48 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:12:06 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:12:06 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:12:24 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:12:24 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:12:41 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:12:41 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:12:59 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:12:59 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:13:16 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:13:16 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:13:34 TARGETS <instance-3> unhealthy <instance-1> healthy 
+16:13:34 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:13:52 TARGETS <instance-3> healthy <instance-1> healthy 
+16:13:52 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:14:10 TARGETS <instance-3> healthy <instance-1> healthy 
+16:14:10 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:14:27 TARGETS <instance-3> healthy <instance-1> healthy 
+16:14:27 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:14:44 TARGETS <instance-3> healthy <instance-1> healthy 
+16:14:44 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:15:02 TARGETS <instance-3> healthy <instance-1> healthy 
+16:15:02 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:15:19 TARGETS <instance-3> healthy <instance-1> healthy 
+16:15:19 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:15:37 TARGETS <instance-3> healthy <instance-1> healthy 
+16:15:37 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:15:54 TARGETS <instance-3> healthy <instance-1> healthy 
+16:15:54 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:16:09 TARGETS <instance-3> healthy <instance-1> healthy 
+16:16:09 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:16:26 TARGETS <instance-3> healthy <instance-1> healthy 
+16:16:26 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:16:44 TARGETS <instance-3> healthy <instance-1> healthy 
+16:16:44 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:17:02 TARGETS <instance-3> healthy <instance-1> healthy 
+16:17:02 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:17:20 TARGETS <instance-3> healthy <instance-1> healthy 
+16:17:20 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:17:37 TARGETS <instance-3> healthy <instance-1> healthy 
+16:17:37 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:17:54 TARGETS <instance-3> healthy <instance-1> healthy 
+16:17:54 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:18:12 TARGETS <instance-3> healthy <instance-1> healthy 
+16:18:12 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:18:30 TARGETS <instance-3> healthy <instance-1> healthy 
+16:18:30 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:18:47 TARGETS <instance-3> healthy <instance-1> healthy 
+16:18:47 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:19:05 TARGETS <instance-3> healthy <instance-1> healthy 
+16:19:05 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:19:22 TARGETS <instance-3> healthy <instance-1> healthy 
+16:19:22 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:19:40 TARGETS <instance-3> healthy <instance-1> healthy 
+16:19:40 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:19:57 TARGETS <instance-3> healthy <instance-1> healthy 
+16:19:57 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:20:15 TARGETS <instance-3> healthy <instance-1> healthy 
+16:20:15 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:20:32 TARGETS <instance-3> healthy <instance-1> healthy 
+16:20:32 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:20:50 TARGETS <instance-3> healthy <instance-1> healthy 
+16:20:50 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:21:07 TARGETS <instance-3> healthy <instance-1> healthy 
+16:21:07 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:21:25 TARGETS <instance-3> healthy <instance-1> healthy 
+16:21:25 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:21:43 TARGETS <instance-3> healthy <instance-1> healthy 
+16:21:43 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:22:01 TARGETS <instance-3> healthy <instance-1> healthy 
+16:22:01 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:22:19 TARGETS <instance-3> healthy <instance-1> healthy 
+16:22:19 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:22:36 TARGETS <instance-3> healthy <instance-1> healthy 
+16:22:36 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:22:54 TARGETS <instance-3> healthy <instance-1> healthy 
+16:22:54 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:23:11 TARGETS <instance-3> healthy <instance-1> healthy 
+16:23:11 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:23:29 TARGETS <instance-3> healthy <instance-1> healthy 
+16:23:29 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:23:46 TARGETS <instance-3> healthy <instance-1> healthy 
+16:23:46 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:24:04 TARGETS <instance-3> healthy <instance-1> healthy 
+16:24:04 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:24:21 TARGETS <instance-3> healthy <instance-1> healthy 
+16:24:21 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:24:39 TARGETS <instance-3> healthy <instance-1> healthy 
+16:24:39 ASG <instance-1> InService Healthy <instance-3> InService Healthy 
+16:24:57 TARGETS <instance-3> healthy <instance-1> healthy 
+16:24:57 ASG <instance-1> InService Healthy <instance-3> InService Healthy 

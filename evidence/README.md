@@ -23,6 +23,10 @@ output from a local machine. Account IDs, resource IDs, IPs, hostnames, cookies 
 |---|---|
 | [cloud-capture-2026-10-03/](cloud-capture-2026-10-03/) | [Captured] Deployed configuration: stacks, ingress, compute, security groups, data stores, secrets metadata, alarms, Logs Insights queries, public probes, resource inventory and cost estimate |
 | [cloud-acceptance-2026-10-03.md](cloud-acceptance-2026-10-03.md) | [Observed]/[Operator-reported] Deployment and acceptance observations for the current private architecture |
+| [test-security-live-local-2026-10-03.md](test-security-live-local-2026-10-03.md) | [Local run] Live HTTP ownership, session and CSRF checks with two synthetic users (29/29); script `tests/security/live_security_check.py` |
+| [test-security-live-cloud-real-task.md](test-security-live-cloud-real-task.md) | [Cloud] Ownership, session and CSRF checks on the deployed site with two real accounts (26/26; script `tests/security/live_site_check.py`, operator-run) |
+| [test-security-tls-2026-10-03.md](test-security-tls-2026-10-03.md) | [Cloud, read-only] Negative TLS tests of the public endpoint, plus the 502 observation |
+| [recovery-test-2026-10-03/](recovery-test-2026-10-03/) | [Cloud] Raw monitor logs of the controlled instance-termination test (instance IDs redacted); write-up is R4 in `test-resilience.md` |
 | [local-tests-2026-10-03.md](local-tests-2026-10-03.md) | [Local run] Backend, frontend, infrastructure, analytics and pipeline suites, with raw logs in `local-tests-2026-10-03/` |
 | [cloud-foundation-run-2026-09-27.md](cloud-foundation-run-2026-09-27.md) | [Operator-reported] Earlier single-instance foundation deployment (since torn down), including the first alarm/recovery test |
 | `data-ai-eval-*.md/json`, `test-processing-*.md`, `load-*.md/json` | Component-level evaluation and local load measurements |

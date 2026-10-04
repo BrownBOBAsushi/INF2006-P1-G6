@@ -83,8 +83,8 @@ Systems Manager, CloudFormation; Google Identity Services.
 - **Real job catalogue not redistributed.** The deployed catalogue (247 listings) was collected from LinkedIn and
   JSearch for the demonstration; it is excluded from this package because redistribution rights are not
   established. The package ships synthetic data only (see [data/README.md](data/README.md)).
-- **Four stale pipeline tests** fail after the asynchronous refactor (diagnosed in
-  [evidence/local-tests-2026-10-03.md](evidence/local-tests-2026-10-03.md)).
+- Four pipeline tests had drifted after the asynchronous refactor; they were fixed and the full pipeline suite
+  passed (220) on 2026-10-03 (see [evidence/local-tests-2026-10-03.md](evidence/local-tests-2026-10-03.md), addendum).
 - Response security headers (HSTS, CSP) are not set; the ALB does not validate the target certificate.
 
 Historical design and handoff documents remain in `docs/` (for example [docs/handoff/](docs/handoff/)); where they

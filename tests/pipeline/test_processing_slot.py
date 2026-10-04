@@ -314,12 +314,26 @@ def test_child_network_guard_blocks_outbound_connections(make_service):
 
 # ------------------------------------------------------------------ the real production child
 
-@pytest.fixture(scope="module")
-def real_service():
-    svc = ProcessingService()                                              # production worker, default 60 s deadline
+def _real_service(kind):
+    svc = ProcessingService(worker_args=(kind,))                           # production worker for one pool, default 60 s deadline
     t0 = time.monotonic()
     svc.start()
     svc.startup_seconds = time.monotonic() - t0
+    return svc
+
+
+@pytest.fixture(scope="module")
+def real_service():
+    """EXTRACTION pool child (pdfplumber + Presidio): serves "prepare"."""
+    svc = _real_service("EXTRACTION")
+    yield svc
+    svc.stop()
+
+
+@pytest.fixture(scope="module")
+def real_embedding_service():
+    """EMBEDDING pool child (MiniLM): serves "embed"."""
+    svc = _real_service("EMBEDDING")
     yield svc
     svc.stop()
 
@@ -341,24 +355,19 @@ def test_production_prepare_in_the_child_equals_in_process_and_propagates_error_
         assert bad.value.code == "INVALID_CONTENT"
 
 
-def test_production_save_reproduces_in_process_embeddings_and_flags_privacy_changes(real_service, model, profiles):
+def test_production_embed_reproduces_in_process_embeddings_and_rejects_invalid_content(real_embedding_service, model, profiles):
     import numpy as np
     from app.processing.config import EMBEDDING_VERSION
-    from app.processing.content import content_hash
     from app.processing.pipeline import embed_resume
     content = profiles["P01"]["content"]
-    with real_service.try_acquire() as lease:
-        res = lease.run("save", {"content": content})
-        assert res["review_required"] is False and res["version"] == EMBEDDING_VERSION and res["content_hash"] == content_hash(content)
+    with real_embedding_service.try_acquire() as lease:
+        res = lease.run("embed", {"content": content})
+        assert res["version"] == EMBEDDING_VERSION
         local = embed_resume(content, model)
         assert res["chunks"] == local.chunks and res["vectors"].shape == (len(local.chunks), 384)
         assert np.allclose(res["vectors"], local.vectors, atol=1e-6)
-        dirty = json.loads(json.dumps(content))
-        dirty["projects"][0]["description"] += " Reach me at synthetic.student01@example.com."
-        flagged = lease.run("save", {"content": dirty})
-        assert flagged["review_required"] is True and "example.com" not in json.dumps(flagged["cleaned"])
         with pytest.raises(ProcessingError) as exc:
-            lease.run("save", {"content": {"skills": []}})
+            lease.run("embed", {"content": {"skills": []}})
         assert exc.value.code == "INVALID_CONTENT"
 
 
@@ -367,7 +376,7 @@ def test_production_child_startup_time_is_recorded(real_service):
 
 
 def test_production_deadline_kills_real_work_and_the_service_recovers(profiles):
-    svc = ProcessingService(deadline_s=0.01)                               # far shorter than any real preparation
+    svc = ProcessingService(deadline_s=0.01, worker_args=("EXTRACTION",))  # far shorter than any real preparation
     svc.start()
     try:
         old = svc.child_pid

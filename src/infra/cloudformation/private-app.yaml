@@ -181,7 +181,7 @@ Resources:
       VPCZoneIdentifier: [!Ref AppSubnetAId, !Ref AppSubnetBId]
       TargetGroupARNs: [!Ref IngressTargetGroupArn]
       HealthCheckType: ELB
-      HealthCheckGracePeriod: 420
+      HealthCheckGracePeriod: 900
       LaunchTemplate:
         LaunchTemplateId: !Ref AppLaunchTemplate
         Version: !GetAtt AppLaunchTemplate.LatestVersionNumber

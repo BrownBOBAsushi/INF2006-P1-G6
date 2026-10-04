@@ -36,3 +36,15 @@
 
 - No browser end-to-end run, no Google sign-in, no load test, no cloud call.
 - The pipeline suite was not re-run after any fix; the 4 failures remain open.
+
+## Addendum — stale pipeline tests fixed (2026-10-03, later run)
+
+The four failures above were test drift, not production defects. Changes: `tests/pipeline/test_processing_slot.py` now
+builds one production `ProcessingService` per pool (`worker_args=("EXTRACTION",)` for `prepare`, `("EMBEDDING",)` for
+`embed`) and the old `save` test became `test_production_embed_reproduces_in_process_embeddings_and_rejects_invalid_content`;
+`tests/load/harness_app.py` passes `worker_args=("EXTRACTION",)`. The old test's privacy-change flag (`review_required`) is
+no longer a worker responsibility after the split (it is checked in the API save path, `src/backend/app/api/resume.py`) and
+is therefore not asserted in the worker test.
+
+Command: `cd src/backend && HF_HUB_OFFLINE=1 .venv/bin/python -m pytest ../../tests/pipeline -q`
+Result: **220 passed, 9 subtests passed** (130 s); `test_processing_slot.py` alone: 22 passed.

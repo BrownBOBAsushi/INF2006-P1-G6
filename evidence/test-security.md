@@ -65,6 +65,40 @@ network/data access, validation against a named threat) and Section 5.2 test (2)
 - **Artefacts:** `cloud-capture-2026-10-03/02-ingress.txt`, `03-compute.txt`, `04-security-groups.txt`, `05-data-stores.txt`.
 - **Result:** PASS.
 
+## Test S4 — live cross-user ownership, session and CSRF checks (T1, T2, ownership), local stack
+
+- **Objective:** Show over real HTTP that user A cannot read, cancel or delete user B's résumé, task or save operation, and that
+  unsafe requests are refused without a valid CSRF token and Origin.
+- **Setup:** Local docker compose stack, nginx `http://localhost:8080`, dev cookie `session`. The script seeds two synthetic
+  users with sessions, a résumé, an extraction task and a save operation for B, then deletes all synthetic rows.
+- **Command:** `python3 tests/security/live_security_check.py --out evidence/test-security-live-local-2026-10-03.md`
+- **Expected:** 401 without/with forged/expired session; 404 for B's resources when requested by A; DB state of B unchanged;
+  403 `CSRF_INVALID` for missing/wrong/other-user CSRF token and missing/foreign Origin; owner controls return 200.
+- **Actual:** 29/29 checks passed; B's task stayed `PENDING`, B's résumé and revision were unchanged. Full table:
+  [test-security-live-local-2026-10-03.md](test-security-live-local-2026-10-03.md).
+- **Limits:** local development stack (not the AWS deployment); sessions seeded in the database rather than via Google sign-in;
+  cookie attributes (`__Host-`, Secure) and TLS are not exercised here.
+
+## Test S5 — ownership, session and CSRF against the deployed site with two real accounts (T1, T2, ownership)
+
+- **Objective:** Repeat the S4 checks on the deployed stack using two real signed-in test accounts (A and B), including the
+  production `__Host-session` cookie.
+- **Setup:** Deployed public API endpoint (redacted), two different Google accounts signed in; cookies supplied through
+  environment variables, never printed or stored. B had a saved résumé (revision 4). The script has B upload a synthetic fixture PDF (`tests/fixtures/pdf/resume_P01.pdf`, not saved) to create a real task, and discards it afterwards.
+- **Command:** `SITE_URL=<api-url> SITE_ORIGIN=<api-url> COOKIE_A=... COOKIE_B=... python3 tests/security/live_site_check.py`
+  (operator-run, non-destructive: delete probes use a wrong revision, CSRF probes are rejected before any change).
+- **Expected:** 401 without or with a forged cookie; 404 for unknown or other-owner task and operation ids; 409 (not a delete)
+  for a wrong-revision delete; 403 `CSRF_INVALID` for missing, wrong and other-user CSRF tokens and for missing or foreign Origin;
+  B's data unchanged.
+- **Actual (2026-10-03 17:02 UTC):** 26 of 26 checks passed: A got 404 for both GET and DELETE on B's real task id, B still saw its own task (200) afterwards, B discarded it, and B's résumé revision was still 4 after all of A's attempts. (Two earlier runs the same evening, 23/23 and 22/22, skipped the real-task check because B had no active task at that revision; they were superseded and removed.)
+  Full table: [test-security-live-cloud-real-task.md](test-security-live-cloud-real-task.md) (file named for the operator's local date).
+- **Limits:** the operation-id check used a random id (B had no save operation to target); B's saved résumé was never requested by id, and `GET /api/resume` has no id, so A's own 404 shows only that A sees A's state. A single pair of accounts was used, and the run happened on the operator's machine.
+- **Session cookie attributes (browser DevTools, Application → Cookies, both accounts, 2026-10-03 ~16:50 UTC; values not recorded):**
+  name `__Host-session`, Path `/`, host-only (no Domain attribute, domain column is the API host), **HttpOnly ✓, Secure ✓,
+  SameSite `Lax`**, size 57 bytes, expiry about 8 hours after sign-in (2026-10-04 ~00:4x UTC). The `__Host-` prefix requires Secure, Path `/` and no Domain,
+  all of which are satisfied. Source: operator screenshots (not packaged, as they show other cookies on the same browser profile); the script itself does not read attributes.
+- **Result:** PASS within those limits.
+
 ## Secret handling and least privilege (configuration evidence)
 
 - Five runtime secrets are held in Secrets Manager (`06-secrets-and-logs.txt`, names and metadata only; values were

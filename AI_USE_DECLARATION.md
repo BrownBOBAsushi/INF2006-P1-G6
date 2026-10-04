@@ -1,6 +1,6 @@
 # AI use declaration
 
-Status: living declaration, not final submission.
+Status: final submission
 
 ## Architecture review and documentation revision — 2026-09-26
 
@@ -13,7 +13,7 @@ historical-status notes, and this declaration. Finding dispositions are in
 `docs/ARCHITECTURE_REVIEW_RESPONSE.md`. The review and this revision changed
 documentation only; neither implemented application code nor created cloud
 resources. These changes await independent review and cloud verification.
-Synthetic data only is used for coursework cloud evidence.
+Coursework cloud evidence uses synthetic data, with one disclosed exception: one team member also uploaded their own résumé to the deployed service and reviewed the redacted draft, without saving it, and then deleted it. No résumé content is included in the submission.
 
 | Tool | Use so far | Verification / limitation |
 |---|---|---|
@@ -89,7 +89,7 @@ result, teammate approval, cloud deployment or human review is claimed.
 
 See [session recovery validation](src/frontend/SESSION_RECOVERY_VALIDATION.md)
 for commands, failures resolved, changed files and remaining integration dependencies.
-No upstream implementation was copied and no real resume/credential data was used.
+No upstream implementation was copied and no real credential data was used; the one real résumé test is disclosed above.
 
 ## Requirements audit, evidence capture and documentation — 2026-10-03
 

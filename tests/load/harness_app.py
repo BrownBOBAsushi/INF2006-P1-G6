@@ -42,7 +42,8 @@ def error_response(exc: ProcessingError) -> JSONResponse:
 
 
 def create_app(service: ProcessingService | None = None) -> FastAPI:
-    svc = service or ProcessingService(deadline_s=float(os.environ.get("HARNESS_DEADLINE_SECONDS", DEADLINE_SECONDS)))
+    svc = service or ProcessingService(deadline_s=float(os.environ.get("HARNESS_DEADLINE_SECONDS", DEADLINE_SECONDS)),
+                                        worker_args=("EXTRACTION",))
 
     @asynccontextmanager
     async def lifespan(_app):

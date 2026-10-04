@@ -63,7 +63,7 @@ refresh.
   journey against a disposable PostgreSQL/pgvector database) and stale-revision/idempotency tests. Frontend 223
   passed, including upload validation (`uploadValidation.test.ts`, 16 tests). PDF edge fixtures (encrypted,
   scanned, 11 pages, not-a-PDF) are rejected by the pipeline tests.
-- **Result:** PASS, except 4 stale pipeline tests diagnosed in that record.
+- **Result:** PASS. Four stale pipeline tests were diagnosed in that record and fixed later the same day; the pipeline suite then passed 220/220 (addendum in that record).
 
 ## Defects and limitations
 

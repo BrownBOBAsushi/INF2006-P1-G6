@@ -166,6 +166,6 @@ and each catalogue requirement with the same pinned MiniLM revision, PostgreSQL/
 `GET /api/matches` ranks jobs by the mean, over each job's required requirements, of that requirement's best
 cosine similarity to any résumé chunk (alternatives combined by max; preferred requirements do not affect rank;
 `src/backend/app/matching/scoring.py`), and shows the closest résumé passage for every requirement. On the deployed stack the operator reported 247 imported listings with 1,588 requirement embeddings and an
-idempotent re-import (`evidence/cloud-acceptance-2026-10-03.md`); the matches page returned 247 ranked results
+idempotent re-import (`evidence/cloud-acceptance-2026-10-03.md`; a later direct row count for the restore test, `evidence/test-resilience.md` R5, showed 1,756 rows in `requirement_embeddings` across all rows in the table, and the 168-row difference was not investigated); the matches page returned 247 ranked results
 ([Observed], `evidence/test-functional.md` F1). Quality on these real listings was not measured: no labels exist for
 them, so the synthetic held-out metrics above are the only quantitative evaluation.

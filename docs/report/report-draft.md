@@ -108,8 +108,7 @@ without managing a public certificate on the browser side.
 **Assumptions and expected workload.** Demonstration scale: tens of students, a catalogue of a few hundred listings
 (247 deployed), and occasional bursts of uploads (planning figure: 50 uploads queued). Browsing and matching are
 cheap database queries; uploads are expensive and are therefore made asynchronous so a burst becomes a queue
-backlog rather than failed requests. All data used in testing is synthetic or public job listings; no real student
-résumés were used.
+backlog rather than failed requests. Test data is synthetic or public job listings, with one disclosed exception: one team member also uploaded their own résumé to the deployed service and reviewed the redacted draft, without saving it, and then deleted it. No résumé content is in the submission package.
 
 ## 4. Implementation, data design and security controls
 
@@ -206,14 +205,14 @@ Four required tests were run, each recorded with objective, steps, expected and 
 | Test | Result | Record |
 |---|---|---|
 | Functional workflow | PASS: full journey on AWS — sign-in, upload, review, save (first save 12.58 s on a cold privacy check; later saves 0.5–0.65 s), 247 ranked matches, search, refresh, offline retry with exactly one revision increment. Validation: 413 for oversized requests and PDFs, 415 for missing file, saved data unchanged. | `evidence/test-functional.md` |
-| Security | PASS: without a session, `/api/me`, `/api/resume`, `/api/matches` and uploads returned 401; cross-site and missing-Origin state changes returned 403 `CSRF_INVALID`; captured configuration shows no public IPs, an internal ALB and database access only from app/worker security groups. 133 backend tests (including CSRF, Google-token and ownership tests) passed. | `evidence/test-security.md` |
+| Security | PASS: without a session, `/api/me`, `/api/resume`, `/api/matches` and uploads returned 401; cross-site and missing-Origin state changes returned 403 `CSRF_INVALID`; captured configuration shows no public IPs, an internal ALB and database access only from app/worker security groups. 133 backend tests (including CSRF, Google-token and ownership tests) passed. A live local check with two synthetic users passed 29/29 (user A could not read, cancel or delete user B's résumé, task or operation; missing, wrong or other-user CSRF tokens and foreign Origins returned 403). The same ownership, session and CSRF checks passed on the deployed site with two real accounts (26/26, including account A's attempts on account B's real extraction task). On the public endpoint, plain HTTP is not served, TLS 1.2/1.3 work and TLS 1.0/1.1 are refused. | `evidence/test-security.md`, `evidence/test-security-live-local-2026-10-03.md`, `evidence/test-security-live-cloud-real-task.md`, `evidence/test-security-tls-2026-10-03.md` |
 | Data/AI | PASS: metrics above, reproduced exactly on a second machine. | `evidence/test-data-ai.md` |
-| Resilience | PASS: two real failures recovered automatically (below); a controlled withdrawal of one load-balancer target kept the service and session available. | `evidence/test-resilience.md` |
+| Resilience | PASS: two real failures and one deliberate instance termination recovered automatically (below); a controlled target withdrawal kept the service available; a point-in-time database restore matched the source. | `evidence/test-resilience.md` |
 
 **Resilience mechanisms and observed results.** The web/API tier runs two instances behind the load balancer, with
 ELB health checks on `/health/ready` (which queries the database) and Auto Scaling keeping two in service. Uploads are
 queued in SQS, so a burst or a worker outage delays work instead of losing it; messages failing five times move to a
-dead-letter queue. On 3 October the Auto Scaling activity history recorded two unplanned events:
+dead-letter queue. On 3 October the Auto Scaling activity history recorded two unplanned events in the morning, and a third in the afternoon that is described after the controlled test:
 
 - *02:42 UTC:* one instance failed the health check shortly after deployment; Auto Scaling terminated it and launched a
   replacement within seconds, with no operator action.
@@ -223,18 +222,32 @@ dead-letter queue. On 3 October the Auto Scaling activity history recorded two u
   service had a full outage during this window — two instances protect against one instance or one zone failing, not
   against both being stopped.
 
+*Controlled test (3 October, 16:04 UTC).* With both targets healthy we terminated one instance and polled the public
+endpoint every 3 s. Two of 290 probes failed (a 502 and a timeout in the first ~10 s, while the load balancer still
+routed to the dying target); every later probe returned 200. Auto Scaling detected the loss in about 45 s and launched a
+replacement, which became healthy after about 9 minutes with no operator action; the service ran on one instance in
+between.
+
+*A defect this found.* After a second Learner Lab restart (about 15:26 UTC) the public endpoint returned HTTP 502 on every path (observed at 15:33 UTC) until the first instance became healthy at about 15:40 UTC, an outage of roughly ten minutes or more that we did not time precisely. Replacements in one zone were then repeatedly terminated before becoming healthy: bootstrap takes about 348 s and the load balancer needs several passing checks, but the health-check grace
+period was 420 s. The service stayed up only on the other zone's instance. We raised the grace period to 900 s on the running group and in the template (the deployed CloudFormation stack has not yet been updated to match), after
+which replacements reached healthy and no further terminations followed.
+
+*Database restore.* We restored the RDS automated backup to a temporary private, encrypted instance (about 9 minutes)
+and compared it with the source from inside the application's network: same 12 tables, the pgvector extension and
+identical row counts. This shows a recent-state restore works; row contents, an application cut-over and recovery from
+older corruption were not tested. The runtime database role cannot read the migration table, as intended.
+
 **Monitoring.** All container logs go to CloudWatch Logs with 30-day retention; Nginx logs omit query strings, cookies
-and headers. A Logs Insights query over 24 hours (`evidence/monitoring.md`) found 2,269 requests: 90% were load-balancer
+and headers. A Logs Insights query over the 24 hours to 07:13 UTC on 3 October (before the afternoon outage described above) (`evidence/monitoring.md`) found 2,269 requests: 90% were load-balancer
 health checks and the rest matched the acceptance session. Every 4xx response was explained by a deliberate test or an
 expected state, and there were no 5xx responses. Five alarms watch in-service instance count, queue message age and
 dead-letter queues.
 
-**Failed tests and improvements.** Four local pipeline tests fail because they still create the processing service
-without the worker type added during the asynchronous redesign; the production code passes it correctly. A stale local
-test image initially broke the backend suite until rebuilt. Not tested: database restore, cloud load testing, alarm
-notifications (no SNS action is configured) and the queue alarms firing. Planned improvements: fix the stale tests, add
-SNS notifications, run a restore drill, put the worker in its own Auto Scaling group scaled on queue age, and add
-security headers.
+**Failed tests and improvements.** Four local pipeline tests had failed because they created the processing service
+without the worker type added during the asynchronous redesign; the production code was correct. We fixed the tests and the
+pipeline suite now passes (220). A stale local test image initially broke the backend suite until rebuilt. Not tested:
+cloud load testing, alarm notifications (no SNS action is configured) and the queue alarms firing. Planned improvements: add SNS notifications, put the worker in its own Auto Scaling group
+scaled on queue age, move the database to Multi-AZ, and add security headers.
 
 ## 7. Cost, sustainability and operational considerations
 
@@ -293,7 +306,7 @@ are a real concern, and a production service would use a licensed feed.
 As a team, the most valuable change was moving from one public server with synchronous, one-at-a-time processing to
 a private, queue-based design, so that uploads queue instead of being refused and no server is directly exposed. The hardest part was
 not building features but producing evidence a marker can verify without our AWS account. With more time we would
-replace the NAT gateways with VPC endpoints, add a database restore drill and gather real labelled data to test whether
+replace the NAT gateways with VPC endpoints, repeat the restore drill with an application cut-over and gather real labelled data to test whether
 semantic matching beats keyword search on real résumés.
 
 ## References
