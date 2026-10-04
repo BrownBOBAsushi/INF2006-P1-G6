@@ -3,6 +3,7 @@
 from pathlib import Path
 import os
 import re
+import sys
 import tempfile
 import unittest
 import subprocess
@@ -343,8 +344,10 @@ class PrivateArchitectureTests(unittest.TestCase):
 
     def test_private_plan_is_offline_and_has_no_apply_boundary(self):
         plan = INFRA / "scripts/plan-private.py"
+        venv_python = ROOT / "src/backend/.venv/bin/python"
+        python = str(venv_python) if venv_python.exists() else sys.executable  # clean checkouts have no venv
         result = subprocess.run(
-            [str(ROOT / "src/backend/.venv/bin/python"), str(plan), "--plan"],
+            [python, str(plan), "--plan"],
             check=True,
             capture_output=True,
             text=True,
@@ -356,7 +359,7 @@ class PrivateArchitectureTests(unittest.TestCase):
         self.assertIn("4. private-app.yaml", result.stdout)
         self.assertIn("No AWS API or credential lookup was performed", result.stdout)
         denied = subprocess.run(
-            [str(ROOT / "src/backend/.venv/bin/python"), str(plan), "--apply"],
+            [python, str(plan), "--apply"],
             capture_output=True,
             text=True,
             env={"PATH": "/usr/bin:/bin"},

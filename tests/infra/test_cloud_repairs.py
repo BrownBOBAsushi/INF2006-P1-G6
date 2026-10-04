@@ -214,6 +214,7 @@ class CloudRepairRegressionTests(unittest.TestCase):
         self.assertIn('"$artifact_dir/build-provenance.json"', script)
         self.assertIn('"$artifact_dir/image-digests.env"', script)
 
+    @unittest.skipUnless((ROOT / ".git").exists(), "needs a git checkout (not present in the submission ZIP)")
     def test_mocked_image_build_writes_one_parseable_digest_record_per_line(self):
         with tempfile.TemporaryDirectory(prefix="inf2006-image-digests-") as temp_dir:
             root = Path(temp_dir)
@@ -278,6 +279,7 @@ exit 0
             for record in records[:3]:
                 self.assertRegex(record, r"^\w+=[^@]+@sha256:" + "0" * 64 + r"$")
 
+    @unittest.skipUnless((ROOT / ".git").exists(), "needs a git checkout (not present in the submission ZIP)")
     def test_buildx_preflight_failure_stops_before_ecr_login_and_cleans_up(self):
         with tempfile.TemporaryDirectory(prefix="inf2006-buildx-preflight-") as temp_dir:
             root = Path(temp_dir)

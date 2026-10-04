@@ -234,6 +234,7 @@ class FoundationTemplateContractTests(unittest.TestCase):
         self.assertIn('image_tag="src-${snapshot_sha:0:20}-${attempt_id}"', script)
         self.assertIn('org.opencontainers.image.source-snapshot-sha256=$snapshot_sha', script)
 
+    @unittest.skipUnless((ROOT / ".git").exists(), "needs a git checkout (not present in the submission ZIP)")
     def test_source_snapshot_contains_dirty_tree_hashes_but_excludes_env_files(self):
         with tempfile.TemporaryDirectory(prefix="inf2006-test-snapshot-") as temp_dir:
             archive_path = Path(temp_dir) / "snapshot.tar.gz"

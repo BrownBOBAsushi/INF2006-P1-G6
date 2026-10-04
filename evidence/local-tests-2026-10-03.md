@@ -48,3 +48,12 @@ is therefore not asserted in the worker test.
 
 Command: `cd src/backend && HF_HUB_OFFLINE=1 .venv/bin/python -m pytest ../../tests/pipeline -q`
 Result: **220 passed, 9 subtests passed** (130 s); `test_processing_slot.py` alone: 22 passed.
+
+## Addendum — infrastructure tests on a clean extraction of the ZIP (2026-10-04)
+
+Running `python3 -m unittest discover -s tests/infra -p 'test_*.py'` on an extracted copy of the submission ZIP (no `.git`, no
+`src/backend/.venv`) initially gave 2 failures and 2 errors out of 63; the same suite passed in the repository. The four tests
+depend on the environment, not on the product: three call `git status` through `create-source-snapshot.py` or the image build
+script, and one runs `plan-private.py` with `src/backend/.venv/bin/python`. Fix: the three git-dependent tests are skipped when
+`.git` is absent (`@unittest.skipUnless`), and the plan test uses the current interpreter when the venv is missing.
+Result: repository **63 OK**; extracted ZIP **63 run, 0 failures, 3 skipped** (they need a git checkout and are not run from the ZIP).
