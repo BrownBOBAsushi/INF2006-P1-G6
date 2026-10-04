@@ -1,0 +1,8 @@
+$ cd src/backend && HF_HUB_OFFLINE=1 .venv/bin/python -m pytest ../../tests/pipeline -q
+2026-10-03T07:20:55Z
+=========================== short test summary info ============================
+FAILED ../../tests/pipeline/test_processing_slot.py::test_production_deadline_kills_real_work_and_the_service_recovers
+ERROR ../../tests/pipeline/test_processing_slot.py::test_production_prepare_in_the_child_equals_in_process_and_propagates_error_codes
+ERROR ../../tests/pipeline/test_processing_slot.py::test_production_save_reproduces_in_process_embeddings_and_flags_privacy_changes
+ERROR ../../tests/pipeline/test_processing_slot.py::test_production_child_startup_time_is_recorded
+1 failed, 216 passed, 2 warnings, 3 errors, 9 subtests passed in 94.71s (0:01:34)

@@ -1,0 +1,18 @@
+$ docker compose -f docker-compose.dev.yml --profile test build backend-tests && docker compose -f docker-compose.dev.yml --profile test run --rm backend-tests
+2026-10-03T07:20:45Z
+time="2026-10-03T15:20:45+08:00" level=warning msg="Found orphan containers (inf2006-p1-g6-web-1, inf2006-p1-g6-embedding-worker-1, inf2006-p1-g6-extraction-worker-1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up."
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade c1a7d3f09b52 -> 6a2fd7b41c90, add durable processing tasks and transactional outbox
+INFO  [alembic.runtime.migration] Running upgrade 6a2fd7b41c90 -> 1f02c7a89d31, add expiring extraction result payloads
+........................................................................ [ 54%]
+.............................................................            [100%]
+=============================== warnings summary ===============================
+../usr/local/lib/python3.11/site-packages/fastapi/testclient.py:1
+../usr/local/lib/python3.11/site-packages/starlette/testclient.py:53
+test_auth.py: 4 warnings
+test_me.py: 2 warnings
+test_me_patch_and_logout.py: 13 warnings
+test_resume.py: 18 warnings
+../usr/local/lib/python3.11/site-packages/_pytest/cacheprovider.py:469
+133 passed, 40 warnings in 1.87s

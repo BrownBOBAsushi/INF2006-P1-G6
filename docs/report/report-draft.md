@@ -207,7 +207,7 @@ Four required tests were run, each recorded with objective, steps, expected and 
 | Functional workflow | PASS: full journey on AWS — sign-in, upload, review, save (first save 12.58 s on a cold privacy check; later saves 0.5–0.65 s), 247 ranked matches, search, refresh, offline retry with exactly one revision increment. Validation: 413 for oversized requests and PDFs, 415 for missing file, saved data unchanged. | `evidence/test-functional.md` |
 | Security | PASS: without a session, `/api/me`, `/api/resume`, `/api/matches` and uploads returned 401; cross-site and missing-Origin state changes returned 403 `CSRF_INVALID`; captured configuration shows no public IPs, an internal ALB and database access only from app/worker security groups. 133 backend tests (including CSRF, Google-token and ownership tests) passed. A live local check with two synthetic users passed 29/29 (user A could not read, cancel or delete user B's résumé, task or operation; missing, wrong or other-user CSRF tokens and foreign Origins returned 403). The same ownership, session and CSRF checks passed on the deployed site with two real accounts (26/26, including account A's attempts on account B's real extraction task). On the public endpoint, plain HTTP is not served, TLS 1.2/1.3 work and TLS 1.0/1.1 are refused. | `evidence/test-security.md`, `evidence/test-security-live-local-2026-10-03.md`, `evidence/test-security-live-cloud-real-task.md`, `evidence/test-security-tls-2026-10-03.md` |
 | Data/AI | PASS: metrics above, reproduced exactly on a second machine. | `evidence/test-data-ai.md` |
-| Resilience | PASS: two real failures and one deliberate instance termination recovered automatically (below); a controlled target withdrawal kept the service available; a point-in-time database restore matched the source. | `evidence/test-resilience.md` |
+| Resilience | PASS: two real failures and one deliberate instance termination recovered automatically (below); a controlled target withdrawal kept the service available; a point-in-time database restore matched the source's table list, extensions and row counts. | `evidence/test-resilience.md` |
 
 **Resilience mechanisms and observed results.** The web/API tier runs two instances behind the load balancer, with
 ELB health checks on `/health/ready` (which queries the database) and Auto Scaling keeping two in service. Uploads are
@@ -302,7 +302,7 @@ is stored and embedded. Recommendations show their evidence and make no claim ab
 were collected from public sources for a coursework demonstration and are not redistributed; scraping terms of service
 are a real concern, and a production service would use a licensed feed.
 
-**Reflection.** *[TEAM INPUT: each member adds 2–4 sentences on what they learned and what they would do differently.]*
+**Reflection.**
 As a team, the most valuable change was moving from one public server with synchronous, one-at-a-time processing to
 a private, queue-based design, so that uploads queue instead of being refused and no server is directly exposed. The hardest part was
 not building features but producing evidence a marker can verify without our AWS account. With more time we would

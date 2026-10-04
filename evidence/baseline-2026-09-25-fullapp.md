@@ -14,7 +14,7 @@ Git commit `a46af8ede2d940b3a50ad4ca5d8a7787879942ca` (branch `dev`). Raw data:
 ## Docker access
 
 `docker ps` succeeded immediately in this session; `docker exec`, `docker stats` and `docker cp`
-all worked with **no permission-denied** on `/Users/desmondchyezhihao/.docker/run/docker.sock`.
+all worked with **no permission-denied** on `~/.docker/run/docker.sock`.
 This differs from the prior Codex session (denied), so no scoped-permission escalation was needed.
 The prior `baseline-2026-09-25-availability.*` and `-resume-attempt.json` records have been
 annotated to reflect that access is now available and the baseline has been run.

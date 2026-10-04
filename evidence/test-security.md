@@ -112,8 +112,9 @@ network/data access, validation against a named threat) and Section 5.2 test (2)
 
 ## Limitations and improvement plan
 
-- No direct authenticated API calls were made with two live accounts to probe object ownership on the cloud
-  stack; ownership is covered by automated tests and by the design (user ID only from the session).
+- Direct two-account ownership checks on the cloud stack (S5, 26/26) used the task, operation and résumé routes; they did
+  not cover every route, and only one pair of accounts was used. Remaining ownership coverage is the automated tests and the
+  design (user ID only from the session).
 - No HSTS or Content-Security-Policy headers; ALB → target TLS is encrypted but the target certificate is not
   validated. Improvement: add security headers in Nginx.
 - No rate limiting on authentication or upload routes beyond the single processing slot and queue.

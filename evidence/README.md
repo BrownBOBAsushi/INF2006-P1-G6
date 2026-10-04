@@ -31,6 +31,5 @@ output from a local machine. Account IDs, resource IDs, IPs, hostnames, cookies 
 | [cloud-foundation-run-2026-09-27.md](cloud-foundation-run-2026-09-27.md) | [Operator-reported] Earlier single-instance foundation deployment (since torn down), including the first alarm/recovery test |
 | `data-ai-eval-*.md/json`, `test-processing-*.md`, `load-*.md/json` | Component-level evaluation and local load measurements |
 | `baseline-2026-09-25-*` | Local end-to-end baselines before cloud deployment |
-| [architecture-local-baseline.svg](architecture-local-baseline.svg) | Earlier local Docker Compose design (historical) |
 
 `baseline-2026-09-25-fullapp/sessions.json` contains local test-session tokens and must not be packaged.

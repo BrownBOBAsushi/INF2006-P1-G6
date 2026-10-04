@@ -71,8 +71,10 @@ Systems Manager, CloudFormation; Google Identity Services.
 
 ## Known limitations
 
-- **Single database instance.** RDS is Single-AZ with 1-day automated backups; there is no standby, and a restore
-  has not been tested. The web/API tier is redundant (2 instances, 2 AZs); the worker is a single instance.
+- **Single database instance.** RDS is Single-AZ with 1-day automated backups; there is no standby. A point-in-time restore
+  was created and compared with the source (table list, pgvector extension, readable-table row counts; see
+  [evidence/test-resilience.md](evidence/test-resilience.md) R5), but row contents, an application cut-over and
+  recovery from older corruption were not tested. The web/API tier is redundant (2 instances, 2 AZs); the worker is a single instance.
 - **Shared lab IAM role.** The Learner Lab forbids custom IAM roles, so all instances use `LabRole`; least privilege
   is enforced through security groups, private subnets and restricted database roles instead.
 - **No alarm notifications.** CloudWatch alarms change state but have no SNS action.
@@ -88,5 +90,4 @@ Systems Manager, CloudFormation; Google Identity Services.
 - Response security headers (HSTS, CSP) are not set; the ALB does not validate the target certificate.
 
 Historical design and handoff documents remain in `docs/` (for example [docs/handoff/](docs/handoff/)); where they
-conflict with the deployed state, the evidence files and this README take precedence. The previous local Compose
-diagram is kept as [evidence/architecture-local-baseline.svg](evidence/architecture-local-baseline.svg).
+conflict with the deployed state, the evidence files and this README take precedence.

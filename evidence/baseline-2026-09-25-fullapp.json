@@ -4,7 +4,7 @@
   "result": "RUN — full-application HTTP baseline measured",
   "git_commit": "a46af8ede2d940b3a50ad4ca5d8a7787879942ca",
   "git_branch": "dev",
-  "docker_access": "GRANTED in this session: `docker ps` and `docker exec/stats` all succeeded with no permission-denied on /Users/desmondchyezhihao/.docker/run/docker.sock. This differs from the prior Codex session, which was denied.",
+  "docker_access": "GRANTED in this session: `docker ps` and `docker exec/stats` all succeeded with no permission-denied on ~/.docker/run/docker.sock. This differs from the prior Codex session, which was denied.",
   "environment": {
     "host_os": "macOS 26.5.2 (build 25F84), arm64",
     "host_logical_cpus": 10,

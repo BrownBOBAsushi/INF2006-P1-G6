@@ -3,7 +3,7 @@ project:
   title: "Internship Matcher"
   problem_statement: "Students struggle to judge which internship listings fit their skills. Internship Matcher lets a student sign in with Google, upload a résumé PDF, review and approve a privacy-redacted extraction, and receive internships ranked by requirement-level semantic similarity with the matching evidence shown for each requirement."
   cloud_provider: "AWS"
-  repository_commit: "755fb8ffdd56de2f9d11f2129ae122851027f6e6"
+  repository_commit: "755fb8ffdd56de2f9d11f2129ae122851027f6e6"  # last code and evidence commit; the package adds one later manifest-only commit (.git is not included in the ZIP)
 team:
   members:
     - name: "Goh Jia Xin"

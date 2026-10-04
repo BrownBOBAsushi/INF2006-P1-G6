@@ -3,7 +3,7 @@
 **Working date:** 2026-10-03
 **Scope:** Project brief Sections 1–10 and Appendix A. Section 11 is non-mandatory suggested planning guidance and is intentionally omitted from this tracker.
 
-**Source:** local `INF2006_Team_Project_Brief_2026.pdf` (Sections 1–10 and Appendix A), in `/Users/desmondchyezhihao/SIT/Y2/T1/INF2006-Cloud Computing/Project/`.
+**Source:** local `INF2006_Team_Project_Brief_2026.pdf` (Sections 1–10 and Appendix A), in `~/SIT/Y2/T1/INF2006-Cloud Computing/Project/`.
 
 **Submission:** `Group_Gxxx_INF2006_Project.zip`, due Sunday 11 October 2026 at 11:59 PM (end of Week 6). The brief does not state a timezone; confirm the LMS timezone before upload. Keep `Gxxx` until the official group ID is confirmed.
 

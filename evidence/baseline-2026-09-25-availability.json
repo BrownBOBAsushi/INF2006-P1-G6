@@ -17,7 +17,7 @@
       "command": "docker info --format {{.ServerVersion}}",
       "exit_code": 1,
       "stdout": "",
-      "stderr": "permission denied while trying to connect to the docker API at unix:///Users/desmondchyezhihao/.docker/run/docker.sock"
+      "stderr": "permission denied while trying to connect to the docker API at unix://~/.docker/run/docker.sock"
     },
     "localhost": {
       "command": "curl -sS -o /dev/null -w %{http_code} %{time_total} http://localhost:8080/",

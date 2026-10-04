@@ -18,3 +18,4 @@ private-data/
 backups/
 cookies.txt
 /graphify-out/
+!evidence/local-tests-2026-10-03/*.log

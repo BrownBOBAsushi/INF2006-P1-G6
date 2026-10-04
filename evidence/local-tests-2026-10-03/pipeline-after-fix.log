@@ -1,0 +1,6 @@
+$ cd src/backend && HF_HUB_OFFLINE=1 .venv/bin/python -m pytest ../../tests/pipeline -q
+2026-10-04T02:04:29Z
+    _PortalFactoryType = Callable[[], AbstractContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+220 passed, 2 warnings, 9 subtests passed in 104.89s (0:01:44)

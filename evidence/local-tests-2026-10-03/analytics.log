@@ -1,0 +1,37 @@
+$ analytics/.venv/bin/python -m pytest tests/analytics -q
+2026-10-03T07:16:40Z
+................                                                         [100%]
+16 passed in 5.30s
+
+$ analytics/.venv/bin/python analytics/evaluate.py --fixtures data/evaluation --out-dir <scratch>
+2026-10-03T07:16:46Z
+- P09 Baseline B: J06(0) J10(0) J25(2) J15(2) J27(1)
+- P09 Baseline B2: J06(0) J10(0) J25(2) J27(1) J11(0)
+- P10 Requirement-level (contract method): J05(2) J02(2) J01(2) J14(1) J30(2)
+- P10 Baseline A: J02(2) J05(2) J03(2) J30(2) J01(2)
+- P10 Baseline B: J03(2) J29(0) J30(2) J02(2) J05(2)
+- P10 Baseline B2: J05(2) J02(2) J03(2) J01(2) J30(2)
+
+## Diagnostics
+
+### `sentence-transformers/all-MiniLM-L6-v2`
+
+- Largest chunk: 108 tokens (limit 240, including heading and special tokens); no chunk or requirement text was truncated (the harness raises otherwise).
+- Chunks per profile: P01=4, P02=4, P03=4, P04=4, P05=4, P06=4, P07=4, P08=6, P09=4, P10=10.
+- Entries that needed sentence/token splitting: 0 profile entries and 0 jobs. If 0, the splitter was not exercised by these fixtures (it is covered by unit tests only).
+- Baseline B2 truncation at the encoder's default 256 tokens: 4/10 whole-resume inputs and 0/30 job inputs exceeded the limit and were truncated (longest job 112 tokens; whole-resume token counts: P01=248, P02=201, P03=289, P04=219, P05=242, P06=297, P07=234, P08=366, P09=221, P10=773).
+- Mean requirement-level job score per profile (length-bias check against chunk count): P01=0.212, P02=0.219, P03=0.194, P04=0.216, P05=0.185, P06=0.218, P07=0.250, P08=0.226, P09=0.237, P10=0.271.
+- Mean requirement_level score by label (development): label 0=0.181 (n=125), label 1=0.267 (n=11), label 2=0.374 (n=14).
+- Mean requirement_level score by label (held_out): label 0=0.212 (n=124), label 1=0.291 (n=9), label 2=0.420 (n=17).
+- Mean pooled_chunk score by label (development): label 0=0.244 (n=125), label 1=0.357 (n=11), label 2=0.502 (n=14).
+- Mean pooled_chunk score by label (held_out): label 0=0.279 (n=124), label 1=0.360 (n=9), label 2=0.523 (n=17).
+
+## Limitations (read before quoting these numbers)
+
+- Fixtures and labels were authored by one AI author; label review by a human team member is pending unless the banner above says otherwise.
+- Job requirements are hand-authored (no extraction errors); only the requirement-level method sees them.
+- 5 profiles per subset. No confidence intervals or significance claims. Scores are internal similarities, not probabilities of suitability.
+- Baseline B2 truncates its inputs by design and is not an equivalent full-context encoder.
+- Synthetic text is cleaner than real resumes; results do not transfer to real data without further evaluation.
+- This report expresses no preference between models; that decision belongs to the team.
+

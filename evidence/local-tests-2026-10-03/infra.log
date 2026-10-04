@@ -1,0 +1,14 @@
+$ python3 -m unittest discover -s tests/infra -p 'test_*.py'
+2026-10-03T07:16:27Z
+......................Creating foundation stack with rollback disabled for diagnosis.
+HTTPS is not ready yet; enabling HTTPS with the existing host script.
+Verified public HTTPS readiness at https://<certificate-hostname>/health/ready. Browser sign-in remains unverified.
+...Existing endpoint is healthy; verifying catalogue contents read-only before declaring resume complete.
+Existing stack has matching DNS, healthy readiness, and a current synthetic catalogue; no activation changes made.
+..SSM activation: Failed
+.CloudFormation: CREATE_FAILED
+...................................
+----------------------------------------------------------------------
+Ran 63 tests in 12.359s
+
+OK

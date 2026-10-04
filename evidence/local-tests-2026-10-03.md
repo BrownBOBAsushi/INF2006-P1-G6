@@ -47,7 +47,9 @@ no longer a worker responsibility after the split (it is checked in the API save
 is therefore not asserted in the worker test.
 
 Command: `cd src/backend && HF_HUB_OFFLINE=1 .venv/bin/python -m pytest ../../tests/pipeline -q`
-Result: **220 passed, 9 subtests passed** (130 s); `test_processing_slot.py` alone: 22 passed.
+Result: **220 passed, 9 subtests passed** (130 s); `test_processing_slot.py` alone: 22 passed. A fresh run after the fix is
+saved as `evidence/local-tests-2026-10-03/pipeline-after-fix.log` (220 passed, 9 subtests, 105 s). `pipeline.log` in the same folder is the
+original run that showed the 4 failures.
 
 ## Addendum — infrastructure tests on a clean extraction of the ZIP (2026-10-04)
 

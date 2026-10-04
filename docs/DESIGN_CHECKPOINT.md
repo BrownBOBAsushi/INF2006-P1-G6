@@ -195,7 +195,7 @@ external application links, trust boundaries and observability. AWS service name
 must follow approved deployment decisions; distinguish proposed from implemented
 components. Include normal data flow and overload behaviour, with local-first
 development and $50 AWS budget reflected in the rationale. Reference image supplied
-at /Users/desmondchyezhihao/Downloads/IMG_1319.HEIC could not be decoded by image
+at ~/Downloads/IMG_1319.HEIC could not be decoded by image
 viewer or sips; its contents have not been inspected. Do not infer its architecture.
 
 ### Approved bounded request processing baseline — 2026-09-11

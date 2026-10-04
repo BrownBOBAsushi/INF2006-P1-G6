@@ -54,7 +54,7 @@ def make_artifact_fixture(directory: Path, client_id: str) -> None:
 
 
 class ArtifactValidationTests(unittest.TestCase):
-    @unittest.skipUnless(Path("/Users/desmondchyezhihao/Documents/inf2006-artifacts/inf2006-f18034f19af1d8781d5b05667e2da64041df0c9706c906e186a96522a20bd968/source-snapshot.tar.gz").is_file(), "saved local deployment artifact is unavailable")
+    @unittest.skipUnless(Path.home().joinpath("Documents/inf2006-artifacts/inf2006-f18034f19af1d8781d5b05667e2da64041df0c9706c906e186a96522a20bd968/source-snapshot.tar.gz").is_file(), "saved local deployment artifact is unavailable")
     def test_default_artifact_is_integrity_checked_without_aws(self):
         config = runner.load_config(ROOT / "src/infra/deploy-foundation.json")
         artifacts = Path(config["artifact_dir"]).expanduser()
